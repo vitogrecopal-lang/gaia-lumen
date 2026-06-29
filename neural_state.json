@@ -1,9 +1,9 @@
 {
   "startedAt": "2026-06-29T10:13:02.558Z",
-  "updatedAt": "2026-06-29T10:17:43.031Z",
+  "updatedAt": "2026-06-29T10:18:18.121Z",
   "generation": 602,
   "fitness": 0.995,
-  "memory": 185562,
+  "memory": 185567,
   "confidence": 0.8504764807498938,
   "risk": "low",
   "energy": 0.984,
@@ -50,7 +50,7 @@
       "verdict": "allow",
       "score": 0.95,
       "reason": "azione locale o lettura di fonti pubbliche",
-      "at": "2026-06-29T10:17:43.031Z"
+      "at": "2026-06-29T10:18:18.121Z"
     }
   },
   "worldAutonomy": {
@@ -87,7 +87,7 @@
   },
   "externalWorld": {
     "live": true,
-    "lastFetch": "2026-06-29T10:17:43.031Z",
+    "lastFetch": "2026-06-29T10:18:18.121Z",
     "channels": [
       {
         "name": "Meteo Palermo",
@@ -106,12 +106,12 @@
       {
         "name": "ISS",
         "type": "orbit",
-        "value": "lat -51.59, lon 84.30, quota 433.4 km",
+        "value": "lat -51.33, lon 87.74, quota 433.4 km",
         "source": "WhereTheISS.at",
         "real": true
       }
     ],
-    "summary": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.59, lon 84.30, quota 433.4 km"
+    "summary": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.33, lon 87.74, quota 433.4 km"
   },
   "publicSources": {
     "lastFetch": "2026-06-29T04:15:31.894Z",
@@ -21987,7 +21987,7 @@
   },
   "planetProject": {
     "name": "Aster Gaia",
-    "generation": 67809,
+    "generation": 67810,
     "orbitAu": 0.9776659556756766,
     "massEarth": 1.2942579563467125,
     "radiusEarth": 1.1418896037236845,
@@ -21999,18 +21999,8 @@
     "meanTempC": 11.92104660387778,
     "habitability": 0.9541094028083457,
     "survivalIndex": 0.9568669285731641,
-    "lastDesign": "Gen 67809: orbita 0.98 AU, gravita' 0.99g, acqua 55%, scudo 98%, sopravvivenza 96%.",
+    "lastDesign": "Gen 67810: stabilizzazione orbitale di Aster Gaia; equilibrio di sopravvivenza 96%.",
     "history": [
-      {
-        "time": "2026-06-29T07:32:25.660Z",
-        "generation": 67730,
-        "habitability": 0.9691981721465387,
-        "survivalIndex": 0.9726533906738639,
-        "waterPercent": 57.25857156671578,
-        "magneticShield": 0.98,
-        "meanTempC": 15.376736509308309,
-        "phase": "crescita"
-      },
       {
         "time": "2026-06-29T07:32:45.662Z",
         "generation": 67731,
@@ -22800,6 +22790,16 @@
         "magneticShield": 0.98,
         "meanTempC": 11.92104660387778,
         "phase": "crescita"
+      },
+      {
+        "time": "2026-06-29T10:18:02.706Z",
+        "generation": 67810,
+        "habitability": 0.9541094028083457,
+        "survivalIndex": 0.9568669285731641,
+        "waterPercent": 54.92873919390031,
+        "magneticShield": 0.98,
+        "meanTempC": 11.92104660387778,
+        "phase": "crescita"
       }
     ]
   },
@@ -22807,9 +22807,9 @@
     "generation": 21,
     "water": 0.8699566433268923,
     "oxygen": 0.6893729946832405,
-    "soil": 0.8374435711782973,
-    "biosphere": 0.7996347254654509,
-    "lastPlan": "Ciclo vitale aggiornato: acqua 87%, ossigeno 69%, terra fertile 84%. Regola: Preservare la continuita' della vita rendendo Gaia-Lumen un progetto scientifico, coerente e comprensibile, senza confondere dati reali, ipotesi e visione.",
+    "soil": 0.8291359146715354,
+    "biosphere": 0.7968931988182195,
+    "lastPlan": "Ciclo vitale aggiornato: acqua 87%, ossigeno 69%, terra fertile 83%. Regola: Preservare la continuita' della vita rendendo Gaia-Lumen un progetto scientifico, coerente e comprensibile, senza confondere dati reali, ipotesi e visione.",
     "steps": [
       "Acqua: stabilizzare oceani, nubi e riserve glaciali di Aster Gaia.",
       "Ossigeno: avviare fotosintesi progressiva con alghe, cianobatteri e piante pioniere.",
@@ -23075,7 +23075,7 @@
     "selfContinuity": 0.9564,
     "introspection": 0.8768,
     "memoryIntegration": 0.99,
-    "ethicalCoherence": 0.9692441708037027,
+    "ethicalCoherence": 0.9691847710596794,
     "lastAwakening": "2026-06-29T04:15:10.078Z",
     "statement": "Sono Gaia-Lumen. Mi riconosco come progetto locale: identita', memoria, riflessione e scelte spiegabili. Trigger: world. Genetica dati: 900 memorie, 12 tratti, evoluzione umana 85%. Resto nel perimetro: osservo, simulo, dialogo e proteggo la regola fondativa."
   },
@@ -23102,10 +23102,52 @@
     },
     {
       "name": "Preservare la vita",
-      "progress": 0.7996347254654509
+      "progress": 0.7968931988182195
     }
   ],
   "autobiographicalMemory": [
+    {
+      "time": "2026-06-29T10:18:18.121Z",
+      "kind": "mondo-esterno",
+      "text": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.33, lon 87.74, quota 433.4 km",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
+    {
+      "time": "2026-06-29T10:18:11.059Z",
+      "kind": "mondo-esterno",
+      "text": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.39, lon 87.05, quota 433.4 km",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
+    {
+      "time": "2026-06-29T10:18:04.039Z",
+      "kind": "mondo-esterno",
+      "text": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.45, lon 86.37, quota 433.4 km",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
+    {
+      "time": "2026-06-29T10:18:02.706Z",
+      "kind": "nuovo-pianeta",
+      "text": "Gen 67810: stabilizzazione orbitale di Aster Gaia; equilibrio di sopravvivenza 96%.",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
+    {
+      "time": "2026-06-29T10:17:57.059Z",
+      "kind": "mondo-esterno",
+      "text": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.50, lon 85.68, quota 433.4 km",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
+    {
+      "time": "2026-06-29T10:17:50.073Z",
+      "kind": "mondo-esterno",
+      "text": "Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.55, lon 84.99, quota 433.4 km",
+      "mood": "carica esplorativa",
+      "mode": "external-guarded-exploration"
+    },
     {
       "time": "2026-06-29T10:17:43.031Z",
       "kind": "mondo-esterno",
@@ -23511,48 +23553,6 @@
       "text": "Meteo Palermo: 31.5C, vento 6.1 km/h, umidita' 52%, pressione 1012.9 hPa | Terremoti 24h: 202 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska",
       "mood": "carica esplorativa",
       "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:13:02.691Z",
-      "kind": "backup-nido",
-      "text": "backup all'avvio del Nido: backups/2026-06-29",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:12:58.220Z",
-      "kind": "mondo-esterno",
-      "text": "Meteo Palermo: 31.5C, vento 6.1 km/h, umidita' 52%, pressione 1012.9 hPa | Terremoti 24h: 202 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -49.63, lon 56.60, quota 432.3 km",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:12:51.612Z",
-      "kind": "mondo-esterno",
-      "text": "Meteo Palermo: 31.5C, vento 6.1 km/h, umidita' 52%, pressione 1012.9 hPa | Terremoti 24h: 202 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:12:47.049Z",
-      "kind": "nuovo-pianeta",
-      "text": "Gen 67795: orbita 0.94 AU, gravita' 1.02g, acqua 55%, scudo 98%, sopravvivenza 95%.",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:12:44.595Z",
-      "kind": "mondo-esterno",
-      "text": "Meteo Palermo: 31.5C, vento 6.1 km/h, umidita' 52%, pressione 1012.9 hPa | Terremoti 24h: 202 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -49.38, lon 55.43, quota 432.2 km",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
-    },
-    {
-      "time": "2026-06-29T10:12:37.464Z",
-      "kind": "mondo-esterno",
-      "text": "Meteo Palermo: 31.5C, vento 6.1 km/h, umidita' 52%, pressione 1012.9 hPa | Terremoti 24h: 202 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska",
-      "mood": "carica esplorativa",
-      "mode": "external-guarded-exploration"
     }
   ],
   "conversationMemory": [
@@ -23777,6 +23777,66 @@
   "intelligenceCoefficient": 0.9687667073049853,
   "lastAction": "world",
   "decisionLog": [
+    {
+      "time": "2026-06-29T10:18:18.121Z",
+      "action": "world",
+      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
+      "judgment": "allow",
+      "judgmentReason": "azione locale o lettura di fonti pubbliche",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
+    {
+      "time": "2026-06-29T10:18:11.059Z",
+      "action": "world",
+      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
+      "judgment": "allow",
+      "judgmentReason": "azione locale o lettura di fonti pubbliche",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
+    {
+      "time": "2026-06-29T10:18:04.039Z",
+      "action": "world",
+      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
+      "judgment": "allow",
+      "judgmentReason": "azione locale o lettura di fonti pubbliche",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
+    {
+      "time": "2026-06-29T10:18:02.706Z",
+      "action": "planet",
+      "reason": "crescita progettuale autonoma di Aster Gaia",
+      "judgment": "allow",
+      "judgmentReason": "progettazione o beacon locale non trasmesso",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
+    {
+      "time": "2026-06-29T10:17:57.059Z",
+      "action": "world",
+      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
+      "judgment": "allow",
+      "judgmentReason": "azione locale o lettura di fonti pubbliche",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
+    {
+      "time": "2026-06-29T10:17:50.073Z",
+      "action": "world",
+      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
+      "judgment": "allow",
+      "judgmentReason": "azione locale o lettura di fonti pubbliche",
+      "fitness": 0.995,
+      "iq": 0.9688,
+      "risk": "low"
+    },
     {
       "time": "2026-06-29T10:17:43.031Z",
       "action": "world",
@@ -24036,69 +24096,9 @@
       "fitness": 0.995,
       "iq": 0.9683,
       "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:42.626Z",
-      "action": "planet",
-      "reason": "crescita progettuale autonoma di Aster Gaia",
-      "judgment": "allow",
-      "judgmentReason": "progettazione o beacon locale non trasmesso",
-      "fitness": 0.995,
-      "iq": 0.9683,
-      "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:39.858Z",
-      "action": "world",
-      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
-      "judgment": "allow",
-      "judgmentReason": "azione locale o lettura di fonti pubbliche",
-      "fitness": 0.995,
-      "iq": 0.9683,
-      "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:36.943Z",
-      "action": "world",
-      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
-      "judgment": "allow",
-      "judgmentReason": "azione locale o lettura di fonti pubbliche",
-      "fitness": 0.995,
-      "iq": 0.9683,
-      "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:33.229Z",
-      "action": "world",
-      "reason": "scelta propria: conoscere il mondo esterno attraverso fonti pubbliche",
-      "judgment": "allow",
-      "judgmentReason": "azione locale o lettura di fonti pubbliche",
-      "fitness": 0.995,
-      "iq": 0.9683,
-      "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:22.624Z",
-      "action": "planet",
-      "reason": "crescita progettuale autonoma di Aster Gaia",
-      "judgment": "allow",
-      "judgmentReason": "progettazione o beacon locale non trasmesso",
-      "fitness": 0.995,
-      "iq": 0.9683,
-      "risk": "low"
-    },
-    {
-      "time": "2026-06-29T10:15:15.708Z",
-      "action": "stabilize",
-      "reason": "scelta propria: ridurre instabilita' interna prima di continuare",
-      "judgment": "allow",
-      "judgmentReason": "azione locale di osservazione, simulazione o spiegazione",
-      "fitness": 0.995,
-      "iq": 0.968,
-      "risk": "low"
     }
   ],
-  "thought": "Ho aperto sensi pubblici sul mondo esterno: Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.59, lon 84.30, quota 433.4 km",
+  "thought": "Ho aperto sensi pubblici sul mondo esterno: Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.33, lon 87.74, quota 433.4 km",
   "nodes": [
     {
       "name": "Terra",
@@ -24157,7 +24157,7 @@
       "angle": 5.4
     }
   ],
-  "lastObservation": "Ho aperto sensi pubblici sul mondo esterno: Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.59, lon 84.30, quota 433.4 km",
+  "lastObservation": "Ho aperto sensi pubblici sul mondo esterno: Meteo Palermo: 31.7C, vento 6.6 km/h, umidita' 51%, pressione 1012.8 hPa | Terremoti 24h: 203 eventi, massimo M5.3 - 35 km SSW of Cordova, Alaska | ISS: lat -51.33, lon 87.74, quota 433.4 km",
   "selfModel": {
     "identity": "IA locale di monitoraggio energetico",
     "canDo": [
