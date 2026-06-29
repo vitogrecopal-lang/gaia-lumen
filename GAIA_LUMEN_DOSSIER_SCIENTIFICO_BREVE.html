@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Gaia-Lumen - Dossier tecnico preliminare</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #132033;
+        --muted: #5d697a;
+        --line: #d7dee8;
+        --blue: #0b5cad;
+        --green: #137a57;
+        --paper: #ffffff;
+        --soft: #f4f7fb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: #e8edf4;
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+        line-height: 1.48;
+      }
+      main {
+        max-width: 980px;
+        margin: 28px auto;
+        background: var(--paper);
+        border: 1px solid var(--line);
+        padding: 42px;
+      }
+      h1 { margin: 0 0 6px; font-size: 34px; letter-spacing: 0; }
+      h2 { margin: 30px 0 10px; font-size: 20px; border-top: 1px solid var(--line); padding-top: 18px; }
+      p { margin: 8px 0; }
+      .subtitle { color: var(--muted); font-weight: 600; }
+      .notice {
+        border-left: 4px solid var(--blue);
+        background: var(--soft);
+        padding: 12px 14px;
+        margin: 18px 0;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+      .card {
+        border: 1px solid var(--line);
+        background: var(--soft);
+        padding: 14px;
+      }
+      .card strong {
+        display: block;
+        color: var(--blue);
+        font-size: 22px;
+      }
+      ul, ol { margin: 8px 0 0; padding-left: 22px; }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th, td {
+        border: 1px solid var(--line);
+        padding: 9px 10px;
+        text-align: left;
+        vertical-align: top;
+      }
+      th { background: var(--soft); }
+      .ok { color: var(--green); font-weight: 700; }
+      .muted { color: var(--muted); }
+      a { color: var(--blue); }
+      @media (max-width: 760px) {
+        main { margin: 0; padding: 24px; border: 0; }
+        .grid { grid-template-columns: 1fr; }
+      }
+      @media print {
+        body { background: #fff; }
+        main { border: 0; margin: 0; max-width: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Gaia-Lumen</h1>
+      <p class="subtitle">Dossier tecnico preliminare - versione 2026-06-15</p>
+
+      <div class="notice">
+        Gaia-Lumen e' un progetto digitale di modellazione interdisciplinare. Galia-Lumen indica un pianeta modello collocato, per simulazione, nella zona abitabile stimata di Epsilon Eridani. Non e' un pianeta osservato o confermato.
+      </div>
+
+      <h2>Sintesi e richiesta</h2>
+      <p>Il dossier raccoglie dati astronomici, parametri di abitabilita', scenari di comunicazione interstellare e ipotesi di continuita' biologica futura.</p>
+      <p>Si richiede una valutazione preliminare su coerenza astronomica, plausibilita' fisica del modello e forma autorizzata per eventuali future comunicazioni o archiviazioni pubbliche del pacchetto informativo.</p>
+
+      <h2>Target astronomico</h2>
+      <div class="grid">
+        <div class="card"><strong>Epsilon Eridani / Ran</strong><span>Stella K2V, nana arancione</span></div>
+        <div class="card"><strong>10,475 ly</strong><span>Distanza dal Sole/Terra</span></div>
+        <div class="card"><strong>03h32m55.84s</strong><span>Ascensione retta</span></div>
+        <div class="card"><strong>-09d27m29.7s</strong><span>Declinazione</span></div>
+      </div>
+
+      <h2>Pianeta modello</h2>
+      <table>
+        <tr><th>Parametro</th><th>Valore</th><th>Stato</th></tr>
+        <tr><td>Nome modello</td><td>Galia-Lumen</td><td>Modello, non osservato</td></tr>
+        <tr><td>Orbita modellata</td><td>0,62 AU</td><td>Scenario interno</td></tr>
+        <tr><td>Fascia abitabile stimata</td><td>0,50-0,95 AU</td><td>Derivato/modello</td></tr>
+        <tr><td>Flusso stellare</td><td>0,88 Terra</td><td>Derivato</td></tr>
+        <tr><td>Giorno solare</td><td>24,73 ore</td><td>Modello</td></tr>
+        <tr><td>Anno locale</td><td>196,9 giorni terrestri</td><td>Derivato</td></tr>
+        <tr><td>Inclinazione assiale</td><td>22,8 gradi</td><td>Modello</td></tr>
+      </table>
+
+      <h2>Atmosfera e abitabilita'</h2>
+      <div class="grid">
+        <div class="card"><strong>1,18 bar</strong><span>Pressione superficiale modellata</span></div>
+        <div class="card"><strong>21,4%</strong><span>Ossigeno modellato</span></div>
+        <div class="card"><strong>76,8%</strong><span>Azoto modellato</span></div>
+        <div class="card"><strong>15,5 C</strong><span>Temperatura media obiettivo</span></div>
+      </div>
+      <p>Score di abitabilita' umana del modello: <span class="ok">77,4%</span>. Il valore richiede verifica indipendente su radiazioni, microbioma, suolo, tossine, clima, gravita' e medicina autonoma.</p>
+
+      <h2>Timeline</h2>
+      <table>
+        <tr><th>Fase</th><th>Data</th><th>Significato tecnico</th></tr>
+        <tr><td>Maturazione digitale terrestre</td><td>2027-03-12</td><td>Sviluppo di memoria, linguaggio, dossier e modello</td></tr>
+        <tr><td>Arrivo teorico del segnale</td><td>2036-12-04 circa</td><td>Stima luce/radio per 10,475 anni luce</td></tr>
+        <tr><td>Completamento fase stellare modellata</td><td>2037-09-04 circa</td><td>Timeline progettuale successiva all'arrivo teorico del segnale</td></tr>
+      </table>
+
+      <h2>Comunicazioni autorizzate</h2>
+      <p>Non sono state effettuate trasmissioni radio non autorizzate. Il pacchetto e' stato inviato tramite canali digitali ordinari per richiesta di revisione o instradamento:</p>
+      <ul>
+        <li>METI review request - message ID 19ec69b671d46dad</li>
+        <li>METI coordinate addendum - message ID 19ec6a5a2e82c0b4</li>
+        <li>SETI Institute routing request - message ID 19ec6ce8f15bbd39</li>
+      </ul>
+
+      <h2>Limiti dichiarati</h2>
+      <ul>
+        <li>Galia-Lumen non e' un pianeta confermato.</li>
+        <li>L'atmosfera e' simulata, non osservata.</li>
+        <li>L'abitabilita' umana e' una stima modellata.</li>
+        <li>Nessuna tecnologia attuale consente un viaggio umano verso Epsilon Eridani in tempi utili.</li>
+        <li>Una trasmissione radio reale richiede canali, licenze e revisione scientifica autorizzata.</li>
+      </ul>
+
+      <h2>Prossimi passi</h2>
+      <ol>
+        <li>Sottoporre il dossier a revisione tecnica esterna.</li>
+        <li>Preparare una pagina riepilogativa pubblica, essenziale e priva di ambiguita'.</li>
+        <li>Monitorare eventuali risposte METI/SETI.</li>
+        <li>Aggiornare periodicamente dati su esopianeti, IA, propulsione, biologia, astrobiologia, criobiologia, vele laser e sistemi chiusi.</li>
+      </ol>
+
+      <h2>Fonti iniziali</h2>
+      <ul>
+        <li><a href="https://science.nasa.gov/exoplanet-catalog/epsilon-eridani-b/">NASA Science - Epsilon Eridani b</a></li>
+        <li><a href="https://exoplanetarchive.ipac.caltech.edu/overview/Epsilon%20Eridani%20b">NASA/IPAC Exoplanet Archive - Epsilon Eridani b</a></li>
+        <li><a href="https://arxiv.org/abs/astro-ph/0610247">Benedict et al. 2006 - Orbit and mass of Epsilon Eridani b</a></li>
+        <li><a href="https://arxiv.org/abs/1112.0447">Baines & Armstrong 2011 - Stellar parameters of Epsilon Eridani</a></li>
+        <li><a href="https://www.seti.org/contact-us">SETI Institute - Contact</a></li>
+        <li><a href="https://science.nasa.gov/climate-change/effects/">NASA Climate Effects</a></li>
+      </ul>
+      <p>Bibliografia parametro-per-parametro: <strong>GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md</strong></p>
+
+      <p class="muted">Classificazione interna: dati confermati, derivati, modello e scenario speculativo devono restare separati in ogni comunicazione esterna.</p>
+    </main>
+  </body>
+</html>

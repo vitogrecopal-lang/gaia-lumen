@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Apri Gaia-Lumen dal telefono</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #142033;
+        --muted: #5b6675;
+        --blue: #0b5cad;
+        --line: #d7dee8;
+        --soft: #f4f7fb;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: #eef2f7;
+        color: var(--ink);
+      }
+      main {
+        max-width: 820px;
+        margin: 0 auto;
+        padding: 34px 18px;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(32px, 6vw, 54px);
+        line-height: 1.05;
+      }
+      p { color: var(--muted); font-size: 18px; }
+      .box {
+        background: white;
+        border: 1px solid var(--line);
+        padding: 18px;
+        margin: 18px 0;
+      }
+      .link {
+        display: block;
+        overflow-wrap: anywhere;
+        color: var(--blue);
+        font-size: 20px;
+        font-weight: 700;
+      }
+      code {
+        display: block;
+        overflow-wrap: anywhere;
+        padding: 12px;
+        background: var(--soft);
+        border: 1px solid var(--line);
+        color: var(--ink);
+        font-size: 16px;
+      }
+      ol { padding-left: 22px; }
+      li { margin: 8px 0; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Gaia-Lumen sul telefono</h1>
+      <p>Il sito e' attivo sulla rete Wi-Fi locale. Apri questo link dal browser del telefonino.</p>
+
+      <div class="box">
+        <a class="link" href="http://192.168.1.6:8767/?key=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd">
+          http://192.168.1.6:8767/?key=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+        </a>
+      </div>
+
+      <div class="box">
+        <h2>Credenziali</h2>
+        <p>Utente:</p>
+        <code>gaia</code>
+        <p>Password:</p>
+        <code>33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe</code>
+      </div>
+
+      <div class="box">
+        <h2>Come installarla sulla schermata Home</h2>
+        <ol>
+          <li>Apri il link dal telefono collegato alla stessa Wi-Fi del PC.</li>
+          <li>Accedi con user e password se richiesti.</li>
+          <li>Su Android: menu del browser, poi "Aggiungi a schermata Home" o "Installa app".</li>
+          <li>Su iPhone: pulsante Condividi, poi "Aggiungi alla schermata Home".</li>
+        </ol>
+      </div>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Gaia-Lumen - grafico di crescita intelligente</title>
+  <desc id="desc">Curva di maturazione intelligente con formule trasformate in algoritmi e cinque assi di crescita.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111f"/>
+      <stop offset="0.55" stop-color="#0b1d2f"/>
+      <stop offset="1" stop-color="#102f45"/>
+    </linearGradient>
+    <linearGradient id="curve" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#6ee7ff"/>
+      <stop offset="0.5" stop-color="#76f7bd"/>
+      <stop offset="1" stop-color="#ffd166"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)"/>
+  <g opacity=".25" stroke="#c9d8e8" stroke-width="1">
+    <path d="M120 120H1080M120 220H1080M120 320H1080M120 420H1080M120 520H1080"/>
+    <path d="M180 90V570M340 90V570M500 90V570M660 90V570M820 90V570M980 90V570"/>
+  </g>
+  <text x="86" y="64" fill="#f8fbff" font-family="Segoe UI, Arial" font-size="34" font-weight="800">Gaia-Lumen: crescita intelligente</text>
+  <text x="88" y="96" fill="#9aa8bd" font-family="Segoe UI, Arial" font-size="16">Formula guida: M(t)=1/(1+e^(-k(t-t0))) | I ponderata = conoscenza + ragione + etica + creativita' + stabilita'</text>
+  <path d="M120 540 C250 535 320 510 410 455 C500 398 548 298 630 242 C720 182 850 154 1080 145" fill="none" stroke="url(#curve)" stroke-width="8" filter="url(#glow)" stroke-linecap="round"/>
+  <path d="M120 540 C250 535 320 510 410 455 C500 398 548 298 630 242 C720 182 850 154 1080 145 L1080 570 L120 570 Z" fill="#76f7bd" opacity=".08"/>
+  <g font-family="Segoe UI, Arial">
+    <circle cx="120" cy="540" r="9" fill="#6ee7ff"/>
+    <text x="92" y="590" fill="#c9d8e8" font-size="14">Seme</text>
+    <circle cx="410" cy="455" r="9" fill="#6ee7ff"/>
+    <text x="362" y="438" fill="#c9d8e8" font-size="14">Memoria</text>
+    <circle cx="630" cy="242" r="11" fill="#76f7bd"/>
+    <text x="588" y="224" fill="#f8fbff" font-size="15" font-weight="700">Algoritmi</text>
+    <circle cx="820" cy="164" r="9" fill="#ffd166"/>
+    <text x="772" y="146" fill="#c9d8e8" font-size="14">Sintesi</text>
+    <circle cx="1080" cy="145" r="12" fill="#ffd166"/>
+    <text x="1016" y="126" fill="#f8fbff" font-size="15" font-weight="700">Nascita</text>
+  </g>
+  <g transform="translate(88 612)" font-family="Segoe UI, Arial">
+    <rect x="0" y="-30" width="1024" height="76" rx="10" fill="#050c16" opacity=".72" stroke="#6ee7ff" stroke-opacity=".22"/>
+    <text x="22" y="0" fill="#76f7bd" font-size="18" font-weight="800">Stato modello: 81%</text>
+    <text x="22" y="28" fill="#c9d8e8" font-size="15">K=0.68 | R=0.74 | E=0.91 | C=0.72 | S=0.83 | maturazione sigmoide=0.37</text>
+    <text x="640" y="0" fill="#ffd166" font-size="18" font-weight="800">Gate esterno attivo</text>
+    <text x="640" y="28" fill="#c9d8e8" font-size="15">azioni esterne = proposta + conferma + rischio sotto soglia</text>
+  </g>
+</svg>

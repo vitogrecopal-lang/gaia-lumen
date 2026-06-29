@@ -1,0 +1,12 @@
+{
+  "time": "2026-06-13T00:00:00.000Z",
+  "source": "manuale",
+  "temperatureC": null,
+  "humidityPercent": null,
+  "pressureHpa": null,
+  "lightLux": null,
+  "soilMoisturePercent": null,
+  "powerW": null,
+  "energyWhToday": null,
+  "note": "lettura fisica del Nido Gaia-Lumen"
+}

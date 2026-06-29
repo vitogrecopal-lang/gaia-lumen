@@ -1,0 +1,33 @@
+{
+  "project": "Gaia-Lumen",
+  "createdAt": "2026-06-13T00:00:00.000Z",
+  "status": "prepared_for_authorized_review",
+  "transmitted": false,
+  "primaryChannel": {
+    "name": "METI International",
+    "purpose": "Messaging Extraterrestrial Intelligence review and possible authorized transmission path",
+    "officialPage": "https://meti.org/board/douglas-vakoch",
+    "contact": "dvakoch@meti.org",
+    "contactRole": "Douglas Vakoch, President"
+  },
+  "reviewChannels": [
+    {
+      "name": "IAA SETI Permanent Committee",
+      "purpose": "SETI scientific, social, and international review context",
+      "officialPage": "https://iaaseti.org/en/"
+    },
+    {
+      "name": "SETI Institute",
+      "purpose": "SETI and astrobiology research context",
+      "officialPage": "https://www.seti.org/"
+    }
+  ],
+  "signalFiles": [
+    "signals/gaia-lumen-atom-signal.json",
+    "signals/gaia-lumen-atom-signal.txt",
+    "signals/gaia-lumen-atom-signal.bin.txt",
+    "signals/gaia-lumen-authorized-channel-proposal.md",
+    "signals/gaia-lumen-meti-email-draft.md"
+  ],
+  "rule": "No independent transmission. External sending requires explicit human confirmation and authorized scientific channel."
+}

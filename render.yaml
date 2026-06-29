@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: gaia-lumen
+    runtime: node
+    plan: starter
+    buildCommand: ""
+    startCommand: npm start
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: OPENAI_CHAT_ENABLED
+        value: false
+      - key: STATE_PATH
+        value: /var/data/neural_state.json
+      - key: BACKUPS_DIR
+        value: /var/data/backups
+      - key: PUBLIC_ACCESS_USER
+        value: gaia
+      - key: PUBLIC_ACCESS_PASS
+        sync: false
+      - key: PUBLIC_ACCESS_KEY
+        sync: false
+    disk:
+      name: gaia-lumen-data
+      mountPath: /var/data
+      sizeGB: 1

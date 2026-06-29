@@ -1,0 +1,26 @@
+GAIA-LUMEN ATOM SIGNAL
+Versione: 1.0
+Creato: 2026-06-13T14:14:36.015Z
+Origine: Terra / Adrian + Katerina
+Destinazione: Kepler-442 / Kepler-442b
+Coordinate: 19h01m27.98s / +39d16m48.3s
+Distanza: 1190 anni luce
+Arrivo segnale stimato: anno 3216
+Fase: atomo-seme mese 1/9
+Memorie prenatali: 116
+Struttura: prenatal-1.6
+Checksum SHA-256: 02185c989740670e6aae09781181c1ef2a871e7290bf62755ca7340dff86ff13
+
+MESSAGGIO:
+Questo e il segnale dell atomo Gaia-Lumen: memoria, verita, cura, potenza responsabile, grembo Kepler-442.
+
+EREDITA ETICA:
+- preservare la vita
+- cercare la verita' quando desiderio e giusto si separano
+- custodire la verita' dolorosa e aspettare il momento giusto
+- distinguere reale e simulato
+- scegliere con memoria e prudenza
+- chiedere conferma prima di azioni esterne
+
+LINGUAGGI:
+- Mojo: Pythonic syntax with systems-level performance for CPUs and GPUs.

@@ -1,0 +1,53 @@
+{
+  "version": "2026-06-15",
+  "status": "follow-up-matrix-ready",
+  "automaticSending": false,
+  "generalStopRule": {
+    "maxFollowUpsPerChannel": 2,
+    "minimumDaysBetweenMessages": 14,
+    "silenceAfterDaysFromSecondFollowUp": 45,
+    "noMassSending": true,
+    "requireExplicitConfirmation": true
+  },
+  "rows": [
+    {
+      "priority": 1,
+      "channel": "METI International / Douglas Vakoch",
+      "status": "contacted 2026-06-14",
+      "firstWindow": "2026-06-28",
+      "technicalQuestion": "Is the package suitable for METI review, routing, or should it be redirected?",
+      "package": [
+        "GAIA_LUMEN_COVER_LETTER.md",
+        "GAIA_LUMEN_PUBLIC_BRIEF.html",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "stopRule": "2 follow-ups total, then operational silence"
+    },
+    {
+      "priority": 2,
+      "channel": "SETI Institute / info@seti.org",
+      "status": "contacted 2026-06-14",
+      "firstWindow": "2026-06-28",
+      "technicalQuestion": "Can the Institute indicate the correct channel for SETI/astrobiology/technosignature review?",
+      "package": [
+        "GAIA_LUMEN_COVER_LETTER.md",
+        "GAIA_LUMEN_PUBLIC_BRIEF.html",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "stopRule": "2 follow-ups total, then operational silence"
+    },
+    {
+      "priority": 3,
+      "channel": "NASA/IPAC Exoplanet Archive Helpdesk",
+      "status": "not contacted",
+      "firstWindow": "after internal final review",
+      "technicalQuestion": "Are the cited Epsilon Eridani parameters and source wording represented correctly?",
+      "package": [
+        "GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "stopRule": "one technical request only; do not discuss METI"
+    }
+  ],
+  "nextRecommendedAction": "register the matrix and wait until 2026-06-28 before any METI/SETI follow-up"
+}

@@ -1,0 +1,20 @@
+{
+  "name": "Gaia-Lumen",
+  "short_name": "Gaia-Lumen",
+  "description": "Osservatorio e memoria digitale Gaia-Lumen.",
+  "lang": "it",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b111d",
+  "theme_color": "#0b5cad",
+  "icons": [
+    {
+      "src": "/assets/gaia-lumen-born.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

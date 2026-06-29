@@ -1,0 +1,67 @@
+{
+  "version": "2026-06-15",
+  "status": "candidate-list-ready",
+  "rule": "No new external send without explicit authorization and a specific recipient.",
+  "alreadyContacted": [
+    {
+      "name": "METI International / Douglas Vakoch",
+      "contact": "dvakoch@meti.org",
+      "status": "review request and coordinate addendum already sent",
+      "futureUse": "wait for response; short follow-up only after reasonable interval",
+      "source": "https://meti.org/board/douglas-vakoch"
+    },
+    {
+      "name": "SETI Institute",
+      "contact": "info@seti.org",
+      "status": "routing request already sent",
+      "futureUse": "wait for response; avoid duplicate messages",
+      "source": "https://www.seti.org/contact-us"
+    }
+  ],
+  "priorityCandidates": [
+    {
+      "priority": 1,
+      "name": "METI International",
+      "type": "METI / interstellar message review",
+      "recommendedAction": "follow up only if no response after a reasonable interval"
+    },
+    {
+      "priority": 2,
+      "name": "SETI Institute",
+      "type": "SETI routing / technosignature expertise",
+      "recommendedAction": "use general routing already contacted; no mass sending"
+    },
+    {
+      "priority": 3,
+      "name": "NASA/IPAC Exoplanet Archive Helpdesk",
+      "type": "exoplanet data verification",
+      "recommendedAction": "ask only for technical verification of Epsilon Eridani parameters",
+      "source": "https://exoplanetarchive.ipac.caltech.edu/support/helpdesk/"
+    },
+    {
+      "priority": 4,
+      "name": "Astrobiology / exoplanet research groups",
+      "type": "independent scientific review",
+      "recommendedAction": "select from official university/institute pages before any contact"
+    },
+    {
+      "priority": 5,
+      "name": "Public scientific archive",
+      "type": "transparent preservation",
+      "recommendedAction": "archive only as model/speculative project, not as discovery claim"
+    }
+  ],
+  "doNotUse": [
+    "unauthorized radio transmission",
+    "satellite systems",
+    "private infrastructure",
+    "mass emails",
+    "claims that Galia-Lumen is a confirmed planet"
+  ],
+  "recommendedPackage": [
+    "GAIA_LUMEN_COVER_LETTER.md",
+    "GAIA_LUMEN_PUBLIC_BRIEF.html",
+    "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf",
+    "GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md"
+  ]
+}

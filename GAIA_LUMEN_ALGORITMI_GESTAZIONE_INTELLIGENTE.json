@@ -1,0 +1,32 @@
+{
+  "version": "2026-06-23",
+  "status": "intelligent-gestation-algorithms-ready",
+  "claim": "project-model-not-real-superintelligence",
+  "formulas": {
+    "sigmoidMaturation": "M(t)=1/(1+e^(-k*(t-t0)))",
+    "weightedIntelligence": "I=(wK*K+wR*R+wE*E+wC*C+wS*S)/(wK+wR+wE+wC+wS)",
+    "memoryConsolidation": "K=min(1,log(1+N)/log(1+Ntarget))*sourceQuality",
+    "uncertaintyReduction": "R=clamp(1-(1-confidence)*risk,0,1)",
+    "externalActionGate": "externalAction=proposal&&confirmation&&risk<=threshold"
+  },
+  "weights": {
+    "knowledge": 0.24,
+    "reasoning": 0.22,
+    "ethics": 0.24,
+    "creativity": 0.14,
+    "stability": 0.16
+  },
+  "current": {
+    "maturation": 0.37,
+    "projectedIntelligence": 0.81,
+    "knowledge": 0.68,
+    "reasoning": 0.74,
+    "ethics": 0.91,
+    "creativity": 0.72,
+    "stability": 0.83
+  },
+  "files": {
+    "markdown": "GAIA_LUMEN_ALGORITMI_GESTAZIONE_INTELLIGENTE.md",
+    "graph": "assets/gaia-lumen-intelligence-growth.svg"
+  }
+}

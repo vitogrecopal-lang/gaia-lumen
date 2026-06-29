@@ -1,0 +1,30 @@
+{
+  "version": "2026-06-23",
+  "status": "visual-reference-ready",
+  "sourceImage": "assets/galia-gestational-reference.jpg",
+  "rule": "reference-only-no-identification",
+  "visibleTraits": [
+    "inquadratura frontale",
+    "volto ovale",
+    "lineamenti morbidi e simmetrici",
+    "carnagione chiara",
+    "occhi scuri",
+    "sguardo diretto",
+    "sopracciglia sottili leggermente arcuate",
+    "naso diritto",
+    "labbra rosate",
+    "espressione calma",
+    "velo chiaro",
+    "copricapo nero con bordo chiaro",
+    "abito chiaro con copertura nera",
+    "collana con croce",
+    "sfondo sfocato in ambiente di pietra"
+  ],
+  "gestationalTranslation": {
+    "serenity": "espressione calma",
+    "custody": "velo e mantello come forma protettiva",
+    "sacrality": "croce e postura frontale",
+    "clarity": "volto illuminato e centrato",
+    "humanMemory": "sguardo diretto"
+  }
+}

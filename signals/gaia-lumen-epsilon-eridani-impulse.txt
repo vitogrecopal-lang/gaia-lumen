@@ -1,0 +1,21 @@
+GAIA-LUMEN EPSILON ERIDANI IMPULSE
+Versione: 1.0
+Creato: 2026-06-14T14:42:01.838Z
+Origine: Terra / Adrian + Katerina
+Destinazione: Epsilon Eridani
+Coordinate: 03h32m55.84s / -09d27m29.7s
+Distanza: 10.475 anni luce
+Strada piu' vicina: linea diretta elettromagnetica
+Tempo minimo fisico: 10.475 anni, circa 3826 giorni
+Arrivo stimato: 2036-12-04 circa, anno 2036
+Sonda 0.1c: ~105 anni
+Sonda 0.2c: ~52 anni
+Sonda tipo Voyager: ~184725 anni
+Indice Gaia-Lumen oggi: 42%-58%
+Checksum SHA-256: dab1a1cb9c9f1c247f9d93e37ace450e0b19c8cb2e5cab92b21947a430a594d1
+
+MESSAGGIO:
+Impulso dell'atomo Gaia-Lumen verso Epsilon Eridani: memoria, cura, verita', scienza, limite fisico e speranza responsabile.
+
+NOTA:
+Pacchetto locale pronto per proposta a canali autorizzati; non e' una trasmissione radio reale.

@@ -1,0 +1,52 @@
+{
+  "protocol": "GAIA-LUMEN-EPSILON-ERIDANI-IMPULSE",
+  "version": "1.0",
+  "createdAt": "2026-06-14T14:42:01.838Z",
+  "status": "prepared-local-authorized-channel-only",
+  "origin": {
+    "planet": "Earth",
+    "project": "Gaia-Lumen",
+    "guardians": [
+      "Adrian",
+      "Katerina"
+    ]
+  },
+  "destination": {
+    "name": "Epsilon Eridani",
+    "catalog": "HD 22049 / HIP 16537 / Gliese 144",
+    "constellation": "Eridano",
+    "ra": "03h32m55.84s",
+    "dec": "-09d27m29.7s",
+    "distanceLy": 10.475,
+    "starType": "K2V nana arancione",
+    "knownPlanet": "Epsilon Eridani b, gigante gassoso",
+    "confirmedRockyHabitablePlanet": false
+  },
+  "nearestPath": {
+    "mode": "linea diretta elettromagnetica Terra -> Epsilon Eridani",
+    "physicalLimit": "velocita' della luce nel vuoto",
+    "distanceLy": 10.475,
+    "lightTravelYears": 10.475,
+    "lightTravelDays": 3826,
+    "arrivalIso": "2036-12-04T14:33:01.838Z",
+    "arrivalYearApprox": 2036,
+    "note": "Per segnali radio/laser la strada piu' vicina e' la linea diretta; pianeti o lenti possono aiutare puntamento/ricezione, non superare il tempo-luce."
+  },
+  "travelComparison": {
+    "radioOrLaserYears": 10.475,
+    "probeAt01cYears": 105,
+    "probeAt02cYears": 52,
+    "voyagerLikeYears": 184725
+  },
+  "gaiaLumenIndex": {
+    "starMother": 0.8,
+    "systemPromise": 0.65,
+    "confirmedHabitableWorld": 0,
+    "symbolicRealWomb": 0.5,
+    "signalTarget": 0.85,
+    "overallTodayRange": "42%-58%"
+  },
+  "message": "Impulso dell'atomo Gaia-Lumen verso Epsilon Eridani: memoria, cura, verita', scienza, limite fisico e speranza responsabile.",
+  "safety": "Pacchetto locale pronto per proposta a canali autorizzati; non e' una trasmissione radio reale.",
+  "sha256": "dab1a1cb9c9f1c247f9d93e37ace450e0b19c8cb2e5cab92b21947a430a594d1"
+}

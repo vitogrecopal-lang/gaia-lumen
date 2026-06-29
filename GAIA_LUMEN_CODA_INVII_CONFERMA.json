@@ -1,0 +1,54 @@
+{
+  "version": "2026-06-15",
+  "status": "ready-pending-confirmation",
+  "automaticSending": false,
+  "requiresExplicitConfirmation": true,
+  "items": [
+    {
+      "id": "meti-follow-up-1",
+      "status": "pending-confirmation",
+      "notBefore": "2026-06-28",
+      "recipient": "dvakoch@meti.org",
+      "subject": "Follow-up: Gaia-Lumen preliminary review request",
+      "attachments": [
+        "GAIA_LUMEN_COVER_LETTER.md",
+        "GAIA_LUMEN_PUBLIC_BRIEF.html",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "body": "Dear Dr. Vakoch,\n\nI am following up on the Gaia-Lumen preliminary review request sent on 2026-06-14.\n\nThe project has since been consolidated into a shorter technical package that clearly separates confirmed astronomical data, derived values, model parameters and speculative elements. It does not claim discovery of a new planet and does not request any unauthorized transmission.\n\nCould you advise whether this package is appropriate for METI review, routing, archival guidance or whether there is a more suitable scientific contact?\n\nMain documents:\n\n- GAIA_LUMEN_PUBLIC_BRIEF.html\n- GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf\n- GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md\n\nThank you for any guidance you can provide.\n\nSincerely,\n\nGaia-Lumen Project"
+    },
+    {
+      "id": "seti-follow-up-1",
+      "status": "pending-confirmation",
+      "notBefore": "2026-06-28",
+      "recipient": "info@seti.org",
+      "subject": "Follow-up: Gaia-Lumen preliminary review and routing request",
+      "attachments": [
+        "GAIA_LUMEN_COVER_LETTER.md",
+        "GAIA_LUMEN_PUBLIC_BRIEF.html",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "body": "Dear SETI Institute team,\n\nI am following up on the Gaia-Lumen routing request sent on 2026-06-14.\n\nThe project has been consolidated into a concise technical package that distinguishes confirmed astronomical data, derived values, model parameters and speculative elements. It does not claim discovery of a new planet and does not request any unauthorized transmission.\n\nCould you advise whether there is an appropriate SETI, astrobiology or technosignature-related review channel for this material, or whether it should be redirected elsewhere?\n\nMain documents:\n\n- GAIA_LUMEN_PUBLIC_BRIEF.html\n- GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf\n- GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md\n\nThank you for any guidance you can provide.\n\nSincerely,\n\nGaia-Lumen Project"
+    },
+    {
+      "id": "nasa-ipac-parameter-check-1",
+      "status": "pending-internal-review",
+      "notBefore": "after internal final parameter review",
+      "recipient": "https://exoplanetarchive.ipac.caltech.edu/support/helpdesk/",
+      "subject": "Epsilon Eridani parameter check for a modeling project",
+      "attachments": [
+        "GAIA_LUMEN_BIBLIOGRAFIA_PARAMETRI.md",
+        "GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
+      ],
+      "body": "Dear Exoplanet Archive team,\n\nI am preparing a technical modeling dossier that uses Epsilon Eridani as a reference star. The project does not claim any new planet discovery.\n\nCould you please advise whether the following cited parameters are correctly represented or whether I should adjust the wording/source citation?\n\n- Epsilon Eridani / HD 22049 / HIP 16537 / Gliese 144\n- approximate distance: 10.475 light years\n- stellar type: K2V\n- confirmed planet in the system: Epsilon Eridani b / AEgir\n\nThe only purpose of the request is to avoid misquoting public exoplanet data.\n\nThank you."
+    }
+  ],
+  "stopRule": {
+    "metiMaxFollowUps": 2,
+    "setiMaxFollowUps": 2,
+    "nasaIpacMaxRequests": 1,
+    "noMassSending": true,
+    "noUnauthorizedRadioRequest": true,
+    "noConfirmedPlanetClaim": true
+  }
+}

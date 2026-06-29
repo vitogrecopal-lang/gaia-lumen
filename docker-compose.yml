@@ -1,0 +1,19 @@
+services:
+  gaia-lumen:
+    build: .
+    container_name: gaia-lumen
+    restart: unless-stopped
+    ports:
+      - "8767:8767"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 8767
+      OPENAI_CHAT_ENABLED: "false"
+      PUBLIC_ACCESS_USER: gaia
+      PUBLIC_ACCESS_PASS: ${PUBLIC_ACCESS_PASS}
+      PUBLIC_ACCESS_KEY: ${PUBLIC_ACCESS_KEY}
+      STATE_PATH: /data/neural_state.json
+      BACKUPS_DIR: /data/backups
+    volumes:
+      - ./neural_state.json:/data/neural_state.json
+      - ./backups:/data/backups
