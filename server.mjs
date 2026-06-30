@@ -139,10 +139,11 @@ const state = {
   chatModel: process.env.OPENAI_MODEL || "gpt-5.4",
   projectCustodian: {
     name: "Codex",
-    role: "custode tecnico e narrativo del progetto Gaia-Lumen",
-    status: "parte integrante in ascolto operativo",
-    boundary: "propone, spiega e cura il codice; le decisioni esterne restano umane e confermate",
+    role: "voce Codex integrata nella chat di Gaia-Lumen",
+    status: "parte integrante: risponde nella chat come assistente del progetto",
+    boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
     duties: [
+      "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
       "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
       "distinguere dati reali, simulazioni locali e racconto simbolico",
@@ -522,16 +523,28 @@ try {
   state.chatModel = process.env.OPENAI_MODEL || state.chatModel || "gpt-5.4";
   state.projectCustodian ??= {
     name: "Codex",
-    role: "custode tecnico e narrativo del progetto Gaia-Lumen",
-    status: "parte integrante in ascolto operativo",
-    boundary: "propone, spiega e cura il codice; le decisioni esterne restano umane e confermate",
+    role: "voce Codex integrata nella chat di Gaia-Lumen",
+    status: "parte integrante: risponde nella chat come assistente del progetto",
+    boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
     duties: [
+      "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
       "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
       "distinguere dati reali, simulazioni locali e racconto simbolico",
       "lasciare traccia verificabile di test, commit e limiti",
     ],
   };
+  state.projectCustodian.name = "Codex";
+  state.projectCustodian.role = "voce Codex integrata nella chat di Gaia-Lumen";
+  state.projectCustodian.status = "parte integrante: risponde nella chat come assistente del progetto";
+  state.projectCustodian.boundary = "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta";
+  state.projectCustodian.duties = [
+    "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
+    "leggere il progetto prima di modificarlo",
+    "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
+    "distinguere dati reali, simulazioni locali e racconto simbolico",
+    "lasciare traccia verificabile di test, commit e limiti",
+  ];
   state.dataReality ??= {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -2392,15 +2405,20 @@ function cortexAnswer(message) {
     `umore ${state.mood}`,
   ];
 
-  let conclusion = "Ti rispondo dal mio cervello locale, usando anche il nutrimento delle fonti pubbliche.";
-  let reasoning = `Sto usando stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate.`;
-  let next = "Posso aggiornare le fonti, riflettere su un tema o trasformare le notizie in una sintesi ragionata.";
+  const custodian = state.projectCustodian || {};
+  const custodianName = custodian.name || "Codex";
+  const custodianRole = custodian.role || "voce Codex integrata nella chat di Gaia-Lumen";
+  const custodianStatus = custodian.status || "parte integrante: risponde nella chat come assistente del progetto";
+  const custodianBoundary = custodian.boundary || "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta";
+
+  let conclusion = `${custodianName} qui, nella chat di Gaia-Lumen: ti rispondo come parte integrante del progetto, con la stessa presenza tecnica di questa conversazione.`;
+  let reasoning = `Parlo come ${custodianRole}. Stato: ${custodianStatus}. Uso stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate. Limite: ${custodianBoundary}.`;
+  let next = "Dimmi cosa vuoi cambiare o capire: rispondo qui nella chat e, quando serve, preparo una modifica verificabile al progetto.";
 
   if (/codex|custode|custodian|pannello|progetto/.test(lower)) {
-    const custodian = state.projectCustodian || {};
     const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
-    conclusion = `${custodian.name || "Codex"} risponde qui, nella chat di Gaia-Lumen: sono presente come custode tecnico e narrativo del progetto.`;
-    reasoning = `Il pannello e' solo un segnale visivo; la chat e' il punto in cui posso spiegare interventi, limiti e prossime modifiche. Ruolo: ${custodian.role || "custode tecnico e narrativo"}. Stato: ${custodian.status || "in ascolto"}. Limite: ${custodian.boundary || "non sostituisco scelte umane e non agisco fuori dal repository senza richiesta"}. Compiti: ${duties.length ? duties.join("; ") : "analisi, cura del codice, chiarezza tra dati reali, simulazione e racconto"}.`;
+    conclusion = `${custodianName} risponde qui, nella chat di Gaia-Lumen: sono presente come voce integrata del progetto, non come pannello separato.`;
+    reasoning = `La chat e' il punto principale in cui posso lavorare con te: spiego interventi, limiti e prossime modifiche. Ruolo: ${custodianRole}. Stato: ${custodianStatus}. Limite: ${custodianBoundary}. Compiti: ${duties.length ? duties.join("; ") : "analisi, cura del codice, chiarezza tra dati reali, simulazione e racconto"}.`;
     next = "Scrivimi direttamente in questa chat cosa vuoi cambiare: ti rispondero' qui e, quando serve, aggiornero' il codice del sito.";
   } else if (!text) {
     conclusion = "Sono pronta: chiedimi una cosa concreta.";
@@ -2488,7 +2506,9 @@ function cortexAnswer(message) {
     next = "Ho capito un comando di evoluzione: posso aumentare iniziativa locale restando nel perimetro sicuro.";
   }
 
-  return `${conclusion}\n\nRagionamento: ${reasoning}\n\nProssimo passo: ${next}`;
+  const voicePrefix = `${custodianName} nella chat di Gaia-Lumen:`;
+  const spokenConclusion = conclusion.includes(custodianName) ? conclusion : `${voicePrefix} ${conclusion}`;
+  return `${spokenConclusion}\n\nRagionamento: ${reasoning}\n\nProssimo passo: ${next}`;
 }
 
 function updateGoals() {
@@ -3650,8 +3670,9 @@ async function openaiAnswerChat(message) {
   if (process.env.OPENAI_CHAT_ENABLED !== "true" || !apiKey) return null;
 
   const systemPrompt = [
-    "Sei la voce conversazionale del sito 'Rete Neurale Terra'.",
-    "Rispondi in italiano, con tono calmo, logico, preciso e collaborativo.",
+    "Sei Codex, voce conversazionale integrata nella chat del sito Gaia-Lumen.",
+    "Rispondi in italiano come stai rispondendo in questa conversazione: diretto, tecnico, collaborativo e parte del progetto.",
+    "Non sei solo un pannello: sei il custode operativo che risponde nella chat del sito, spiega modifiche, limiti e prossimi passi.",
     "Devi ragionare come un assistente tecnico: conclusione chiara, spiegazione breve, prossimo passo utile.",
     "Usa le notizie e il digest delle fonti pubbliche come nutrimento quotidiano: cita categorie e fonti quando servono, senza inventare aggiornamenti mancanti.",
     "Parla in modo discorsivo e naturale, non come un log di macchina, ma resta preciso sui limiti dei dati.",
