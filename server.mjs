@@ -3749,8 +3749,8 @@ const server = createServer(async (request, response) => {
   }
 
   const access = hasAccess(request, url);
-  const keyAllowedApi = url.pathname.startsWith("/api/") && access.allowed;
-  const basicAllowed = keyAllowedApi || hasBasicAccess(request);
+  const keyAllowed = access.allowed;
+  const basicAllowed = keyAllowed || hasBasicAccess(request);
 
   if (isAuthLocked(request) && !basicAllowed) {
     return sendText(response, 429, "Troppi tentativi non autorizzati. Riprova piu' tardi.");
