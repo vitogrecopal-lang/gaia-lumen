@@ -26,6 +26,8 @@ const ui = {
   worldLog: $("#worldLog"),
   coreRuleLog: $("#coreRuleLog"),
   projectCustodianLog: $("#projectCustodianLog"),
+  deployLog: $("#deployLog"),
+  missionLog: $("#missionLog"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -1354,6 +1356,26 @@ function refreshUi() {
       ...(duties.length ? duties.map((item) => `- ${item}`) : ["- analizzare il sito", "- proporre miglioramenti", "- mantenere chiari dati reali, simulazione e racconto"]),
     ].join("\n");
   }
+  if (ui.deployLog) {
+    const custodian = state.projectCustodian || {};
+    ui.deployLog.textContent = [
+      `Backend: ${custodian.connectionVersion || "non verificato"}`,
+      `Chat: ${state.chatBrain || "local-cortex"}`,
+      `Modello: ${state.chatModel || "locale"}`,
+      `Service worker: gaia-lumen-static-v9`,
+    ].join("\n");
+  }
+  if (ui.missionLog) {
+    const mission = state.evolutionMission || {};
+    const steps = Array.isArray(mission.steps) ? mission.steps : [];
+    ui.missionLog.textContent = [
+      `${mission.title || "Missione evolutiva"}`,
+      `Stato: ${mission.status || "in preparazione"}`,
+      `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
+      "",
+      ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
+    ].join("\n");
+  }
   if (ui.planetLog) ui.planetLog.textContent = state.planetProject ? [`${state.planetProject.name} gen ${state.planetProject.generation}`, `abitabilita': ${pct(state.planetProject.habitability)}`, `sopravvivenza: ${pct(state.planetProject.survivalIndex)}`, state.planetProject.lastDesign || ""].join("\n") : "Non ancora progettato.";
   drawStellarMapCanvas();
   if (ui.stellarMapLog) {
@@ -1673,6 +1695,16 @@ function seedCustodianChatMessage() {
 }
 
 seedCustodianChatMessage();
+
+if (ui.chatLog) {
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!ui.chatInput) return;
+      ui.chatInput.value = button.dataset.prompt || "";
+      ui.chatInput.focus();
+    });
+  });
+}
 
 if (ui.chatForm) {
   ui.chatForm.addEventListener("submit", async (event) => {

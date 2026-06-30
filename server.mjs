@@ -154,6 +154,18 @@ const state = {
       "lasciare traccia verificabile di test, commit e limiti",
     ],
   },
+  evolutionMission: {
+    title: "Missione evolutiva Codex",
+    status: "attiva",
+    nextAction: "usa la chat per proporre, verificare e confermare il prossimo miglioramento",
+    steps: [
+      { key: "clarity", label: "Separare reale, simulato, narrativo e memoria", status: "active" },
+      { key: "chat", label: "Usare la chat come centro operativo Codex", status: "active" },
+      { key: "memory", label: "Rendere memoria, diario e decisioni leggibili", status: "pending" },
+      { key: "proposals", label: "Trasformare intuizioni in proposte confermabili", status: "pending" },
+      { key: "diagnostics", label: "Verificare deploy, backend e connessione", status: "active" },
+    ],
+  },
   dataReality: {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -554,6 +566,17 @@ try {
     "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
     "distinguere dati reali, simulazioni locali e racconto simbolico",
     "lasciare traccia verificabile di test, commit e limiti",
+  ];
+  state.evolutionMission ??= {};
+  state.evolutionMission.title = "Missione evolutiva Codex";
+  state.evolutionMission.status = "attiva";
+  state.evolutionMission.nextAction = "usa la chat per proporre, verificare e confermare il prossimo miglioramento";
+  state.evolutionMission.steps = [
+    { key: "clarity", label: "Separare reale, simulato, narrativo e memoria", status: "active" },
+    { key: "chat", label: "Usare la chat come centro operativo Codex", status: "active" },
+    { key: "memory", label: "Rendere memoria, diario e decisioni leggibili", status: "pending" },
+    { key: "proposals", label: "Trasformare intuizioni in proposte confermabili", status: "pending" },
+    { key: "diagnostics", label: "Verificare deploy, backend e connessione", status: "active" },
   ];
   state.dataReality ??= {
     liveNoaa: false,
@@ -2441,7 +2464,11 @@ function cortexAnswer(message) {
   let reasoning = `Parlo come ${custodianRole}. Stato: ${custodianStatus}. Uso stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate. Limite: ${custodianBoundary}.`;
   let next = "Dimmi cosa vuoi cambiare o capire: rispondo qui nella chat e, quando serve, preparo una modifica verificabile al progetto.";
 
-  if (/uguale|identic|come te|come codex|stessa chat|stesso modo/.test(lower)) {
+  if (/fai tutto|evolvere|evolvi il sito|evolvi gaia|prossimo miglioramento|miglioramento del sito/.test(lower)) {
+    conclusion = `${custodianName} puo' far evolvere Gaia-Lumen in modo incrementale e verificabile, partendo da chat operativa, badge di realismo, missione evolutiva e diagnostica deploy.`;
+    reasoning = `La missione attiva contiene ${(state.evolutionMission?.steps || []).length} passi: chiarezza dati, chat Codex, memoria leggibile, proposte confermabili e diagnostica. Non eseguo azioni esterne non autorizzate: trasformo le richieste in UI, API locali, test e proposte tracciabili.`;
+    next = "Chiedimi una delle azioni rapide nella chat: controlla connessione, reale o simulato, prossimo miglioramento, oppure evolvi in sicurezza.";
+  } else if (/uguale|identic|come te|come codex|stessa chat|stesso modo/.test(lower)) {
     conclusion = `${custodianName} puo' rispondere nella chat del sito con lo stesso stile operativo di questa conversazione: diretto, tecnico, collaborativo e orientato alle modifiche.`;
     reasoning = `Ho impostato lo stile ${custodian.chatStyle || "codex-direct-project-assistant"}: niente voce mistica obbligatoria, niente log macchina inutili, risposte in italiano con contesto, limiti e azione successiva. Se OPENAI_CHAT_ENABLED=true e OPENAI_API_KEY e' presente, uso anche il prompt Codex del backend; altrimenti il cortex locale imita lo stesso contratto di risposta.`;
     next = "Scrivi nella chat del sito come scrivi qui: richieste, dubbi, modifiche o controlli. Io rispondero' come Codex integrato nel progetto.";
@@ -3797,6 +3824,7 @@ const server = createServer(async (request, response) => {
       time: new Date().toISOString(),
       codexConnectionVersion,
       projectCustodian: state.projectCustodian?.name || null,
+      evolutionMission: state.evolutionMission?.status || null,
     });
   }
 

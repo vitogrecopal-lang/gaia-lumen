@@ -30,10 +30,24 @@
           <span id="connectionLabel">Sistema pronto</span>
         </div>
 
+        <div class="truth-strip" aria-label="Legenda origine dati">
+          <span class="truth-badge real">Reale</span>
+          <span class="truth-badge simulated">Simulato</span>
+          <span class="truth-badge narrative">Narrativo</span>
+          <span class="truth-badge memory">Memoria</span>
+          <span class="truth-badge confirm">Conferma</span>
+        </div>
+
         <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
           <p class="eyebrow">Presenza del progetto</p>
           <h2 id="projectCustodianTitle">Custode del progetto</h2>
           <pre id="projectCustodianLog">Codex in ascolto: analisi, cura del codice e spiegazione dei limiti.</pre>
+        </div>
+
+        <div class="readout evolution-status">
+          <h2>Stato evolutivo</h2>
+          <pre id="deployLog">Connessione e deploy in verifica.</pre>
+          <pre id="missionLog">Missione evolutiva in attesa.</pre>
         </div>
 
         <div class="controls">
@@ -198,6 +212,12 @@
         <div class="readout chatbox">
           <h2>Parla con Gaia-Lumen</h2>
           <div id="chatLog" class="chat-log"></div>
+          <div class="prompt-cards" aria-label="Comandi rapidi Codex">
+            <button type="button" data-prompt="controlla connessione Codex">Controlla connessione</button>
+            <button type="button" data-prompt="spiega cosa e' reale, simulato e narrativo">Reale o simulato?</button>
+            <button type="button" data-prompt="proponi il prossimo miglioramento del sito">Prossimo miglioramento</button>
+            <button type="button" data-prompt="fai evolvere Gaia-Lumen in modo sicuro">Evolvi in sicurezza</button>
+          </div>
           <form id="chatForm" class="chat-form">
             <input id="chatInput" type="text" autocomplete="off" placeholder="Scrivi come in Codex: richieste, codice, controlli..." aria-label="Messaggio per Gaia-Lumen e Codex">
             <button type="submit">Invia</button>
@@ -238,7 +258,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-codex-style-20260630"></script>
+    <script src="app.js?v=gaia-lumen-evolution-20260630"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
