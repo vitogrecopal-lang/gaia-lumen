@@ -1348,6 +1348,7 @@ function refreshUi() {
       `${custodian.name || "Codex"}: ${custodian.role || "custode tecnico e narrativo del progetto"}`,
       `Stato: ${custodian.status || "in ascolto"}`,
       `Limite: ${custodian.boundary || "non sostituisce scelte umane e non agisce fuori dal repository senza richiesta"}`,
+      `Connessione: ${custodian.connectionVersion || "in attesa del backend aggiornato"}`,
       "",
       "Compiti:",
       ...(duties.length ? duties.map((item) => `- ${item}`) : ["- analizzare il sito", "- proporre miglioramenti", "- mantenere chiari dati reali, simulazione e racconto"]),

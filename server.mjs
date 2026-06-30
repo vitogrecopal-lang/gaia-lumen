@@ -37,6 +37,7 @@ const publicAccessKey = process.env.PUBLIC_ACCESS_KEY || "";
 const publicAccessUser = process.env.PUBLIC_ACCESS_USER || "";
 const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
 const accessCookieName = "gaia_access";
+const codexConnectionVersion = "codex-chat-integrated-20260630";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -142,6 +143,7 @@ const state = {
     role: "voce Codex integrata nella chat di Gaia-Lumen",
     status: "parte integrante: risponde nella chat come assistente del progetto",
     boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
+    connectionVersion: codexConnectionVersion,
     duties: [
       "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
@@ -526,6 +528,7 @@ try {
     role: "voce Codex integrata nella chat di Gaia-Lumen",
     status: "parte integrante: risponde nella chat come assistente del progetto",
     boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
+    connectionVersion: codexConnectionVersion,
     duties: [
       "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
@@ -538,6 +541,7 @@ try {
   state.projectCustodian.role = "voce Codex integrata nella chat di Gaia-Lumen";
   state.projectCustodian.status = "parte integrante: risponde nella chat come assistente del progetto";
   state.projectCustodian.boundary = "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta";
+  state.projectCustodian.connectionVersion = codexConnectionVersion;
   state.projectCustodian.duties = [
     "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
     "leggere il progetto prima di modificarlo",
@@ -2415,7 +2419,11 @@ function cortexAnswer(message) {
   let reasoning = `Parlo come ${custodianRole}. Stato: ${custodianStatus}. Uso stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate. Limite: ${custodianBoundary}.`;
   let next = "Dimmi cosa vuoi cambiare o capire: rispondo qui nella chat e, quando serve, preparo una modifica verificabile al progetto.";
 
-  if (/codex|custode|custodian|pannello|progetto/.test(lower)) {
+  if (/collegat|conness|connession|controlla|verifica/.test(lower)) {
+    conclusion = `${custodianName} e' collegato a questa istanza della chat di Gaia-Lumen.`;
+    reasoning = `Questa risposta arriva dal backend del progetto e usa il token di connessione ${custodian.connectionVersion || codexConnectionVersion}. Se la vedi nella chat del sito, il frontend sta chiamando /api/chat e il server sta caricando lo stato projectCustodian. Stato: ${custodianStatus}. Limite: ${custodianBoundary}.`;
+    next = "Per una verifica pratica, scrivi nella chat: 'controlla connessione Codex'. Se rispondo con lo stesso token, la versione deployata e' aggiornata.";
+  } else if (/codex|custode|custodian|pannello|progetto/.test(lower)) {
     const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
     conclusion = `${custodianName} risponde qui, nella chat di Gaia-Lumen: sono presente come voce integrata del progetto, non come pannello separato.`;
     reasoning = `La chat e' il punto principale in cui posso lavorare con te: spiego interventi, limiti e prossime modifiche. Ruolo: ${custodianRole}. Stato: ${custodianStatus}. Limite: ${custodianBoundary}. Compiti: ${duties.length ? duties.join("; ") : "analisi, cura del codice, chiarezza tra dati reali, simulazione e racconto"}.`;
@@ -3762,6 +3770,8 @@ const server = createServer(async (request, response) => {
       ok: true,
       service: "gaia-lumen",
       time: new Date().toISOString(),
+      codexConnectionVersion,
+      projectCustodian: state.projectCustodian?.name || null,
     });
   }
 
