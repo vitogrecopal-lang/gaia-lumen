@@ -45,6 +45,7 @@ const ui = {
   feedbackLog: $("#feedbackLog"),
   proposalList: $("#proposalList"),
   freeModeLog: $("#freeModeLog"),
+  codexStatus: $("#codexStatus"),
   chatLog: $("#chatLog"),
   chatForm: $("#chatForm"),
   chatInput: $("#chatInput"),
@@ -100,6 +101,12 @@ const state = {
   energy: 0.2,
   confidence: 0.9,
   nodes: [],
+  chatBrain: "local-cortex",
+  codexGovernance: {
+    custodian: "Codex",
+    status: "active",
+    cloudEnvironment: "Adrian",
+  },
   cosmogenesis: {
     generation: 0,
     currentIndex: 0,
@@ -1315,6 +1322,14 @@ function refreshUi() {
   if (ui.mode) ui.mode.textContent = state.planetProject?.name || "Aster Gaia";
   if (ui.nodes) ui.nodes.innerHTML = safeList(state.nodes.slice(1), (node) => `<li><span>${node.name}</span><b>${Math.round(Number(node.level || 0) * 100)}%</b></li>`, "");
   if (ui.log) ui.log.textContent = [`Gaia-Lumen osserva Terra e spazio attraverso fonti pubbliche.`, state.lastObservation || state.thought || ""].join("\n");
+  if (ui.codexStatus) {
+    const governance = state.codexGovernance || {};
+    const custodian = governance.custodian || "Codex";
+    const status = governance.status || "active";
+    const cloudEnvironment = governance.cloudEnvironment || "Adrian";
+    const brain = state.chatBrain || "local-cortex";
+    ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Cervello chat: ${brain}`;
+  }
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";

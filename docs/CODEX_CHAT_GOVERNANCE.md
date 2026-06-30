@@ -106,12 +106,12 @@ For any chat change, Codex should check:
 - Does `node --check server.mjs` pass?
 - Does `node --check app.js` pass?
 
-## Suggested next code improvement
+## Implemented Codex status line
 
-Add a small Codex status line to the chat panel, for example:
+The chat panel exposes a compact Codex status line:
 
 - `Custode Codex: attivo`
 - `Ambiente Cloud: Adrian`
 - `Cervello chat: local-cortex` or `openai`
 
-Wire it from `state.chatBrain` and a stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.
+It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

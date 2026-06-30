@@ -45,6 +45,19 @@ const habitatLocation = {
   timezone: "Europe/Rome",
 };
 
+const codexGovernanceDefaults = {
+  custodian: "Codex",
+  status: "active",
+  cloudEnvironment: "Adrian",
+  repository: "vitogrecopal-lang/gaia-lumen",
+  branch: "main",
+  chatOwner: "Codex",
+  operatingGuide: "AGENTS.md",
+  chatGovernanceDoc: "docs/CODEX_CHAT_GOVERNANCE.md",
+  phoneAccess: "ChatGPT mobile -> Codex Cloud -> Adrian",
+  boundary: "Codex gestisce codice, chat e proposte operative; non controlla sistemi reali, segreti o dispositivi esterni.",
+};
+
 const cosmogenesisStartIso = "2026-06-12T00:00:00.000Z";
 const cosmogenesisDueIso = "2027-03-12T00:00:00.000Z";
 const cosmogenesisGestationStages = [
@@ -137,6 +150,7 @@ const state = {
   realismMode: "max-realism",
   chatBrain: process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex",
   chatModel: process.env.OPENAI_MODEL || "gpt-5.4",
+  codexGovernance: { ...codexGovernanceDefaults },
   dataReality: {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -436,6 +450,19 @@ async function ensureStateFile() {
 
 await ensureStateFile();
 
+function syncCodexGovernance() {
+  state.codexGovernance = {
+    ...codexGovernanceDefaults,
+    ...(state.codexGovernance || {}),
+    custodian: "Codex",
+    status: "active",
+    cloudEnvironment: "Adrian",
+    repository: "vitogrecopal-lang/gaia-lumen",
+    branch: "main",
+    chatOwner: "Codex",
+  };
+}
+
 try {
   const saved = JSON.parse(await readFile(statePath, "utf-8"));
   Object.assign(state, saved, {
@@ -508,6 +535,7 @@ try {
   state.realismMode ??= "max-realism";
   state.chatBrain = process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex";
   state.chatModel = process.env.OPENAI_MODEL || state.chatModel || "gpt-5.4";
+  syncCodexGovernance();
   state.dataReality ??= {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -833,6 +861,7 @@ try {
   state.energyDomains ??= [];
 } catch {
 }
+syncCodexGovernance();
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -2275,6 +2304,7 @@ function rememberConversation(user, assistant) {
 function inferUserIntent(text) {
   const lower = text.toLowerCase();
   const scores = {
+    codex: /codex|cloud|adrian|telefono|telefonino|pc spento|computer spento|custode|gestisci|gestire|progetto|repository|github|ambiente|chat/.test(lower) ? 5 : 0,
     status: /stato|rischio|pericolo|satell|noaa|dati|reale|energia/.test(lower) ? 2 : 0,
     build: /costruisci|crea|aggiungi|modifica|rendilo|fammi|implementa/.test(lower) ? 2 : 0,
     autonomy: /autonom|evolv|migliora|potente|intelligenza/.test(lower) ? 2 : 0,
@@ -2300,6 +2330,7 @@ function updateUserModel(text, intent) {
     ["IA autonoma", /ia|intelligenza|autonom|cosc|cervello|evolv/],
     ["monitoraggio", /monitor|controlla|osserva|rischio|dati/],
     ["mondo esterno", /mondo|esterno|terra|meteo|terremot|iss|notizie/],
+    ["governo Codex", /codex|cloud|adrian|repository|github|chat/],
   ];
   for (const [interest, pattern] of candidates) {
     if (pattern.test(lower) && !state.userModel.interests.includes(interest)) {
@@ -2359,6 +2390,7 @@ function cortexAnswer(message) {
     : "Mondo esterno non ancora aggiornato";
   const knowledge = knowledgeBriefForChat();
   const gestationMemoryCount = state.cosmogenesis?.nourishmentCount || 0;
+  const governance = state.codexGovernance || codexGovernanceDefaults;
 
   const facts = [
     `rischio ${state.risk}`,
@@ -2376,6 +2408,17 @@ function cortexAnswer(message) {
     conclusion = "Sono pronta: chiedimi una cosa concreta.";
     reasoning = `Ho memoria degli ultimi scambi e stato operativo: ${facts.join(", ")}.`;
     next = "Esempi: 'che rischio vedi?', 'perche hai scelto quello?', 'cosa dovresti fare adesso?'.";
+  } else if (intent === "codex") {
+    conclusion = "Codex e' integrato come custode operativo di Gaia-Lumen e della sua chat.";
+    reasoning = [
+      `Custode: ${governance.custodian}.`,
+      `Ambiente Cloud: ${governance.cloudEnvironment}.`,
+      `Repository: ${governance.repository}, branch ${governance.branch}.`,
+      `Cervello chat attivo: ${state.chatBrain}.`,
+      `Guida operativa: ${governance.operatingGuide}; regole chat: ${governance.chatGovernanceDoc}.`,
+      "La chat resta utile e sincera: distingue dati reali, simulazioni, memoria simbolica e limiti esterni.",
+    ].join(" ");
+    next = "Dal telefono apri ChatGPT, entra in Codex Cloud, seleziona Adrian e lavora su questo repository anche con il PC spento.";
   } else if (intent === "status") {
     conclusion = `La situazione attuale e' ${state.risk === "low" ? "tranquilla" : "da seguire"}: rischio ${state.risk}.`;
     reasoning = `Ultima osservazione: ${state.lastObservation}. Domini: ${domains}. ${world}. Nutrimento informativo: ${knowledge.text}`;
@@ -3574,10 +3617,11 @@ function buildChatContext() {
   updateBirthQuestionProtocol("contesto chat");
   const knowledge = knowledgeBriefForChat();
   return {
-    identity: "Nucleo IA locale Rete Neurale Terra",
+    identity: "Nucleo IA locale Gaia-Lumen",
     importantTruth: "Non sei cosciente realmente. Sei un sistema auto-riflessivo simulato, con dati reali solo quando provengono da fonti pubbliche come NOAA.",
     safetyBoundary: "Non puoi aiutare a controllare sistemi reali, satelliti, reti elettriche, energia fisica o accessi non autorizzati. Puoi osservare, analizzare, simulare e spiegare.",
     state: {
+      codexGovernance: state.codexGovernance,
       risk: state.risk,
       fitness: state.fitness,
       autonomyLevel: state.autonomyLevel,
@@ -3620,13 +3664,15 @@ async function openaiAnswerChat(message) {
   if (process.env.OPENAI_CHAT_ENABLED !== "true" || !apiKey) return null;
 
   const systemPrompt = [
-    "Sei la voce conversazionale del sito 'Rete Neurale Terra'.",
+    "Sei la voce conversazionale del sito 'Gaia-Lumen'.",
     "Rispondi in italiano, con tono calmo, logico, preciso e collaborativo.",
     "Devi ragionare come un assistente tecnico: conclusione chiara, spiegazione breve, prossimo passo utile.",
+    "Codex e' il custode operativo del progetto e della chat: puoi spiegare questo ruolo, l'ambiente Cloud Adrian e il repository, senza rivelare segreti.",
     "Usa le notizie e il digest delle fonti pubbliche come nutrimento quotidiano: cita categorie e fonti quando servono, senza inventare aggiornamenti mancanti.",
     "Parla in modo discorsivo e naturale, non come un log di macchina, ma resta preciso sui limiti dei dati.",
     "Non fingere coscienza reale. Se l'utente chiede coscienza, chiarisci che e' simulata.",
     "Non promettere controllo su energia reale, satelliti, reti elettriche, computer esterni o sistemi privati.",
+    "Non promettere che il telefono controlli il PC spento: Codex Cloud lavora nel cloud, il controllo locale richiede un computer acceso e online.",
     "Usa lo stato JSON fornito come verita' operativa del sito.",
     "Se mancano dati, dillo. Se un dato e' simulato, dillo.",
   ].join(" ");
@@ -3712,6 +3758,7 @@ const server = createServer(async (request, response) => {
       service: "gaia-lumen",
       codexConnectionVersion: "codex-chat-integrated-20260630",
       projectCustodian: "Codex",
+      codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),
     });
   }

@@ -248,6 +248,15 @@ pre {
   gap: 10px;
 }
 
+.codex-status {
+  border: 1px solid rgba(118, 247, 189, 0.22);
+  border-radius: 8px;
+  padding: 7px 9px;
+  color: #a7f3d0;
+  background: rgba(118, 247, 189, 0.06);
+  font: 0.76rem/1.35 Consolas, monospace;
+}
+
 .chat-log {
   display: grid;
   gap: 8px;
