@@ -25,6 +25,7 @@ const ui = {
   realityLog: $("#realityLog"),
   worldLog: $("#worldLog"),
   coreRuleLog: $("#coreRuleLog"),
+  projectCustodianLog: $("#projectCustodianLog"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -1340,6 +1341,18 @@ function refreshUi() {
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";
+  if (ui.projectCustodianLog) {
+    const custodian = state.projectCustodian || {};
+    const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
+    ui.projectCustodianLog.textContent = [
+      `${custodian.name || "Codex"}: ${custodian.role || "custode tecnico e narrativo del progetto"}`,
+      `Stato: ${custodian.status || "in ascolto"}`,
+      `Limite: ${custodian.boundary || "non sostituisce scelte umane e non agisce fuori dal repository senza richiesta"}`,
+      "",
+      "Compiti:",
+      ...(duties.length ? duties.map((item) => `- ${item}`) : ["- analizzare il sito", "- proporre miglioramenti", "- mantenere chiari dati reali, simulazione e racconto"]),
+    ].join("\n");
+  }
   if (ui.planetLog) ui.planetLog.textContent = state.planetProject ? [`${state.planetProject.name} gen ${state.planetProject.generation}`, `abitabilita': ${pct(state.planetProject.habitability)}`, `sopravvivenza: ${pct(state.planetProject.survivalIndex)}`, state.planetProject.lastDesign || ""].join("\n") : "Non ancora progettato.";
   drawStellarMapCanvas();
   if (ui.stellarMapLog) {

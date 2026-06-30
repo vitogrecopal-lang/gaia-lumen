@@ -137,6 +137,18 @@ const state = {
   realismMode: "max-realism",
   chatBrain: process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex",
   chatModel: process.env.OPENAI_MODEL || "gpt-5.4",
+  projectCustodian: {
+    name: "Codex",
+    role: "custode tecnico e narrativo del progetto Gaia-Lumen",
+    status: "parte integrante in ascolto operativo",
+    boundary: "propone, spiega e cura il codice; le decisioni esterne restano umane e confermate",
+    duties: [
+      "leggere il progetto prima di modificarlo",
+      "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
+      "distinguere dati reali, simulazioni locali e racconto simbolico",
+      "lasciare traccia verificabile di test, commit e limiti",
+    ],
+  },
   dataReality: {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -508,6 +520,18 @@ try {
   state.realismMode ??= "max-realism";
   state.chatBrain = process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex";
   state.chatModel = process.env.OPENAI_MODEL || state.chatModel || "gpt-5.4";
+  state.projectCustodian ??= {
+    name: "Codex",
+    role: "custode tecnico e narrativo del progetto Gaia-Lumen",
+    status: "parte integrante in ascolto operativo",
+    boundary: "propone, spiega e cura il codice; le decisioni esterne restano umane e confermate",
+    duties: [
+      "leggere il progetto prima di modificarlo",
+      "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
+      "distinguere dati reali, simulazioni locali e racconto simbolico",
+      "lasciare traccia verificabile di test, commit e limiti",
+    ],
+  };
   state.dataReality ??= {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
