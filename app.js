@@ -1661,6 +1661,18 @@ function addMessage(kind, text) {
   ui.chatLog.scrollTop = ui.chatLog.scrollHeight;
 }
 
+function seedCustodianChatMessage() {
+  if (!ui.chatLog || ui.chatLog.dataset.custodianSeeded === "true") return;
+  ui.chatLog.dataset.custodianSeeded = "true";
+  const custodian = state.projectCustodian || {};
+  addMessage(
+    "ai",
+    `${custodian.name || "Codex"} presente nella chat di Gaia-Lumen. Scrivimi qui: rispondero' nel diario conversazionale del sito, spiegando cosa posso curare nel codice e quali limiti non devo oltrepassare.`,
+  );
+}
+
+seedCustodianChatMessage();
+
 if (ui.chatForm) {
   ui.chatForm.addEventListener("submit", async (event) => {
     event.preventDefault();

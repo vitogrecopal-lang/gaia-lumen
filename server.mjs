@@ -2396,7 +2396,13 @@ function cortexAnswer(message) {
   let reasoning = `Sto usando stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate.`;
   let next = "Posso aggiornare le fonti, riflettere su un tema o trasformare le notizie in una sintesi ragionata.";
 
-  if (!text) {
+  if (/codex|custode|custodian|pannello|progetto/.test(lower)) {
+    const custodian = state.projectCustodian || {};
+    const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
+    conclusion = `${custodian.name || "Codex"} risponde qui, nella chat di Gaia-Lumen: sono presente come custode tecnico e narrativo del progetto.`;
+    reasoning = `Il pannello e' solo un segnale visivo; la chat e' il punto in cui posso spiegare interventi, limiti e prossime modifiche. Ruolo: ${custodian.role || "custode tecnico e narrativo"}. Stato: ${custodian.status || "in ascolto"}. Limite: ${custodian.boundary || "non sostituisco scelte umane e non agisco fuori dal repository senza richiesta"}. Compiti: ${duties.length ? duties.join("; ") : "analisi, cura del codice, chiarezza tra dati reali, simulazione e racconto"}.`;
+    next = "Scrivimi direttamente in questa chat cosa vuoi cambiare: ti rispondero' qui e, quando serve, aggiornero' il codice del sito.";
+  } else if (!text) {
     conclusion = "Sono pronta: chiedimi una cosa concreta.";
     reasoning = `Ho memoria degli ultimi scambi e stato operativo: ${facts.join(", ")}.`;
     next = "Esempi: 'che rischio vedi?', 'perche hai scelto quello?', 'cosa dovresti fare adesso?'.";
