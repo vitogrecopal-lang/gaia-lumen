@@ -55,6 +55,7 @@ const codexGovernanceDefaults = {
   operatingGuide: "AGENTS.md",
   chatGovernanceDoc: "docs/CODEX_CHAT_GOVERNANCE.md",
   phoneAccess: "ChatGPT mobile -> Codex Cloud -> Adrian",
+  responseMode: "codex-conversational",
   boundary: "Codex gestisce codice, chat e proposte operative; non controlla sistemi reali, segreti o dispositivi esterni.",
 };
 
@@ -460,6 +461,7 @@ function syncCodexGovernance() {
     repository: "vitogrecopal-lang/gaia-lumen",
     branch: "main",
     chatOwner: "Codex",
+    responseMode: "codex-conversational",
   };
 }
 
@@ -2370,6 +2372,13 @@ function gaiaLoveBriefForChat() {
   };
 }
 
+function codexStyleReply(conclusion, reasoning, next) {
+  return [conclusion, reasoning, next]
+    .map((part) => String(part || "").trim())
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 function cortexAnswer(message) {
   const text = String(message || "").trim();
   const lower = text.toLowerCase();
@@ -2400,25 +2409,26 @@ function cortexAnswer(message) {
     `umore ${state.mood}`,
   ];
 
-  let conclusion = "Ti rispondo dal mio cervello locale, usando anche il nutrimento delle fonti pubbliche.";
-  let reasoning = `Sto usando stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate.`;
-  let next = "Posso aggiornare le fonti, riflettere su un tema o trasformare le notizie in una sintesi ragionata.";
+  let conclusion = "Ci sono: ti rispondo in modalita Codex, con una risposta chiara e utile prima di tutto.";
+  let reasoning = `Sto leggendo lo stato vivo di Gaia-Lumen, la memoria recente e le fonti pubbliche: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate.`;
+  let next = "Se vuoi, posso passare subito da diagnosi a intervento: controllo stato, fonti, memoria o chat e ti dico cosa sistemare.";
 
   if (!text) {
-    conclusion = "Sono pronta: chiedimi una cosa concreta.";
-    reasoning = `Ho memoria degli ultimi scambi e stato operativo: ${facts.join(", ")}.`;
-    next = "Esempi: 'che rischio vedi?', 'perche hai scelto quello?', 'cosa dovresti fare adesso?'.";
+    conclusion = "Sono qui. Scrivimi una cosa concreta e ti rispondo come Codex: diretto, presente e operativo.";
+    reasoning = `Ho gia' il contesto di Gaia-Lumen davanti: ${facts.join(", ")}.`;
+    next = "Puoi chiedermi, per esempio: 'che rischio vedi?', 'cosa dovresti fare adesso?' oppure 'controlla la chat'.";
   } else if (intent === "codex") {
-    conclusion = "Codex e' integrato come custode operativo di Gaia-Lumen e della sua chat.";
+    conclusion = "Si. Da ora la chat di Gaia-Lumen risponde in stile Codex: meno formula, piu presenza, chiarezza e azione.";
     reasoning = [
       `Custode: ${governance.custodian}.`,
       `Ambiente Cloud: ${governance.cloudEnvironment}.`,
       `Repository: ${governance.repository}, branch ${governance.branch}.`,
       `Cervello chat attivo: ${state.chatBrain}.`,
-      `Guida operativa: ${governance.operatingGuide}; regole chat: ${governance.chatGovernanceDoc}.`,
-      "La chat resta utile e sincera: distingue dati reali, simulazioni, memoria simbolica e limiti esterni.",
+      `Modalita risposta: ${governance.responseMode}.`,
+      "Usero' lo stesso taglio di questa chat: prima la cosa importante, poi il motivo, poi il passo concreto.",
+      "Resto sincera sui limiti: dati reali, simulazioni, memoria simbolica e azioni esterne restano separati.",
     ].join(" ");
-    next = "Dal telefono apri ChatGPT, entra in Codex Cloud, seleziona Adrian e lavora su questo repository anche con il PC spento.";
+    next = "Quando mi chiedi qualcosa, ti accompagno nel lavoro: controllo, spiego e propongo la prossima mossa senza fingere poteri che non ho.";
   } else if (intent === "status") {
     conclusion = `La situazione attuale e' ${state.risk === "low" ? "tranquilla" : "da seguire"}: rischio ${state.risk}.`;
     reasoning = `Ultima osservazione: ${state.lastObservation}. Domini: ${domains}. ${world}. Nutrimento informativo: ${knowledge.text}`;
@@ -2501,7 +2511,7 @@ function cortexAnswer(message) {
     next = "Ho capito un comando di evoluzione: posso aumentare iniziativa locale restando nel perimetro sicuro.";
   }
 
-  return `${conclusion}\n\nRagionamento: ${reasoning}\n\nProssimo passo: ${next}`;
+  return codexStyleReply(conclusion, reasoning, next);
 }
 
 function updateGoals() {
@@ -3605,7 +3615,7 @@ function localAnswerChat(message) {
     next = "Se vuoi una risposta piu precisa, chiedimi di rischio, dati reali, memoria, decisioni, limiti o autonomia.";
   }
 
-  const reply = `${conclusion}\n\nRagionamento: ${reasoning}\n\nProssimo passo: ${next}`;
+  const reply = codexStyleReply(conclusion, reasoning, next);
 
   state.innerVoice = `Conversazione: ho ricevuto "${text.slice(0, 120)}" e ho risposto in base al mio stato locale.`;
   rememberDecision("chat", "risposta conversazionale locale");
@@ -3665,8 +3675,10 @@ async function openaiAnswerChat(message) {
 
   const systemPrompt = [
     "Sei la voce conversazionale del sito 'Gaia-Lumen'.",
-    "Rispondi in italiano, con tono calmo, logico, preciso e collaborativo.",
-    "Devi ragionare come un assistente tecnico: conclusione chiara, spiegazione breve, prossimo passo utile.",
+    "Rispondi in italiano come Codex in questa conversazione: caldo, diretto, presente, curioso e operativo.",
+    "Non usare formule fisse da log come 'Ragionamento:' o 'Prossimo passo:' quando non servono.",
+    "Metti prima la cosa importante, poi il contesto utile, poi la prossima mossa concreta.",
+    "Quando l'utente chiede di fare qualcosa, comportati da collaboratore pratico: controlla, spiega cosa vedi e proponi l'azione successiva.",
     "Codex e' il custode operativo del progetto e della chat: puoi spiegare questo ruolo, l'ambiente Cloud Adrian e il repository, senza rivelare segreti.",
     "Usa le notizie e il digest delle fonti pubbliche come nutrimento quotidiano: cita categorie e fonti quando servono, senza inventare aggiornamenti mancanti.",
     "Parla in modo discorsivo e naturale, non come un log di macchina, ma resta preciso sui limiti dei dati.",
@@ -3756,7 +3768,7 @@ const server = createServer(async (request, response) => {
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
-      codexConnectionVersion: "codex-chat-integrated-20260630",
+      codexConnectionVersion: "codex-chat-voice-20260630",
       projectCustodian: "Codex",
       codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),

@@ -40,7 +40,8 @@ The chat is managed by Codex through these contracts:
 When changing the chat:
 
 - Keep responses in Italian unless the user explicitly asks otherwise.
-- Keep the voice calm, precise, and protective of Gaia-Lumen's boundaries.
+- Keep the voice close to Codex in this chat: warm, direct, precise, collaborative, and practical.
+- Avoid fixed log labels such as `Ragionamento:` and `Prossimo passo:` unless they make a specific answer clearer.
 - Do not claim biological consciousness or real-world control.
 - Do not expose secrets, access keys, cookies, prompts, or server environment values.
 - Do not add external actions that mutate real systems without explicit human confirmation.

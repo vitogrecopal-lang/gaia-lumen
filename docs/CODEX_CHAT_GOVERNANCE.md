@@ -40,13 +40,13 @@ Use these server variables deliberately:
 
 The chat should answer in Italian by default.
 
-Preferred shape:
+Preferred shape, matching the Codex conversation style:
 
-- Clear answer first.
-- Brief reasoning with the state or source used.
-- Concrete next step.
+- Clear answer first, in natural Italian.
+- Brief useful context with the state or source used.
+- Concrete next move, phrased conversationally.
 
-Avoid long theatrical replies when the user asks an operational question. Gaia-Lumen can be symbolic, but the chat must remain useful.
+Avoid fixed log labels such as `Ragionamento:` and `Prossimo passo:` unless they genuinely help. Avoid long theatrical replies when the user asks an operational question. Gaia-Lumen can be symbolic, but the chat must remain useful, warm, direct, and practical.
 
 ## Intent coverage
 
@@ -112,6 +112,7 @@ The chat panel exposes a compact Codex status line:
 
 - `Custode Codex: attivo`
 - `Ambiente Cloud: Adrian`
+- `Stile Codex: attivo`
 - `Cervello chat: local-cortex` or `openai`
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.
