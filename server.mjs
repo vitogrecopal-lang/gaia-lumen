@@ -3710,6 +3710,8 @@ const server = createServer(async (request, response) => {
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
+      codexConnectionVersion: "codex-chat-integrated-20260630",
+      projectCustodian: "Codex",
       time: new Date().toISOString(),
     });
   }
