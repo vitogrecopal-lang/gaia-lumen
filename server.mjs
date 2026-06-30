@@ -50,7 +50,8 @@ function chatModelName() {
 }
 
 function openaiBridgeRequested() {
-  return process.env.OPENAI_CHAT_ENABLED === "true";
+  const value = String(process.env.OPENAI_CHAT_ENABLED || "true").toLowerCase();
+  return !["0", "off", "disabled"].includes(value);
 }
 
 function openaiBridgeReady() {
@@ -3804,7 +3805,7 @@ const server = createServer(async (request, response) => {
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
-      codexConnectionVersion: "codex-chat-openai-20260630",
+      codexConnectionVersion: "codex-chat-openai-forced-20260630",
       projectCustodian: "Codex",
       codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),

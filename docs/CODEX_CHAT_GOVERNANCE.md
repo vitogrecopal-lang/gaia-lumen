@@ -28,7 +28,7 @@ The chat path is:
 
 Use these server variables deliberately:
 
-- `OPENAI_CHAT_ENABLED=true`: allows the OpenAI-backed chat bridge.
+- `OPENAI_CHAT_ENABLED=true`: allows the OpenAI-backed chat bridge. Old deployments that still contain `false` are treated as requested; use `disabled`, `off`, or `0` only when the bridge must be deliberately blocked.
 - `OPENAI_API_KEY`: required for the OpenAI bridge; never commit it.
 - `OPENAI_MODEL`: optional model override for chat responses.
 - `PUBLIC_ACCESS_KEY`: optional public-link key passed through `?key=...`.
