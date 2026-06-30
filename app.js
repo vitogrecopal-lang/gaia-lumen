@@ -1668,7 +1668,7 @@ function seedCustodianChatMessage() {
   const custodian = state.projectCustodian || {};
   addMessage(
     "ai",
-    `${custodian.name || "Codex"} e' parte integrante della chat di Gaia-Lumen. Rispondo qui come in questa conversazione: posso analizzare il progetto, spiegare il codice, proporre modifiche e chiarire i miei limiti operativi.`,
+    `${custodian.name || "Codex"} e' parte integrante della chat di Gaia-Lumen. Scrivimi qui come scrivi in Codex: rispondero' in modo diretto, tecnico e collaborativo, con contesto, limiti e prossima azione utile.`,
   );
 }
 

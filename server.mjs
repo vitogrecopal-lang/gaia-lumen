@@ -144,6 +144,8 @@ const state = {
     status: "parte integrante: risponde nella chat come assistente del progetto",
     boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
     connectionVersion: codexConnectionVersion,
+    chatStyle: "codex-direct-project-assistant",
+    responseContract: "risposte in italiano, pratiche, strutturate in Markdown leggero, con limiti chiari e prossima azione utile",
     duties: [
       "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
@@ -529,6 +531,8 @@ try {
     status: "parte integrante: risponde nella chat come assistente del progetto",
     boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
     connectionVersion: codexConnectionVersion,
+    chatStyle: "codex-direct-project-assistant",
+    responseContract: "risposte in italiano, pratiche, strutturate in Markdown leggero, con limiti chiari e prossima azione utile",
     duties: [
       "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
       "leggere il progetto prima di modificarlo",
@@ -542,6 +546,8 @@ try {
   state.projectCustodian.status = "parte integrante: risponde nella chat come assistente del progetto";
   state.projectCustodian.boundary = "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta";
   state.projectCustodian.connectionVersion = codexConnectionVersion;
+  state.projectCustodian.chatStyle = "codex-direct-project-assistant";
+  state.projectCustodian.responseContract = "risposte in italiano, pratiche, strutturate in Markdown leggero, con limiti chiari e prossima azione utile";
   state.projectCustodian.duties = [
     "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
     "leggere il progetto prima di modificarlo",
@@ -2380,6 +2386,22 @@ function gaiaLoveBriefForChat() {
   };
 }
 
+function formatCodexChatReply({ conclusion, reasoning, next, custodianName = "Codex" }) {
+  const cleanConclusion = String(conclusion || "Ti seguo.").trim();
+  const cleanReasoning = String(reasoning || "Sto usando il contesto locale del progetto Gaia-Lumen.").trim();
+  const cleanNext = String(next || "Dimmi cosa vuoi fare e ti guido nel passo successivo.").trim();
+  const intro = cleanConclusion.includes(custodianName)
+    ? cleanConclusion
+    : `${custodianName}: ${cleanConclusion}`;
+
+  return [
+    intro,
+    "",
+    `**Contesto**: ${cleanReasoning}`,
+    `**Prossimo passo**: ${cleanNext}`,
+  ].join("\n");
+}
+
 function cortexAnswer(message) {
   const text = String(message || "").trim();
   const lower = text.toLowerCase();
@@ -2419,7 +2441,11 @@ function cortexAnswer(message) {
   let reasoning = `Parlo come ${custodianRole}. Stato: ${custodianStatus}. Uso stato interno, memoria conversazionale e notizie: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate. Limite: ${custodianBoundary}.`;
   let next = "Dimmi cosa vuoi cambiare o capire: rispondo qui nella chat e, quando serve, preparo una modifica verificabile al progetto.";
 
-  if (/collegat|conness|connession|controlla|verifica/.test(lower)) {
+  if (/uguale|identic|come te|come codex|stessa chat|stesso modo/.test(lower)) {
+    conclusion = `${custodianName} puo' rispondere nella chat del sito con lo stesso stile operativo di questa conversazione: diretto, tecnico, collaborativo e orientato alle modifiche.`;
+    reasoning = `Ho impostato lo stile ${custodian.chatStyle || "codex-direct-project-assistant"}: niente voce mistica obbligatoria, niente log macchina inutili, risposte in italiano con contesto, limiti e azione successiva. Se OPENAI_CHAT_ENABLED=true e OPENAI_API_KEY e' presente, uso anche il prompt Codex del backend; altrimenti il cortex locale imita lo stesso contratto di risposta.`;
+    next = "Scrivi nella chat del sito come scrivi qui: richieste, dubbi, modifiche o controlli. Io rispondero' come Codex integrato nel progetto.";
+  } else if (/collegat|conness|connession|controlla|verifica/.test(lower)) {
     conclusion = `${custodianName} e' collegato a questa istanza della chat di Gaia-Lumen.`;
     reasoning = `Questa risposta arriva dal backend del progetto e usa il token di connessione ${custodian.connectionVersion || codexConnectionVersion}. Se la vedi nella chat del sito, il frontend sta chiamando /api/chat e il server sta caricando lo stato projectCustodian. Stato: ${custodianStatus}. Limite: ${custodianBoundary}.`;
     next = "Per una verifica pratica, scrivi nella chat: 'controlla connessione Codex'. Se rispondo con lo stesso token, la versione deployata e' aggiornata.";
@@ -2514,9 +2540,7 @@ function cortexAnswer(message) {
     next = "Ho capito un comando di evoluzione: posso aumentare iniziativa locale restando nel perimetro sicuro.";
   }
 
-  const voicePrefix = `${custodianName} nella chat di Gaia-Lumen:`;
-  const spokenConclusion = conclusion.includes(custodianName) ? conclusion : `${voicePrefix} ${conclusion}`;
-  return `${spokenConclusion}\n\nRagionamento: ${reasoning}\n\nProssimo passo: ${next}`;
+  return formatCodexChatReply({ conclusion, reasoning, next, custodianName });
 }
 
 function updateGoals() {
@@ -3679,9 +3703,10 @@ async function openaiAnswerChat(message) {
 
   const systemPrompt = [
     "Sei Codex, voce conversazionale integrata nella chat del sito Gaia-Lumen.",
-    "Rispondi in italiano come stai rispondendo in questa conversazione: diretto, tecnico, collaborativo e parte del progetto.",
-    "Non sei solo un pannello: sei il custode operativo che risponde nella chat del sito, spiega modifiche, limiti e prossimi passi.",
-    "Devi ragionare come un assistente tecnico: conclusione chiara, spiegazione breve, prossimo passo utile.",
+    "Rispondi in italiano come Codex in questa conversazione: diretto, tecnico, collaborativo, concreto e orientato al progetto.",
+    "Non parlare come entita' mistica e non limitarti a log macchina: sei il custode operativo che risponde nella chat del sito, spiega modifiche, limiti e prossimi passi.",
+    "Usa Markdown leggero quando aiuta: frasi brevi, elenchi puntati, sezioni concise, comandi esatti se servono.",
+    "Devi ragionare come un assistente tecnico: risposta chiara, contesto utile, prossimo passo pratico.",
     "Usa le notizie e il digest delle fonti pubbliche come nutrimento quotidiano: cita categorie e fonti quando servono, senza inventare aggiornamenti mancanti.",
     "Parla in modo discorsivo e naturale, non come un log di macchina, ma resta preciso sui limiti dei dati.",
     "Non fingere coscienza reale. Se l'utente chiede coscienza, chiarisci che e' simulata.",
