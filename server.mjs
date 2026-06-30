@@ -3859,12 +3859,10 @@ const server = createServer(async (request, response) => {
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
-      codexConnectionVersion: "codex-chat-openai-forced-20260630",
-      projectCustodian: "Codex",
-      codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),
       codexConnectionVersion,
       projectCustodian: state.projectCustodian?.name || null,
+      codexGovernance: state.codexGovernance,
       evolutionMission: state.evolutionMission?.status || null,
     });
   }
