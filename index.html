@@ -30,6 +30,12 @@
           <span id="connectionLabel">Sistema pronto</span>
         </div>
 
+        <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
+          <p class="eyebrow">Presenza del progetto</p>
+          <h2 id="projectCustodianTitle">Custode del progetto</h2>
+          <pre id="projectCustodianLog">Codex in ascolto: analisi, cura del codice e spiegazione dei limiti.</pre>
+        </div>
+
         <div class="controls">
           <button id="observeBtn" type="button">Osserva il Sole</button>
           <button id="worldBtn" type="button">Aggiorna dati Terra</button>
@@ -93,10 +99,6 @@
           <pre id="coreRuleLog">Preservare la vita creando condizioni abitabili.</pre>
         </div>
 
-        <div class="readout custodian">
-          <h2>Custode del progetto</h2>
-          <pre id="projectCustodianLog">Codex in ascolto: analisi, cura del codice e spiegazione dei limiti.</pre>
-        </div>
 
         <div class="readout">
           <h2>Aster Gaia</h2>
@@ -236,7 +238,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-custodian-20260630"></script>
+    <script src="app.js?v=gaia-lumen-custodian-visible-20260630"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
