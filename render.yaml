@@ -9,7 +9,9 @@ services:
       - key: HOST
         value: 0.0.0.0
       - key: OPENAI_CHAT_ENABLED
-        value: false
+        value: true
+      - key: OPENAI_API_KEY
+        sync: false
       - key: STATE_PATH
         value: /var/data/neural_state.json
       - key: BACKUPS_DIR

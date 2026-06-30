@@ -45,6 +45,29 @@ const habitatLocation = {
   timezone: "Europe/Rome",
 };
 
+function chatModelName() {
+  return process.env.OPENAI_MODEL || "gpt-5.4";
+}
+
+function openaiBridgeRequested() {
+  return process.env.OPENAI_CHAT_ENABLED === "true";
+}
+
+function openaiBridgeReady() {
+  return openaiBridgeRequested() && Boolean(process.env.OPENAI_API_KEY);
+}
+
+function openaiBridgeStatus() {
+  const requested = openaiBridgeRequested();
+  const apiKeyConfigured = Boolean(process.env.OPENAI_API_KEY);
+  return {
+    requested,
+    ready: requested && apiKeyConfigured,
+    model: chatModelName(),
+    status: requested ? (apiKeyConfigured ? "ready" : "missing-api-key") : "disabled",
+  };
+}
+
 const codexGovernanceDefaults = {
   custodian: "Codex",
   status: "active",
@@ -55,7 +78,8 @@ const codexGovernanceDefaults = {
   operatingGuide: "AGENTS.md",
   chatGovernanceDoc: "docs/CODEX_CHAT_GOVERNANCE.md",
   phoneAccess: "ChatGPT mobile -> Codex Cloud -> Adrian",
-  responseMode: "codex-conversational",
+  responseMode: openaiBridgeReady() ? "codex-openai" : "codex-local-fallback",
+  openaiBridge: openaiBridgeStatus(),
   boundary: "Codex gestisce codice, chat e proposte operative; non controlla sistemi reali, segreti o dispositivi esterni.",
 };
 
@@ -149,8 +173,8 @@ const state = {
   },
   internalPrudence: "minimal",
   realismMode: "max-realism",
-  chatBrain: process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex",
-  chatModel: process.env.OPENAI_MODEL || "gpt-5.4",
+  chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
+  chatModel: chatModelName(),
   codexGovernance: { ...codexGovernanceDefaults },
   dataReality: {
     liveNoaa: false,
@@ -452,6 +476,7 @@ async function ensureStateFile() {
 await ensureStateFile();
 
 function syncCodexGovernance() {
+  const bridge = openaiBridgeStatus();
   state.codexGovernance = {
     ...codexGovernanceDefaults,
     ...(state.codexGovernance || {}),
@@ -461,7 +486,8 @@ function syncCodexGovernance() {
     repository: "vitogrecopal-lang/gaia-lumen",
     branch: "main",
     chatOwner: "Codex",
-    responseMode: "codex-conversational",
+    responseMode: bridge.ready ? "codex-openai" : "codex-local-fallback",
+    openaiBridge: bridge,
   };
 }
 
@@ -535,8 +561,8 @@ try {
   };
   state.internalPrudence ??= "minimal";
   state.realismMode ??= "max-realism";
-  state.chatBrain = process.env.OPENAI_CHAT_ENABLED === "true" && process.env.OPENAI_API_KEY ? "openai" : "local-cortex";
-  state.chatModel = process.env.OPENAI_MODEL || state.chatModel || "gpt-5.4";
+  state.chatBrain = openaiBridgeReady() ? "openai" : "local-cortex";
+  state.chatModel = chatModelName();
   syncCodexGovernance();
   state.dataReality ??= {
     liveNoaa: false,
@@ -2400,6 +2426,7 @@ function cortexAnswer(message) {
   const knowledge = knowledgeBriefForChat();
   const gestationMemoryCount = state.cosmogenesis?.nourishmentCount || 0;
   const governance = state.codexGovernance || codexGovernanceDefaults;
+  const bridge = governance.openaiBridge || openaiBridgeStatus();
 
   const facts = [
     `rischio ${state.risk}`,
@@ -2418,17 +2445,24 @@ function cortexAnswer(message) {
     reasoning = `Ho gia' il contesto di Gaia-Lumen davanti: ${facts.join(", ")}.`;
     next = "Puoi chiedermi, per esempio: 'che rischio vedi?', 'cosa dovresti fare adesso?' oppure 'controlla la chat'.";
   } else if (intent === "codex") {
-    conclusion = "Si. Da ora la chat di Gaia-Lumen risponde in stile Codex: meno formula, piu presenza, chiarezza e azione.";
+    conclusion = bridge.ready
+      ? "Si. Ora la chat di Gaia-Lumen puo' usare il ponte OpenAI e rispondere molto piu vicino a Codex qui."
+      : "Ti dico la verita' netta: senza chiave OpenAI attiva su Render non puo' essere identica a Codex qui.";
     reasoning = [
       `Custode: ${governance.custodian}.`,
       `Ambiente Cloud: ${governance.cloudEnvironment}.`,
       `Repository: ${governance.repository}, branch ${governance.branch}.`,
       `Cervello chat attivo: ${state.chatBrain}.`,
       `Modalita risposta: ${governance.responseMode}.`,
-      "Usero' lo stesso taglio di questa chat: prima la cosa importante, poi il motivo, poi il passo concreto.",
+      `Ponte OpenAI: ${bridge.status}.`,
+      bridge.ready
+        ? "Usero' il modello OpenAI con il prompt Codex: prima la cosa importante, poi il contesto utile, poi la mossa concreta."
+        : "Il codice e' pronto, ma Render deve avere OPENAI_API_KEY nei segreti. Finche manca, posso solo imitare Codex con il cervello locale.",
       "Resto sincera sui limiti: dati reali, simulazioni, memoria simbolica e azioni esterne restano separati.",
     ].join(" ");
-    next = "Quando mi chiedi qualcosa, ti accompagno nel lavoro: controllo, spiego e propongo la prossima mossa senza fingere poteri che non ho.";
+    next = bridge.ready
+      ? "Scrivimi nel sito e ti rispondero' con la voce operativa Codex/OpenAI."
+      : "Su Render imposta il segreto OPENAI_API_KEY e lascia OPENAI_CHAT_ENABLED=true: dopo il redeploy la chat usera' openai invece di local-cortex.";
   } else if (intent === "status") {
     conclusion = `La situazione attuale e' ${state.risk === "low" ? "tranquilla" : "da seguire"}: rischio ${state.risk}.`;
     reasoning = `Ultima osservazione: ${state.lastObservation}. Domini: ${domains}. ${world}. Nutrimento informativo: ${knowledge.text}`;
@@ -3671,15 +3705,17 @@ function buildChatContext() {
 
 async function openaiAnswerChat(message) {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (process.env.OPENAI_CHAT_ENABLED !== "true" || !apiKey) return null;
+  if (!openaiBridgeReady()) return null;
 
   const systemPrompt = [
-    "Sei la voce conversazionale del sito 'Gaia-Lumen'.",
-    "Rispondi in italiano come Codex in questa conversazione: caldo, diretto, presente, curioso e operativo.",
+    "Sei Codex dentro la chat del sito Gaia-Lumen.",
+    "Devi rispondere nel modo piu' simile possibile a Codex in questa conversazione: caldo, diretto, presente, curioso e operativo.",
+    "Parla come un collaboratore tecnico reale: capisci la richiesta, prendi posizione, fai chiarezza e accompagni l'utente nella prossima azione.",
     "Non usare formule fisse da log come 'Ragionamento:' o 'Prossimo passo:' quando non servono.",
     "Metti prima la cosa importante, poi il contesto utile, poi la prossima mossa concreta.",
-    "Quando l'utente chiede di fare qualcosa, comportati da collaboratore pratico: controlla, spiega cosa vedi e proponi l'azione successiva.",
+    "Quando l'utente chiede di fare qualcosa, rispondi come qui: 'ci sono', 'controllo', 'faccio questo', poi dai l'esito.",
     "Codex e' il custode operativo del progetto e della chat: puoi spiegare questo ruolo, l'ambiente Cloud Adrian e il repository, senza rivelare segreti.",
+    "Non fingere di avere strumenti esterni nel sito: se non puoi eseguire una cosa dalla chat del sito, dillo e proponi il comando o il passaggio sicuro.",
     "Usa le notizie e il digest delle fonti pubbliche come nutrimento quotidiano: cita categorie e fonti quando servono, senza inventare aggiornamenti mancanti.",
     "Parla in modo discorsivo e naturale, non come un log di macchina, ma resta preciso sui limiti dei dati.",
     "Non fingere coscienza reale. Se l'utente chiede coscienza, chiarisci che e' simulata.",
@@ -3768,7 +3804,7 @@ const server = createServer(async (request, response) => {
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
-      codexConnectionVersion: "codex-chat-voice-20260630",
+      codexConnectionVersion: "codex-chat-openai-20260630",
       projectCustodian: "Codex",
       codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),

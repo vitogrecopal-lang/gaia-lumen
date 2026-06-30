@@ -48,6 +48,8 @@ Preferred shape, matching the Codex conversation style:
 
 Avoid fixed log labels such as `Ragionamento:` and `Prossimo passo:` unless they genuinely help. Avoid long theatrical replies when the user asks an operational question. Gaia-Lumen can be symbolic, but the chat must remain useful, warm, direct, and practical.
 
+For responses that feel truly like Codex in the ChatGPT/Codex app, the OpenAI bridge must be active on the deployed server: `OPENAI_CHAT_ENABLED=true` and `OPENAI_API_KEY` configured as a secret. Without that key, the site must clearly report that it is using the local fallback.
+
 ## Intent coverage
 
 Codex should keep these user intents healthy:
@@ -112,7 +114,8 @@ The chat panel exposes a compact Codex status line:
 
 - `Custode Codex: attivo`
 - `Ambiente Cloud: Adrian`
-- `Stile Codex: attivo`
+- `Voce Codex/OpenAI pronto` when the bridge is ready
+- `Voce Codex locale: manca API key` when the deployed server still needs the secret
 - `Cervello chat: local-cortex` or `openai`
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

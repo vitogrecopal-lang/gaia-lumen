@@ -1328,9 +1328,10 @@ function refreshUi() {
     const custodian = governance.custodian || "Codex";
     const status = governance.status || "active";
     const cloudEnvironment = governance.cloudEnvironment || "Adrian";
-    const responseMode = governance.responseMode === "codex-conversational" ? "Codex attivo" : governance.responseMode || "Codex attivo";
+    const bridge = governance.openaiBridge || {};
+    const responseMode = bridge.ready ? "Codex/OpenAI pronto" : bridge.status === "missing-api-key" ? "Codex locale: manca API key" : "Codex locale";
     const brain = state.chatBrain || "local-cortex";
-    ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Stile ${responseMode} | Cervello chat: ${brain}`;
+    ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
   }
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
