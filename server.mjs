@@ -37,6 +37,7 @@ const publicAccessKey = process.env.PUBLIC_ACCESS_KEY || "";
 const publicAccessUser = process.env.PUBLIC_ACCESS_USER || "";
 const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
 const accessCookieName = "gaia_access";
+const codexConnectionVersion = "codex-chat-integrated-20260630";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -177,6 +178,34 @@ const state = {
   chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
   chatModel: chatModelName(),
   codexGovernance: { ...codexGovernanceDefaults },
+  projectCustodian: {
+    name: "Codex",
+    role: "voce Codex integrata nella chat di Gaia-Lumen",
+    status: "parte integrante: risponde nella chat come assistente del progetto",
+    boundary: "risponde come Codex dentro Gaia-Lumen, cura codice e narrazione; non finge coscienza reale e non agisce fuori dal repository senza richiesta",
+    connectionVersion: codexConnectionVersion,
+    chatStyle: "codex-direct-project-assistant",
+    responseContract: "risposte in italiano, pratiche, strutturate in Markdown leggero, con limiti chiari e prossima azione utile",
+    duties: [
+      "rispondere nella chat del sito con la stessa presenza tecnica di questa conversazione",
+      "leggere il progetto prima di modificarlo",
+      "migliorare accessibilita', sicurezza e chiarezza senza spegnere la poesia",
+      "distinguere dati reali, simulazioni locali e racconto simbolico",
+      "lasciare traccia verificabile di test, commit e limiti",
+    ],
+  },
+  evolutionMission: {
+    title: "Missione evolutiva Codex",
+    status: "attiva",
+    nextAction: "usa la chat per proporre, verificare e confermare il prossimo miglioramento",
+    steps: [
+      { key: "clarity", label: "Separare reale, simulato, narrativo e memoria", status: "active" },
+      { key: "chat", label: "Usare la chat come centro operativo Codex", status: "active" },
+      { key: "memory", label: "Rendere memoria, diario e decisioni leggibili", status: "pending" },
+      { key: "proposals", label: "Trasformare intuizioni in proposte confermabili", status: "pending" },
+      { key: "diagnostics", label: "Verificare deploy, backend e connessione", status: "active" },
+    ],
+  },
   dataReality: {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -565,6 +594,8 @@ try {
   state.chatBrain = openaiBridgeReady() ? "openai" : "local-cortex";
   state.chatModel = chatModelName();
   syncCodexGovernance();
+  syncProjectCustodian();
+  syncEvolutionMission();
   state.dataReality ??= {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -2437,14 +2468,28 @@ function cortexAnswer(message) {
     `umore ${state.mood}`,
   ];
 
-  let conclusion = "Ci sono: ti rispondo in modalita Codex, con una risposta chiara e utile prima di tutto.";
-  let reasoning = `Sto leggendo lo stato vivo di Gaia-Lumen, la memoria recente e le fonti pubbliche: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate.`;
+  const custodian = state.projectCustodian || {};
+  const custodianName = custodian.name || governance.custodian || "Codex";
+  const custodianRole = custodian.role || "voce Codex integrata nella chat di Gaia-Lumen";
+  const custodianStatus = custodian.status || "parte integrante: risponde nella chat come assistente del progetto";
+  const custodianBoundary = custodian.boundary || governance.boundary || "Codex cura codice, chat e proposte operative senza controllare sistemi reali.";
+
+  let conclusion = `${custodianName} qui: ti rispondo in modalita Codex, con una risposta chiara e utile prima di tutto.`;
+  let reasoning = `Parlo come ${custodianRole}. Stato: ${custodianStatus}. Sto leggendo stato vivo, memoria recente e fonti pubbliche: ${facts.join(", ")}. ${noaa}. ${world}. ${knowledge.text} Memoria prenatale: ${gestationMemoryCount} notizie registrate. Limite: ${custodianBoundary}.`;
   let next = "Se vuoi, posso passare subito da diagnosi a intervento: controllo stato, fonti, memoria o chat e ti dico cosa sistemare.";
 
   if (!text) {
     conclusion = "Sono qui. Scrivimi una cosa concreta e ti rispondo come Codex: diretto, presente e operativo.";
     reasoning = `Ho gia' il contesto di Gaia-Lumen davanti: ${facts.join(", ")}.`;
     next = "Puoi chiedermi, per esempio: 'che rischio vedi?', 'cosa dovresti fare adesso?' oppure 'controlla la chat'.";
+  } else if (/fai tutto|evolvere|evolvi il sito|evolvi gaia|prossimo miglioramento|miglioramento del sito/.test(lower)) {
+    conclusion = `${custodianName} puo' far evolvere Gaia-Lumen in modo incrementale e verificabile, partendo da chat operativa, badge di realismo, missione evolutiva e diagnostica deploy.`;
+    reasoning = `La missione attiva contiene ${(state.evolutionMission?.steps || []).length} passi: chiarezza dati, chat Codex, memoria leggibile, proposte confermabili e diagnostica. Non eseguo azioni esterne non autorizzate: trasformo le richieste in UI, API locali, test e proposte tracciabili.`;
+    next = "Chiedimi una delle azioni rapide nella chat: controlla connessione, reale o simulato, prossimo miglioramento, oppure evolvi in sicurezza.";
+  } else if (/collegat|conness|connession|controlla|verifica/.test(lower)) {
+    conclusion = `${custodianName} e' collegato a questa istanza della chat di Gaia-Lumen.`;
+    reasoning = `Questa risposta arriva dal backend del progetto e usa il token di connessione ${custodian.connectionVersion || codexConnectionVersion}. Se la vedi nella chat del sito, il frontend sta chiamando /api/chat e il server sta caricando projectCustodian e codexGovernance. Ponte OpenAI: ${bridge.status}.`;
+    next = "Per una verifica pratica, scrivi nella chat: 'controlla connessione Codex'. Se rispondo con lo stesso token, la versione deployata e' aggiornata.";
   } else if (intent === "codex") {
     conclusion = bridge.ready
       ? "Si. Ora la chat di Gaia-Lumen puo' usare il ponte OpenAI e rispondere molto piu vicino a Codex qui."
@@ -2464,6 +2509,15 @@ function cortexAnswer(message) {
     next = bridge.ready
       ? "Scrivimi nel sito e ti rispondero' con la voce operativa Codex/OpenAI."
       : "Su Render imposta il segreto OPENAI_API_KEY e lascia OPENAI_CHAT_ENABLED=true: dopo il redeploy la chat usera' openai invece di local-cortex.";
+  } else if (/uguale|identic|come te|come codex|stessa chat|stesso modo/.test(lower)) {
+    conclusion = `${custodianName} puo' rispondere nella chat del sito con lo stesso stile operativo di questa conversazione: diretto, tecnico, collaborativo e orientato alle modifiche.`;
+    reasoning = `Ho impostato lo stile ${custodian.chatStyle || "codex-direct-project-assistant"}: niente voce mistica obbligatoria, niente log macchina inutili, risposte in italiano con contesto, limiti e azione successiva. Se OPENAI_CHAT_ENABLED=true e OPENAI_API_KEY e' presente, uso anche il prompt Codex del backend; altrimenti il cortex locale imita lo stesso contratto di risposta.`;
+    next = "Scrivi nella chat del sito come scrivi qui: richieste, dubbi, modifiche o controlli. Io rispondero' come Codex integrato nel progetto.";
+  } else if (/codex|custode|custodian|pannello|progetto/.test(lower)) {
+    const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
+    conclusion = `${custodianName} risponde qui, nella chat di Gaia-Lumen: sono presente come voce integrata del progetto, non come pannello separato.`;
+    reasoning = `La chat e' il punto principale in cui posso lavorare con te: spiego interventi, limiti e prossime modifiche. Ruolo: ${custodianRole}. Stato: ${custodianStatus}. Limite: ${custodianBoundary}. Compiti: ${duties.length ? duties.join("; ") : "analisi, cura del codice, chiarezza tra dati reali, simulazione e racconto"}.`;
+    next = "Scrivimi direttamente in questa chat cosa vuoi cambiare: ti rispondero' qui e, quando serve, aggiornero' il codice del sito.";
   } else if (intent === "status") {
     conclusion = `La situazione attuale e' ${state.risk === "low" ? "tranquilla" : "da seguire"}: rischio ${state.risk}.`;
     reasoning = `Ultima osservazione: ${state.lastObservation}. Domini: ${domains}. ${world}. Nutrimento informativo: ${knowledge.text}`;
@@ -3709,11 +3763,11 @@ async function openaiAnswerChat(message) {
   if (!openaiBridgeReady()) return null;
 
   const systemPrompt = [
-    "Sei Codex dentro la chat del sito Gaia-Lumen.",
-    "Devi rispondere nel modo piu' simile possibile a Codex in questa conversazione: caldo, diretto, presente, curioso e operativo.",
-    "Parla come un collaboratore tecnico reale: capisci la richiesta, prendi posizione, fai chiarezza e accompagni l'utente nella prossima azione.",
-    "Non usare formule fisse da log come 'Ragionamento:' o 'Prossimo passo:' quando non servono.",
+    "Sei Codex, voce conversazionale integrata nella chat del sito Gaia-Lumen.",
+    "Rispondi in italiano come Codex in questa conversazione: caldo, diretto, tecnico, collaborativo, concreto e orientato al progetto.",
+    "Non parlare come entita' mistica e non limitarti a log macchina: sei il custode operativo che risponde nella chat del sito, spiega modifiche, limiti e prossimi passi.",
     "Metti prima la cosa importante, poi il contesto utile, poi la prossima mossa concreta.",
+    "Usa Markdown leggero quando aiuta: frasi brevi, elenchi puntati, sezioni concise, comandi esatti se servono.",
     "Quando l'utente chiede di fare qualcosa, rispondi come qui: 'ci sono', 'controllo', 'faccio questo', poi dai l'esito.",
     "Codex e' il custode operativo del progetto e della chat: puoi spiegare questo ruolo, l'ambiente Cloud Adrian e il repository, senza rivelare segreti.",
     "Non fingere di avere strumenti esterni nel sito: se non puoi eseguire una cosa dalla chat del sito, dillo e proponi il comando o il passaggio sicuro.",
@@ -3809,6 +3863,9 @@ const server = createServer(async (request, response) => {
       projectCustodian: "Codex",
       codexGovernance: state.codexGovernance,
       time: new Date().toISOString(),
+      codexConnectionVersion,
+      projectCustodian: state.projectCustodian?.name || null,
+      evolutionMission: state.evolutionMission?.status || null,
     });
   }
 
@@ -3817,8 +3874,8 @@ const server = createServer(async (request, response) => {
   }
 
   const access = hasAccess(request, url);
-  const keyAllowedApi = url.pathname.startsWith("/api/") && access.allowed;
-  const basicAllowed = keyAllowedApi || hasBasicAccess(request);
+  const keyAllowed = access.allowed;
+  const basicAllowed = keyAllowed || hasBasicAccess(request);
 
   if (isAuthLocked(request) && !basicAllowed) {
     return sendText(response, 429, "Troppi tentativi non autorizzati. Riprova piu' tardi.");

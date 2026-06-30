@@ -14,7 +14,7 @@ PORT=8767
 OPENAI_CHAT_ENABLED=false
 PUBLIC_ACCESS_USER=gaia
 PUBLIC_ACCESS_PASS=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
-PUBLIC_ACCESS_KEY=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+PUBLIC_ACCESS_KEY=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 STATE_PATH=/data/neural_state.json
 BACKUPS_DIR=/data/backups
 ```
@@ -29,7 +29,7 @@ Questa e' la soluzione piu' stabile: il servizio resta attivo anche se il PC loc
 
 ```text
 PUBLIC_ACCESS_PASS=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
-PUBLIC_ACCESS_KEY=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+PUBLIC_ACCESS_KEY=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 ```
 
 4. Avvia:
@@ -41,7 +41,7 @@ docker compose up -d --build
 5. Il sito sara' raggiungibile su:
 
 ```text
-http://IP_DEL_SERVER:8767/?key=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+http://IP_DEL_SERVER:8767/?key=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 ```
 
 ## Opzione Render
@@ -59,7 +59,7 @@ Valori:
 
 ```text
 PUBLIC_ACCESS_PASS=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
-PUBLIC_ACCESS_KEY=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+PUBLIC_ACCESS_KEY=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 ```
 
 Nota: se il disco persistente parte vuoto, caricare `neural_state.json` iniziale sul volume o usare VPS/Docker per mantenere esattamente la memoria locale attuale.

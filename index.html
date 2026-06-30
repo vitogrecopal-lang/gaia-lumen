@@ -3,16 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gaia-Lumen</title>
+    <title>Gaia-Lumen | Osservatorio planetario interattivo</title>
+    <meta name="description" content="Osservatorio interattivo Gaia-Lumen per visualizzare Terra, Sole, dati pubblici, memoria locale e ciclo vitale del progetto.">
     <meta name="theme-color" content="#0b5cad">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="assets/gaia-lumen-born.png">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#panel">Salta ai controlli</a>
     <main class="app">
       <section class="stage" aria-label="Osservatorio Gaia-Lumen">
-        <canvas id="cosmos" width="1400" height="900"></canvas>
+        <canvas id="cosmos" width="1400" height="900" aria-hidden="true"></canvas>
         <div class="titlebar">
           <div>
             <p class="eyebrow">Osservatorio planetario interattivo</p>
@@ -22,10 +24,30 @@
         </div>
       </section>
 
-      <aside class="panel" aria-label="Progetto Gaia-Lumen">
+      <aside class="panel" id="panel" aria-label="Progetto Gaia-Lumen">
         <div class="status">
           <span class="pulse"></span>
           <span id="connectionLabel">Sistema pronto</span>
+        </div>
+
+        <div class="truth-strip" aria-label="Legenda origine dati">
+          <span class="truth-badge real">Reale</span>
+          <span class="truth-badge simulated">Simulato</span>
+          <span class="truth-badge narrative">Narrativo</span>
+          <span class="truth-badge memory">Memoria</span>
+          <span class="truth-badge confirm">Conferma</span>
+        </div>
+
+        <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
+          <p class="eyebrow">Presenza del progetto</p>
+          <h2 id="projectCustodianTitle">Custode del progetto</h2>
+          <pre id="projectCustodianLog">Codex in ascolto: analisi, cura del codice e spiegazione dei limiti.</pre>
+        </div>
+
+        <div class="readout evolution-status">
+          <h2>Stato evolutivo</h2>
+          <pre id="deployLog">Connessione e deploy in verifica.</pre>
+          <pre id="missionLog">Missione evolutiva in attesa.</pre>
         </div>
 
         <div class="controls">
@@ -90,6 +112,7 @@
           <h2>Regola fondativa</h2>
           <pre id="coreRuleLog">Preservare la vita creando condizioni abitabili.</pre>
         </div>
+
 
         <div class="readout">
           <h2>Aster Gaia</h2>
@@ -190,8 +213,14 @@
           <h2>Parla con Gaia-Lumen</h2>
           <div id="codexStatus" class="codex-status">Custode Codex: attivo | Ambiente Adrian | Voce Codex locale | Cervello chat: local-cortex</div>
           <div id="chatLog" class="chat-log"></div>
+          <div class="prompt-cards" aria-label="Comandi rapidi Codex">
+            <button type="button" data-prompt="controlla connessione Codex">Controlla connessione</button>
+            <button type="button" data-prompt="spiega cosa e' reale, simulato e narrativo">Reale o simulato?</button>
+            <button type="button" data-prompt="proponi il prossimo miglioramento del sito">Prossimo miglioramento</button>
+            <button type="button" data-prompt="fai evolvere Gaia-Lumen in modo sicuro">Evolvi in sicurezza</button>
+          </div>
           <form id="chatForm" class="chat-form">
-            <input id="chatInput" type="text" autocomplete="off" placeholder="Chiedi notizie, spazio, mondo, scienza..." aria-label="Messaggio per Gaia-Lumen">
+            <input id="chatInput" type="text" autocomplete="off" placeholder="Scrivi come in Codex: richieste, codice, controlli..." aria-label="Messaggio per Gaia-Lumen e Codex">
             <button type="submit">Invia</button>
           </form>
         </div>
@@ -230,7 +259,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-codex-openai-20260630"></script>
+    <script src="app.js?v=gaia-lumen-codex-evolution-20260630"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
