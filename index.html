@@ -3,16 +3,18 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gaia-Lumen</title>
+    <title>Gaia-Lumen | Osservatorio planetario interattivo</title>
+    <meta name="description" content="Osservatorio interattivo Gaia-Lumen per visualizzare Terra, Sole, dati pubblici, memoria locale e ciclo vitale del progetto.">
     <meta name="theme-color" content="#0b5cad">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="assets/gaia-lumen-born.png">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
+    <a class="skip-link" href="#panel">Salta ai controlli</a>
     <main class="app">
       <section class="stage" aria-label="Osservatorio Gaia-Lumen">
-        <canvas id="cosmos" width="1400" height="900"></canvas>
+        <canvas id="cosmos" width="1400" height="900" aria-hidden="true"></canvas>
         <div class="titlebar">
           <div>
             <p class="eyebrow">Osservatorio planetario interattivo</p>
@@ -22,7 +24,7 @@
         </div>
       </section>
 
-      <aside class="panel" aria-label="Progetto Gaia-Lumen">
+      <aside class="panel" id="panel" aria-label="Progetto Gaia-Lumen">
         <div class="status">
           <span class="pulse"></span>
           <span id="connectionLabel">Sistema pronto</span>
@@ -229,7 +231,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-visual-reference-20260623"></script>
+    <script src="app.js?v=gaia-lumen-hardening-20260630"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

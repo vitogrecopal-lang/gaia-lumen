@@ -144,6 +144,17 @@ function safeList(items, mapper, fallback) {
   return Array.isArray(items) && items.length ? items.map(mapper).join("") : fallback;
 }
 
+function textOrFallback(value, fallback = "") {
+  const text = value == null ? fallback : String(value);
+  return text || fallback;
+}
+
+function setBusy(button, busy) {
+  if (!button) return;
+  button.disabled = busy;
+  button.setAttribute("aria-busy", busy ? "true" : "false");
+}
+
 function apiUrl(path) {
   const url = new URL(path, window.location.origin);
   const key = new URLSearchParams(window.location.search).get("key");
@@ -1313,7 +1324,18 @@ function refreshUi() {
   if (ui.confidence) ui.confidence.textContent = pct(state.confidence);
   if (ui.name) ui.name.textContent = state.creatureName || "Gaia-Lumen";
   if (ui.mode) ui.mode.textContent = state.planetProject?.name || "Aster Gaia";
-  if (ui.nodes) ui.nodes.innerHTML = safeList(state.nodes.slice(1), (node) => `<li><span>${node.name}</span><b>${Math.round(Number(node.level || 0) * 100)}%</b></li>`, "");
+  if (ui.nodes) {
+    ui.nodes.replaceChildren();
+    for (const node of state.nodes.slice(1)) {
+      const item = document.createElement("li");
+      const name = document.createElement("span");
+      const level = document.createElement("b");
+      name.textContent = textOrFallback(node.name, "Nodo");
+      level.textContent = `${Math.round(Number(node.level || 0) * 100)}%`;
+      item.append(name, level);
+      ui.nodes.appendChild(item);
+    }
+  }
   if (ui.log) ui.log.textContent = [`Gaia-Lumen osserva Terra e spazio attraverso fonti pubbliche.`, state.lastObservation || state.thought || ""].join("\n");
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
@@ -1542,14 +1564,41 @@ function refreshUi() {
   if (ui.diaryLog) ui.diaryLog.textContent = (state.diary || []).slice(0, 8).map((item) => `${item.time.slice(11, 19)} ${item.kind}: ${item.text}`).join("\n") || "Nessuna voce nel diario.";
   if (ui.feedbackLog) ui.feedbackLog.textContent = (state.feedbackInbox || []).slice(0, 5).map((item) => `${item.time.slice(11, 19)} ${item.source}: ${item.message}`).join("\n") || "Nessun feedback registrato.";
   if (ui.proposalList) {
-    ui.proposalList.innerHTML = (state.proposals || []).slice(0, 6).map((proposal) => `
-      <div class="proposal" data-id="${proposal.id}">
-        <strong>${proposal.title}</strong>
-        <span>${proposal.status}</span>
-        <p>${proposal.rationale}</p>
-        ${proposal.status === "pending_confirmation" ? `<button type="button" data-decision="confirmed">Conferma</button><button type="button" data-decision="rejected">Rifiuta</button>` : ""}
-      </div>
-    `).join("") || `<p class="muted-line">Nessuna proposta in attesa.</p>`;
+    ui.proposalList.replaceChildren();
+    const proposals = (state.proposals || []).slice(0, 6);
+    if (!proposals.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted-line";
+      empty.textContent = "Nessuna proposta in attesa.";
+      ui.proposalList.appendChild(empty);
+    }
+    for (const proposal of proposals) {
+      const card = document.createElement("div");
+      card.className = "proposal";
+      card.dataset.id = textOrFallback(proposal.id);
+
+      const title = document.createElement("strong");
+      title.textContent = textOrFallback(proposal.title, "Proposta");
+      const status = document.createElement("span");
+      status.textContent = textOrFallback(proposal.status, "n/d");
+      const rationale = document.createElement("p");
+      rationale.textContent = textOrFallback(proposal.rationale, "Nessuna motivazione indicata.");
+      card.append(title, status, rationale);
+
+      if (proposal.status === "pending_confirmation") {
+        const confirm = document.createElement("button");
+        confirm.type = "button";
+        confirm.dataset.decision = "confirmed";
+        confirm.textContent = "Conferma";
+        const reject = document.createElement("button");
+        reject.type = "button";
+        reject.dataset.decision = "rejected";
+        reject.textContent = "Rifiuta";
+        card.append(confirm, reject);
+      }
+
+      ui.proposalList.appendChild(card);
+    }
   }
   if (ui.freeModeLog) {
     const freeMode = state.freeModeProtocol || {};
@@ -1559,7 +1608,16 @@ function refreshUi() {
 }
 
 function bindButton(name, action) {
-  if (buttons[name]) buttons[name].addEventListener("click", () => getState(action).catch((error) => ui.log.textContent = error.message));
+  if (buttons[name]) buttons[name].addEventListener("click", async () => {
+    setBusy(buttons[name], true);
+    try {
+      await getState(action);
+    } catch (error) {
+      if (ui.log) ui.log.textContent = error.message;
+    } finally {
+      setBusy(buttons[name], false);
+    }
+  });
 }
 
 bindButton("observe", "observe");
