@@ -35,7 +35,7 @@ HOST=0.0.0.0
 OPENAI_CHAT_ENABLED=false
 PUBLIC_ACCESS_USER=gaia
 PUBLIC_ACCESS_PASS=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
-PUBLIC_ACCESS_KEY=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+PUBLIC_ACCESS_KEY=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 ```
 
 Nota: se l'hosting assegna automaticamente la porta, lascia che usi la variabile `PORT` fornita dal servizio.
@@ -74,7 +74,7 @@ npm start
 Poi apri:
 
 ```text
-http://127.0.0.1:8767/?key=fc54da50a3504ed889fce7fcf19be5df876bb7bb93514b34adbd
+http://127.0.0.1:8767/?key=33d3ad00e5c04be39aaadae0237e39bbd1ea75eea8114bb28afe
 ```
 
 ## Regola importante sulla memoria

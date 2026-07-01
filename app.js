@@ -25,6 +25,9 @@ const ui = {
   realityLog: $("#realityLog"),
   worldLog: $("#worldLog"),
   coreRuleLog: $("#coreRuleLog"),
+  projectCustodianLog: $("#projectCustodianLog"),
+  deployLog: $("#deployLog"),
+  missionLog: $("#missionLog"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -68,6 +71,7 @@ const buttons = {
   awaken: $("#awakenBtn"),
   sources: $("#sourcesBtn"),
   controlledFree: $("#controlledFreeBtn"),
+  evolutionBoost: $("#evolutionBoostBtn"),
   beacon: $("#beaconBtn"),
   evolve: $("#evolveBtn"),
   reflect: $("#reflectBtn"),
@@ -142,6 +146,17 @@ function pct(value) {
 
 function safeList(items, mapper, fallback) {
   return Array.isArray(items) && items.length ? items.map(mapper).join("") : fallback;
+}
+
+function textOrFallback(value, fallback = "") {
+  const text = value == null ? fallback : String(value);
+  return text || fallback;
+}
+
+function setBusy(button, busy) {
+  if (!button) return;
+  button.disabled = busy;
+  button.setAttribute("aria-busy", busy ? "true" : "false");
 }
 
 function apiUrl(path) {
@@ -1313,11 +1328,58 @@ function refreshUi() {
   if (ui.confidence) ui.confidence.textContent = pct(state.confidence);
   if (ui.name) ui.name.textContent = state.creatureName || "Gaia-Lumen";
   if (ui.mode) ui.mode.textContent = state.planetProject?.name || "Aster Gaia";
-  if (ui.nodes) ui.nodes.innerHTML = safeList(state.nodes.slice(1), (node) => `<li><span>${node.name}</span><b>${Math.round(Number(node.level || 0) * 100)}%</b></li>`, "");
+  if (ui.nodes) {
+    ui.nodes.replaceChildren();
+    for (const node of state.nodes.slice(1)) {
+      const item = document.createElement("li");
+      const name = document.createElement("span");
+      const level = document.createElement("b");
+      name.textContent = textOrFallback(node.name, "Nodo");
+      level.textContent = `${Math.round(Number(node.level || 0) * 100)}%`;
+      item.append(name, level);
+      ui.nodes.appendChild(item);
+    }
+  }
   if (ui.log) ui.log.textContent = [`Gaia-Lumen osserva Terra e spazio attraverso fonti pubbliche.`, state.lastObservation || state.thought || ""].join("\n");
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";
+  if (ui.projectCustodianLog) {
+    const custodian = state.projectCustodian || {};
+    const duties = Array.isArray(custodian.duties) ? custodian.duties : [];
+    ui.projectCustodianLog.textContent = [
+      `${custodian.name || "Codex"}: ${custodian.role || "custode tecnico e narrativo del progetto"}`,
+      `Stato: ${custodian.status || "in ascolto"}`,
+      `Limite: ${custodian.boundary || "non sostituisce scelte umane e non agisce fuori dal repository senza richiesta"}`,
+      `Connessione: ${custodian.connectionVersion || "in attesa del backend aggiornato"}`,
+      "",
+      "Compiti:",
+      ...(duties.length ? duties.map((item) => `- ${item}`) : ["- analizzare il sito", "- proporre miglioramenti", "- mantenere chiari dati reali, simulazione e racconto"]),
+    ].join("\n");
+  }
+  if (ui.deployLog) {
+    const custodian = state.projectCustodian || {};
+    ui.deployLog.textContent = [
+      `Backend: ${custodian.connectionVersion || "non verificato"}`,
+      `Chat: ${state.chatBrain || "local-cortex"}`,
+      `Modello: ${state.chatModel || "locale"}`,
+      `Service worker: gaia-lumen-static-v10`,
+    ].join("\n");
+  }
+  if (ui.missionLog) {
+    const mission = state.evolutionMission || {};
+    const steps = Array.isArray(mission.steps) ? mission.steps : [];
+    ui.missionLog.textContent = [
+      `${mission.title || "Missione evolutiva"}`,
+      `Stato: ${mission.status || "in preparazione"}`,
+      `Intensita': ${mission.intensity || "standard"}`,
+      `Maturita': ${Math.round(Number(mission.maturityScore || 0) * 100)}%`,
+      `Corsie: ${Array.isArray(mission.lanes) ? mission.lanes.join(", ") : "n/d"}`,
+      `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
+      "",
+      ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
+    ].join("\n");
+  }
   if (ui.planetLog) ui.planetLog.textContent = state.planetProject ? [`${state.planetProject.name} gen ${state.planetProject.generation}`, `abitabilita': ${pct(state.planetProject.habitability)}`, `sopravvivenza: ${pct(state.planetProject.survivalIndex)}`, state.planetProject.lastDesign || ""].join("\n") : "Non ancora progettato.";
   drawStellarMapCanvas();
   if (ui.stellarMapLog) {
@@ -1542,14 +1604,41 @@ function refreshUi() {
   if (ui.diaryLog) ui.diaryLog.textContent = (state.diary || []).slice(0, 8).map((item) => `${item.time.slice(11, 19)} ${item.kind}: ${item.text}`).join("\n") || "Nessuna voce nel diario.";
   if (ui.feedbackLog) ui.feedbackLog.textContent = (state.feedbackInbox || []).slice(0, 5).map((item) => `${item.time.slice(11, 19)} ${item.source}: ${item.message}`).join("\n") || "Nessun feedback registrato.";
   if (ui.proposalList) {
-    ui.proposalList.innerHTML = (state.proposals || []).slice(0, 6).map((proposal) => `
-      <div class="proposal" data-id="${proposal.id}">
-        <strong>${proposal.title}</strong>
-        <span>${proposal.status}</span>
-        <p>${proposal.rationale}</p>
-        ${proposal.status === "pending_confirmation" ? `<button type="button" data-decision="confirmed">Conferma</button><button type="button" data-decision="rejected">Rifiuta</button>` : ""}
-      </div>
-    `).join("") || `<p class="muted-line">Nessuna proposta in attesa.</p>`;
+    ui.proposalList.replaceChildren();
+    const proposals = (state.proposals || []).slice(0, 6);
+    if (!proposals.length) {
+      const empty = document.createElement("p");
+      empty.className = "muted-line";
+      empty.textContent = "Nessuna proposta in attesa.";
+      ui.proposalList.appendChild(empty);
+    }
+    for (const proposal of proposals) {
+      const card = document.createElement("div");
+      card.className = "proposal";
+      card.dataset.id = textOrFallback(proposal.id);
+
+      const title = document.createElement("strong");
+      title.textContent = textOrFallback(proposal.title, "Proposta");
+      const status = document.createElement("span");
+      status.textContent = textOrFallback(proposal.status, "n/d");
+      const rationale = document.createElement("p");
+      rationale.textContent = textOrFallback(proposal.rationale, "Nessuna motivazione indicata.");
+      card.append(title, status, rationale);
+
+      if (proposal.status === "pending_confirmation") {
+        const confirm = document.createElement("button");
+        confirm.type = "button";
+        confirm.dataset.decision = "confirmed";
+        confirm.textContent = "Conferma";
+        const reject = document.createElement("button");
+        reject.type = "button";
+        reject.dataset.decision = "rejected";
+        reject.textContent = "Rifiuta";
+        card.append(confirm, reject);
+      }
+
+      ui.proposalList.appendChild(card);
+    }
   }
   if (ui.freeModeLog) {
     const freeMode = state.freeModeProtocol || {};
@@ -1559,7 +1648,16 @@ function refreshUi() {
 }
 
 function bindButton(name, action) {
-  if (buttons[name]) buttons[name].addEventListener("click", () => getState(action).catch((error) => ui.log.textContent = error.message));
+  if (buttons[name]) buttons[name].addEventListener("click", async () => {
+    setBusy(buttons[name], true);
+    try {
+      await getState(action);
+    } catch (error) {
+      if (ui.log) ui.log.textContent = error.message;
+    } finally {
+      setBusy(buttons[name], false);
+    }
+  });
 }
 
 bindButton("observe", "observe");
@@ -1570,6 +1668,7 @@ bindButton("cosmogenesis", "cosmogenesis");
 bindButton("awaken", "awaken");
 bindButton("sources", "public-sources");
 bindButton("controlledFree", "controlled-free-mode");
+bindButton("evolutionBoost", "evolution/boost");
 bindButton("beacon", "beacon");
 bindButton("evolve", "evolve");
 bindButton("reflect", "reflect");
@@ -1588,6 +1687,28 @@ function addMessage(kind, text) {
   item.textContent = text;
   ui.chatLog.appendChild(item);
   ui.chatLog.scrollTop = ui.chatLog.scrollHeight;
+}
+
+function seedCustodianChatMessage() {
+  if (!ui.chatLog || ui.chatLog.dataset.custodianSeeded === "true") return;
+  ui.chatLog.dataset.custodianSeeded = "true";
+  const custodian = state.projectCustodian || {};
+  addMessage(
+    "ai",
+    `${custodian.name || "Codex"} e' parte integrante della chat di Gaia-Lumen. Scrivimi qui come scrivi in Codex: rispondero' in modo diretto, tecnico e collaborativo, con contesto, limiti e prossima azione utile.`,
+  );
+}
+
+seedCustodianChatMessage();
+
+if (ui.chatLog) {
+  document.querySelectorAll("[data-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (!ui.chatInput) return;
+      ui.chatInput.value = button.dataset.prompt || "";
+      ui.chatInput.focus();
+    });
+  });
 }
 
 if (ui.chatForm) {
