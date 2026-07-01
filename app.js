@@ -72,6 +72,7 @@ const buttons = {
   awaken: $("#awakenBtn"),
   sources: $("#sourcesBtn"),
   controlledFree: $("#controlledFreeBtn"),
+  evolutionBoost: $("#evolutionBoostBtn"),
   beacon: $("#beaconBtn"),
   evolve: $("#evolveBtn"),
   reflect: $("#reflectBtn"),
@@ -1380,7 +1381,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v9`,
+      `Service worker: gaia-lumen-static-v10`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1389,6 +1390,9 @@ function refreshUi() {
     ui.missionLog.textContent = [
       `${mission.title || "Missione evolutiva"}`,
       `Stato: ${mission.status || "in preparazione"}`,
+      `Intensita': ${mission.intensity || "standard"}`,
+      `Maturita': ${Math.round(Number(mission.maturityScore || 0) * 100)}%`,
+      `Corsie: ${Array.isArray(mission.lanes) ? mission.lanes.join(", ") : "n/d"}`,
       `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
       "",
       ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
@@ -1682,6 +1686,7 @@ bindButton("cosmogenesis", "cosmogenesis");
 bindButton("awaken", "awaken");
 bindButton("sources", "public-sources");
 bindButton("controlledFree", "controlled-free-mode");
+bindButton("evolutionBoost", "evolution/boost");
 bindButton("beacon", "beacon");
 bindButton("evolve", "evolve");
 bindButton("reflect", "reflect");

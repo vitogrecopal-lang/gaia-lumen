@@ -14,17 +14,18 @@ try {
   const health = await fetch(`${base}/healthz?key=smoke-key`).then((response) => response.json());
   if (health.projectCustodian !== "Codex") throw new Error("projectCustodian missing from healthz");
   if (!health.codexConnectionVersion) throw new Error("codexConnectionVersion missing from healthz");
-  if (health.evolutionMission !== "attiva") throw new Error("evolutionMission is not active");
+  if (health.evolutionMission !== "massima-evoluzione") throw new Error("evolutionMission is not max evolution");
+  if (health.evolutionIntensity !== "max-safe") throw new Error("evolutionIntensity is not max-safe");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-codex-evolution-20260630"]) {
+  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-codex-max-20260701"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ message: "fai evolvere Gaia-Lumen in modo sicuro" }),
+    body: JSON.stringify({ message: "potenzia evoluzione Codex al massimo" }),
   }).then((response) => response.json());
   if (!String(chat.reply || "").includes("Codex")) throw new Error("chat did not answer as Codex");
 
