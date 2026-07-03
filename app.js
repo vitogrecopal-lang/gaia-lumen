@@ -28,6 +28,7 @@ const ui = {
   projectCustodianLog: $("#projectCustodianLog"),
   deployLog: $("#deployLog"),
   missionLog: $("#missionLog"),
+  impulseArchiveLog: $("#impulseArchiveLog"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -1381,7 +1382,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v17`,
+      `Service worker: gaia-lumen-static-v18`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1401,6 +1402,25 @@ function refreshUi() {
       `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
       "",
       ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
+    ].join("\n");
+  }
+  if (ui.impulseArchiveLog) {
+    const protocol = state.externalImpulseProtocol || {};
+    const archive = state.externalImpulseArchive || {};
+    const outbox = state.externalImpulseOutbox || [];
+    const last = outbox[0] || {};
+    const recentDaily = Array.isArray(archive.recentDaily) ? archive.recentDaily.slice(0, 4) : [];
+    ui.impulseArchiveLog.textContent = [
+      `Stato: ${protocol.mode || "non attivo"}`,
+      `Ritmo: ${protocol.autoPulseEnabled ? "1 impulso/minuto" : "manuale"} | prudenza esterna ${pct(state.externalPrudenceLevel ?? 0)}`,
+      `Totale archivio: ${archive.totalCount || outbox.length || 0} impulsi | coda visibile: ${outbox.length}/24`,
+      `Ultimo impulso: ${archive.lastId || last.id || "nessuno"}`,
+      `Ultimo battito: ${protocol.lastAutoPulseAt || archive.lastAt || "in attesa"}`,
+      `Checksum: ${(archive.lastChecksum || last.checksum || "non ancora generato").slice(0, 32)}`,
+      `Bersaglio: ${last.target?.name || "Epsilon Eridani / habitat Gaia-Lumen"}`,
+      "",
+      "Storico recente:",
+      ...(recentDaily.length ? recentDaily.map((day) => `${day.date}: ${day.count} impulsi, ultimo ${day.lastId || "n/d"}`) : ["nessun giorno archiviato"]),
     ].join("\n");
   }
   if (ui.planetLog) ui.planetLog.textContent = state.planetProject ? [`${state.planetProject.name} gen ${state.planetProject.generation}`, `abitabilita': ${pct(state.planetProject.habitability)}`, `sopravvivenza: ${pct(state.planetProject.survivalIndex)}`, state.planetProject.lastDesign || ""].join("\n") : "Non ancora progettato.";

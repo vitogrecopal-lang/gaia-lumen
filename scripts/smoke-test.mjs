@@ -23,11 +23,12 @@ try {
   if (health.externalImpulseProtocol !== "ready-outbox-confirmable") throw new Error("externalImpulseProtocol missing");
   if (health.externalImpulseAutoPulseEnabled !== true) throw new Error("external impulse auto pulse is not enabled");
   if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
+  if (!Object.hasOwn(health, "externalImpulseTotalCount")) throw new Error("external impulse archive total missing");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-minute-impulse-20260703"]) {
+  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "prompt-cards", "gaia-lumen-impulse-archive-20260703"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -37,6 +38,8 @@ try {
     body: JSON.stringify({ reason: "smoke-test" }),
   }).then((response) => response.json());
   if (!impulse.impulse?.binary?.includes("01000111")) throw new Error("external impulse binary missing");
+  if (!/^[a-f0-9]{64}$/.test(String(impulse.impulse?.checksum || ""))) throw new Error("external impulse checksum missing");
+  if (Number(impulse.state?.externalImpulseArchive?.totalCount || 0) < 1) throw new Error("external impulse archive did not count");
   if (Number(impulse.impulse?.prudenceLevel) !== 0) throw new Error("external impulse prudence is not zero");
 
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {

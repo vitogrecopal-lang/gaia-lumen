@@ -471,6 +471,15 @@ input {
   background: rgba(9, 37, 52, 0.22);
 }
 
+.impulse-status {
+  border-color: rgba(255, 209, 102, 0.34);
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.13), rgba(118, 247, 189, 0.08));
+}
+
+.impulse-status h2 {
+  color: var(--gold);
+}
+
 .prompt-cards {
   display: grid;
   gap: 0.45rem;

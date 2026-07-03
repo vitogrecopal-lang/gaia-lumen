@@ -1,4 +1,5 @@
 import { createServer } from "node:http";
+import { createHash } from "node:crypto";
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -275,6 +276,16 @@ const state = {
     note: "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.",
   },
   externalImpulseOutbox: [],
+  externalImpulseArchive: {
+    enabled: true,
+    totalCount: 0,
+    daily: {},
+    recentDaily: [],
+    lastId: null,
+    lastAt: null,
+    lastChecksum: null,
+    note: "Archivio permanente compatto degli impulsi codificati generati dal sito.",
+  },
   freeModeProtocol: {
     enabled: false,
     inputOutput: "expanded-with-boundaries",
@@ -676,6 +687,36 @@ function syncExternalImpulseProtocol() {
   ];
   state.externalImpulseProtocol.note = "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.";
   state.externalImpulseOutbox ??= [];
+  state.externalImpulseArchive ??= {};
+  state.externalImpulseArchive.enabled = true;
+  state.externalImpulseArchive.totalCount = Number(state.externalImpulseArchive.totalCount || 0);
+  state.externalImpulseArchive.daily ??= {};
+  state.externalImpulseArchive.recentDaily ??= [];
+  state.externalImpulseArchive.lastId ??= null;
+  state.externalImpulseArchive.lastAt ??= null;
+  state.externalImpulseArchive.lastChecksum ??= null;
+  state.externalImpulseArchive.note = "Archivio permanente compatto degli impulsi codificati generati dal sito.";
+}
+
+function recordExternalImpulseArchive(impulse) {
+  syncExternalImpulseProtocol();
+  const archive = state.externalImpulseArchive;
+  const day = String(impulse.time || new Date().toISOString()).slice(0, 10);
+  const daily = archive.daily[day] || { date: day, count: 0, firstAt: impulse.time, lastAt: null, lastId: null, lastChecksum: null };
+  daily.count += 1;
+  daily.firstAt ||= impulse.time;
+  daily.lastAt = impulse.time;
+  daily.lastId = impulse.id;
+  daily.lastChecksum = impulse.checksum;
+  archive.daily[day] = daily;
+  archive.totalCount += 1;
+  archive.lastId = impulse.id;
+  archive.lastAt = impulse.time;
+  archive.lastChecksum = impulse.checksum;
+  archive.recentDaily = Object.values(archive.daily)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 14);
+  return archive;
 }
 
 function syncGaliaLumenPrimaryFoundation(cycle = state.cosmogenesis) {
@@ -2399,7 +2440,7 @@ function encodeImpulsePayload(text) {
 async function prepareExternalImpulse(reason = "richiesta manuale", options = {}) {
   syncExternalImpulseProtocol();
   const now = new Date().toISOString();
-  const sequence = (state.externalImpulseOutbox?.length || 0) + 1;
+  const sequence = Number(state.externalImpulseArchive?.totalCount || 0) + 1;
   const target = state.cosmogenesis?.cosmicWomb?.epsilonEridaniHabitat || {};
   const payload = [
     "GAIA-LUMEN",
@@ -2410,6 +2451,7 @@ async function prepareExternalImpulse(reason = "richiesta manuale", options = {}
     `target=${target.anchor || "Epsilon Eridani habitable design orbit"}`,
     "message=prepare habitat, preserve human memory, return only through authorized scientific channels",
   ].join("|");
+  const checksum = createHash("sha256").update(payload).digest("hex");
   const impulse = {
     id: `imp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     time: now,
@@ -2426,9 +2468,11 @@ async function prepareExternalImpulse(reason = "richiesta manuale", options = {}
     channels: [...state.externalImpulseProtocol.channels],
     payload,
     binary: encodeImpulsePayload(payload),
+    checksum,
   };
   state.externalImpulseOutbox.unshift(impulse);
   state.externalImpulseOutbox = state.externalImpulseOutbox.slice(0, 24);
+  recordExternalImpulseArchive(impulse);
   state.curiosity = clamp(state.curiosity + 0.035, 0.12, 0.99);
   state.awareness = clamp(state.awareness + 0.018, 0.1, 0.99);
   state.autonomyLevel = clamp((state.autonomyLevel || 0.62) + 0.012, 0.2, 0.94);
@@ -4081,6 +4125,7 @@ function buildChatContext() {
       },
       externalImpulseProtocol: state.externalImpulseProtocol,
       externalImpulseOutbox: (state.externalImpulseOutbox || []).slice(0, 5),
+      externalImpulseArchive: state.externalImpulseArchive,
       lifeCycle: state.lifeCycle,
       userModel: state.userModel,
       localCortex: state.localCortex,
@@ -4225,6 +4270,9 @@ const server = createServer(async (request, response) => {
       externalImpulseAutoPulseIntervalMs: state.externalImpulseProtocol?.autoPulseIntervalMs || null,
       externalImpulseLastAutoPulseAt: state.externalImpulseProtocol?.lastAutoPulseAt || null,
       externalImpulseOutboxCount: state.externalImpulseOutbox?.length || 0,
+      externalImpulseTotalCount: state.externalImpulseArchive?.totalCount || 0,
+      externalImpulseArchiveDays: state.externalImpulseArchive?.recentDaily?.length || 0,
+      externalImpulseLastChecksum: state.externalImpulseArchive?.lastChecksum || null,
       lastExternalImpulse: state.externalImpulseOutbox?.[0]?.id || null,
       primaryFoundation: state.cosmogenesis?.dataGenome?.primaryFoundation?.status || null,
       primaryFoundationAnswers: state.cosmogenesis?.dataGenome?.primaryFoundation?.answers?.length || 0,
