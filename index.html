@@ -55,6 +55,19 @@
           <pre id="impulseArchiveLog">Archivio impulsi in attesa.</pre>
         </div>
 
+        <div class="readout radio-status">
+          <h2>Radio digitale autorizzata</h2>
+          <pre id="radioLog">Inserisci nominativo e parametri consentiti dalla tua licenza.</pre>
+          <form id="radioForm" class="radio-form">
+            <input id="radioCallsignInput" type="text" autocomplete="off" placeholder="Nominativo" aria-label="Nominativo radioamatore">
+            <input id="radioFrequencyInput" type="text" autocomplete="off" placeholder="Frequenza autorizzata" aria-label="Frequenza autorizzata">
+            <input id="radioModeInput" type="text" autocomplete="off" placeholder="AFSK 1200" aria-label="Modo digitale">
+            <input id="radioPowerInput" type="number" min="0" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
+            <button id="radioGenerateBtn" type="submit">Genera WAV</button>
+            <a id="radioDownloadLink" class="download-link" href="#" download="gaia-lumen-impulse-afsk.wav" hidden>Scarica WAV</a>
+          </form>
+        </div>
+
         <div class="controls">
           <button id="observeBtn" type="button">Osserva il Sole</button>
           <button id="worldBtn" type="button">Aggiorna dati Terra</button>
@@ -266,7 +279,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-impulse-archive-20260703"></script>
+    <script src="app.js?v=gaia-lumen-authorized-radio-20260703"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

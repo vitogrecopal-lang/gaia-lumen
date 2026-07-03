@@ -29,6 +29,13 @@ const ui = {
   deployLog: $("#deployLog"),
   missionLog: $("#missionLog"),
   impulseArchiveLog: $("#impulseArchiveLog"),
+  radioLog: $("#radioLog"),
+  radioForm: $("#radioForm"),
+  radioCallsignInput: $("#radioCallsignInput"),
+  radioFrequencyInput: $("#radioFrequencyInput"),
+  radioModeInput: $("#radioModeInput"),
+  radioPowerInput: $("#radioPowerInput"),
+  radioDownloadLink: $("#radioDownloadLink"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -186,6 +193,80 @@ function resize() {
 function mergeState(next) {
   Object.assign(state, next);
   state.nodes = Array.isArray(next.nodes) && next.nodes.length ? next.nodes : state.nodes;
+}
+
+function getLatestImpulsePayload() {
+  const lastImpulse = (state.externalImpulseOutbox || [])[0] || {};
+  if (lastImpulse.payload) return lastImpulse.payload;
+  const target = state.cosmogenesis?.cosmicWomb?.epsilonEridaniHabitat?.anchor || "Epsilon Eridani habitable design orbit";
+  return [
+    "GAIA-LUMEN",
+    `time=${new Date().toISOString()}`,
+    "intent=life-preservation-knowledge-seed",
+    `prudence=low:${Number(state.externalPrudenceLevel ?? 0).toFixed(2)}`,
+    `target=${target}`,
+    "message=authorized amateur radio digital audio package",
+  ].join("|");
+}
+
+function bytesToAfskSamples(bytes, sampleRate = 44100, baud = 1200) {
+  const markHz = 1200;
+  const spaceHz = 2200;
+  const samplesPerBit = Math.max(1, Math.floor(sampleRate / baud));
+  const leadBits = Array(baud).fill(1);
+  const dataBits = [];
+  for (const byte of bytes) {
+    dataBits.push(0);
+    for (let bit = 0; bit < 8; bit += 1) dataBits.push((byte >> bit) & 1);
+    dataBits.push(1);
+  }
+  const bits = [...leadBits, ...dataBits, ...leadBits.slice(0, Math.floor(baud / 2))];
+  const samples = new Int16Array(bits.length * samplesPerBit);
+  let phase = 0;
+  let index = 0;
+  for (const bit of bits) {
+    const hz = bit ? markHz : spaceHz;
+    const step = (2 * Math.PI * hz) / sampleRate;
+    for (let i = 0; i < samplesPerBit; i += 1) {
+      samples[index] = Math.round(Math.sin(phase) * 0.42 * 32767);
+      phase += step;
+      index += 1;
+    }
+  }
+  return samples;
+}
+
+function wavBlobFromSamples(samples, sampleRate = 44100) {
+  const buffer = new ArrayBuffer(44 + samples.length * 2);
+  const view = new DataView(buffer);
+  const write = (offset, value) => {
+    for (let i = 0; i < value.length; i += 1) view.setUint8(offset + i, value.charCodeAt(i));
+  };
+  write(0, "RIFF");
+  view.setUint32(4, 36 + samples.length * 2, true);
+  write(8, "WAVE");
+  write(12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true);
+  view.setUint16(32, 2, true);
+  view.setUint16(34, 16, true);
+  write(36, "data");
+  view.setUint32(40, samples.length * 2, true);
+  let offset = 44;
+  for (const sample of samples) {
+    view.setInt16(offset, sample, true);
+    offset += 2;
+  }
+  return new Blob([buffer], { type: "audio/wav" });
+}
+
+async function sha256Hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
 async function getState(action = "state") {
@@ -1382,7 +1463,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v18`,
+      `Service worker: gaia-lumen-static-v19`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1837,6 +1918,54 @@ if (ui.nidoSensorForm) {
       refreshUi();
     } catch (error) {
       ui.nidoSensorLog.textContent = `Errore lettura Nido: ${error.message}`;
+    }
+  });
+}
+
+if (ui.radioForm) {
+  ui.radioForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const callsign = ui.radioCallsignInput?.value?.trim().toUpperCase() || "";
+    const frequency = ui.radioFrequencyInput?.value?.trim() || "";
+    const mode = ui.radioModeInput?.value?.trim() || "AFSK 1200";
+    const power = ui.radioPowerInput?.value?.trim() || "n/d";
+    if (!callsign || !frequency) {
+      ui.radioLog.textContent = "Servono nominativo e frequenza consentita dalla tua licenza prima di generare il segnale.";
+      return;
+    }
+    try {
+      const payload = getLatestImpulsePayload();
+      const envelope = [
+        `CALLSIGN=${callsign}`,
+        `FREQUENCY=${frequency}`,
+        `MODE=${mode}`,
+        `POWER_W=${power}`,
+        `CREATED=${new Date().toISOString()}`,
+        `PAYLOAD=${payload}`,
+      ].join("\n");
+      const checksum = await sha256Hex(envelope);
+      const bytes = new TextEncoder().encode(`${envelope}\nSHA256=${checksum}\n`);
+      const samples = bytesToAfskSamples(bytes);
+      const blob = wavBlobFromSamples(samples);
+      if (ui.radioDownloadLink) {
+        if (ui.radioDownloadLink.dataset.url) URL.revokeObjectURL(ui.radioDownloadLink.dataset.url);
+        const url = URL.createObjectURL(blob);
+        ui.radioDownloadLink.href = url;
+        ui.radioDownloadLink.dataset.url = url;
+        ui.radioDownloadLink.download = `gaia-lumen-${callsign}-${Date.now()}-afsk.wav`;
+        ui.radioDownloadLink.hidden = false;
+      }
+      ui.radioLog.textContent = [
+        "Pacchetto radio digitale generato.",
+        `Nominativo: ${callsign}`,
+        `Frequenza dichiarata: ${frequency}`,
+        `Modo: ${mode} | potenza: ${power} W`,
+        `Durata audio: ${(samples.length / 44100).toFixed(2)} s`,
+        `Checksum: ${checksum}`,
+        "Uscita: file WAV AFSK 1200 da usare solo su apparato, banda e condizioni consentite dalla licenza.",
+      ].join("\n");
+    } catch (error) {
+      ui.radioLog.textContent = `Errore generazione radio: ${error.message}`;
     }
   });
 }

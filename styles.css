@@ -360,6 +360,29 @@ pre {
   grid-column: 1 / -1;
 }
 
+.radio-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.radio-form button,
+.radio-form .download-link {
+  grid-column: 1 / -1;
+}
+
+.download-link {
+  min-height: 42px;
+  border: 1px solid rgba(118, 247, 189, 0.34);
+  border-radius: 8px;
+  background: rgba(33, 82, 68, 0.2);
+  color: var(--green);
+  display: grid;
+  font-weight: 700;
+  place-items: center;
+  text-decoration: none;
+}
+
 .proposal-list {
   display: grid;
   gap: 10px;
@@ -478,6 +501,15 @@ input {
 
 .impulse-status h2 {
   color: var(--gold);
+}
+
+.radio-status {
+  border-color: rgba(118, 247, 189, 0.34);
+  background: linear-gradient(135deg, rgba(118, 247, 189, 0.12), rgba(110, 231, 255, 0.08));
+}
+
+.radio-status h2 {
+  color: var(--green);
 }
 
 .prompt-cards {
