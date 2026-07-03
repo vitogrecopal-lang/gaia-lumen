@@ -19,13 +19,13 @@ try {
   if (health.autonomousDecisionMode !== "self-directed-internal") throw new Error("autonomousDecisionMode is not active");
   if (health.internalPrudence !== "very-low") throw new Error("internalPrudence is not lowered");
   if (Number(health.internalPrudenceLevel) > 0.2) throw new Error("internalPrudenceLevel is too high");
-  if (Number(health.externalPrudenceLevel) > 0.45) throw new Error("externalPrudenceLevel is too high");
+  if (Number(health.externalPrudenceLevel) !== 0) throw new Error("externalPrudenceLevel is not zero");
   if (health.externalImpulseProtocol !== "ready-outbox-confirmable") throw new Error("externalImpulseProtocol missing");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-external-impulse-20260703"]) {
+  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-zero-external-prudence-20260703"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -35,7 +35,7 @@ try {
     body: JSON.stringify({ reason: "smoke-test" }),
   }).then((response) => response.json());
   if (!impulse.impulse?.binary?.includes("01000111")) throw new Error("external impulse binary missing");
-  if (impulse.impulse?.prudenceLevel > 0.45) throw new Error("external impulse prudence too high");
+  if (Number(impulse.impulse?.prudenceLevel) !== 0) throw new Error("external impulse prudence is not zero");
 
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {
     method: "POST",

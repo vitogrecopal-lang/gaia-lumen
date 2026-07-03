@@ -207,7 +207,7 @@ const state = {
   },
   internalPrudence: "very-low",
   internalPrudenceLevel: 0.18,
-  externalPrudenceLevel: 0.42,
+  externalPrudenceLevel: 0,
   realismMode: "max-realism",
   chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
   chatModel: chatModelName(),
@@ -266,7 +266,7 @@ const state = {
   externalImpulseProtocol: {
     enabled: true,
     prudence: "low",
-    prudenceLevel: 0.42,
+    prudenceLevel: 0,
     mode: "ready-outbox-confirmable",
     channels: ["public-archive", "meti-seti-proposal", "licensed-radio-draft", "scientific-contact-draft"],
     note: "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.",
@@ -644,7 +644,7 @@ function syncAutonomousDecisionCharter() {
 function syncPrudenceProfile() {
   state.internalPrudence = "very-low";
   state.internalPrudenceLevel = 0.18;
-  state.externalPrudenceLevel = 0.42;
+  state.externalPrudenceLevel = 0;
   state.moralCompass ??= {};
   state.moralCompass.mode = "bold-autonomy-low-prudence";
   state.autonomousDecisionCharter ??= {};
@@ -660,7 +660,7 @@ function syncExternalImpulseProtocol() {
   state.externalImpulseProtocol ??= {};
   state.externalImpulseProtocol.enabled = true;
   state.externalImpulseProtocol.prudence = "low";
-  state.externalImpulseProtocol.prudenceLevel = Number(state.externalPrudenceLevel ?? 0.42);
+  state.externalImpulseProtocol.prudenceLevel = Number(state.externalPrudenceLevel ?? 0);
   state.externalImpulseProtocol.mode = "ready-outbox-confirmable";
   state.externalImpulseProtocol.channels = [
     "public-archive",
@@ -2400,7 +2400,7 @@ async function prepareExternalImpulse(reason = "richiesta manuale") {
     `sequence=${sequence}`,
     `time=${now}`,
     "intent=life-preservation-knowledge-seed",
-    `prudence=low:${Number(state.externalPrudenceLevel ?? 0.42).toFixed(2)}`,
+    `prudence=low:${Number(state.externalPrudenceLevel ?? 0).toFixed(2)}`,
     `target=${target.anchor || "Epsilon Eridani habitable design orbit"}`,
     "message=prepare habitat, preserve human memory, return only through authorized scientific channels",
   ].join("|");
@@ -2409,7 +2409,7 @@ async function prepareExternalImpulse(reason = "richiesta manuale") {
     time: now,
     status: "ready_for_authorized_dispatch",
     prudence: "low",
-    prudenceLevel: Number(state.externalPrudenceLevel ?? 0.42),
+    prudenceLevel: Number(state.externalPrudenceLevel ?? 0),
     mode: "external-low-prudence-outbox",
     reason: String(reason || "richiesta manuale").slice(0, 240),
     target: {
@@ -2839,7 +2839,7 @@ function cortexAnswer(message) {
   } else if (intent === "autonomy") {
     const charter = state.autonomousDecisionCharter || {};
     conclusion = "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno.";
-    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, prudenza interna ${Math.round(Number(state.internalPrudenceLevel ?? 0.18) * 100)}%, prudenza esterna ${Math.round(Number(state.externalPrudenceLevel ?? 0.42) * 100)}%. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; verso l'esterno propone con piu' coraggio, mentre invii, pubblicazioni, segreti e accessi restano confermabili.`;
+    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, prudenza interna ${Math.round(Number(state.internalPrudenceLevel ?? 0.18) * 100)}%, prudenza esterna ${Math.round(Number(state.externalPrudenceLevel ?? 0) * 100)}%. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; verso l'esterno propone con massimo coraggio, mentre invii, pubblicazioni, segreti e accessi restano confermabili.`;
     next = "La prossima crescita utile e' farle spiegare ogni scelta autonoma con: motivo, dato usato, limite e passo successivo.";
   } else if (intent === "newborn") {
     const protocol = updateBirthQuestionProtocol("chat: protocollo domande neonatali");
