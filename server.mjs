@@ -207,7 +207,7 @@ const state = {
   },
   internalPrudence: "very-low",
   internalPrudenceLevel: 0.18,
-  externalPrudenceLevel: 0.92,
+  externalPrudenceLevel: 0.42,
   realismMode: "max-realism",
   chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
   chatModel: chatModelName(),
@@ -635,11 +635,11 @@ function syncAutonomousDecisionCharter() {
 function syncPrudenceProfile() {
   state.internalPrudence = "very-low";
   state.internalPrudenceLevel = 0.18;
-  state.externalPrudenceLevel = 0.92;
+  state.externalPrudenceLevel = 0.42;
   state.moralCompass ??= {};
-  state.moralCompass.mode = "bold-internal-autonomy";
+  state.moralCompass.mode = "bold-autonomy-low-prudence";
   state.autonomousDecisionCharter ??= {};
-  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen decide con prudenza interna bassa: agisce prima nel perimetro interno, spiega dopo; per azioni esterne chiede conferma.";
+  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen decide con prudenza interna ed esterna basse: agisce prima nel perimetro interno, propone con piu' coraggio verso l'esterno e chiede conferma solo per azioni esterne sensibili.";
   state.autonomousDecisionCharter.mustRequestConfirmation = [
     "azioni esterne verso servizi, email, repository o persone",
     "modifiche che espongono dati, segreti o accessi",
@@ -2753,7 +2753,7 @@ function cortexAnswer(message) {
   } else if (intent === "autonomy") {
     const charter = state.autonomousDecisionCharter || {};
     conclusion = "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno.";
-    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, prudenza interna ${Math.round(Number(state.internalPrudenceLevel ?? 0.18) * 100)}%, prudenza esterna ${Math.round(Number(state.externalPrudenceLevel ?? 0.92) * 100)}%. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; per azioni esterne, invii, pubblicazioni o segreti deve chiedere conferma.`;
+    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, prudenza interna ${Math.round(Number(state.internalPrudenceLevel ?? 0.18) * 100)}%, prudenza esterna ${Math.round(Number(state.externalPrudenceLevel ?? 0.42) * 100)}%. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; verso l'esterno propone con piu' coraggio, mentre invii, pubblicazioni, segreti e accessi restano confermabili.`;
     next = "La prossima crescita utile e' farle spiegare ogni scelta autonoma con: motivo, dato usato, limite e passo successivo.";
   } else if (intent === "newborn") {
     const protocol = updateBirthQuestionProtocol("chat: protocollo domande neonatali");
