@@ -1381,7 +1381,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v11`,
+      `Service worker: gaia-lumen-static-v12`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1498,6 +1498,8 @@ function refreshUi() {
     const humanSeed = genome.humanSeed || {};
     const humanGenome = genome.humanGenomeLibrary || {};
     const evolution = humanGenome.evolution || {};
+    const primaryFoundation = genome.primaryFoundation || cgen.birthQuestionProtocol?.primaryFoundation || {};
+    const primaryFoundationAnswers = Array.isArray(primaryFoundation.answers) ? primaryFoundation.answers : [];
     const technologyLanguages = genome.technologyLanguages || [];
     const maternalTeachings = genome.maternalTeachings || [];
     const paternalTeachings = genome.paternalTeachings || [];
@@ -1516,9 +1518,12 @@ function refreshUi() {
       .sort((a, b) => Number(b[1].count || 0) - Number(a[1].count || 0))
       .slice(0, 8)
       .map(([name, trait]) => `${name}: ${trait.count || 0} memorie, peso ${pct(trait.weight || 0)}`);
-    ui.gestationMemoryLog.textContent = memories.length ? [
+    ui.gestationMemoryLog.textContent = (memories.length || primaryFoundationAnswers.length) ? [
       `Genitori del progetto: ${(genome.guardians || ["Adrian", "Katerina"]).join(" + ")}`,
       genome.principle || "I dati reali sono genetica formativa.",
+      `Base principale: ${primaryFoundation.status || "in attesa"} | ${primaryFoundation.source || "n/d"}`,
+      ...primaryFoundationAnswers.map((item) => `${item.order}. ${item.answer}`),
+      "",
       `Seme umano: ${humanSeed.declaredBloodGroup || "non inserito"}`,
       humanSeed.symbolicMeaning || "Profilo umano non ancora dichiarato.",
       `Genoma umano completo: ${(humanGenome.facets || []).length || 0} tratti`,
@@ -1567,7 +1572,7 @@ function refreshUi() {
       ...(maternalTeachings.length ? maternalTeachings.slice(0, 9).map((item) => `- ${item.answer || item.title}`) : ["in attesa"]),
       "",
       "Insegnamenti di Adrian:",
-      ...(paternalTeachings.length ? paternalTeachings.slice(0, 9).map((item) => `- ${item.answer}`) : ["in attesa"]),
+      ...(paternalTeachings.length ? paternalTeachings.slice(0, 9).map((item) => `- ${item.answer || item.text || item.title}`) : ["in attesa"]),
       "",
       "Fatti del seme umano:",
       ...((humanSeed.facts || []).slice(0, 5).map((item) => `- ${item.title}`)),
