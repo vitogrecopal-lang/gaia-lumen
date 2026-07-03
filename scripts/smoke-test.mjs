@@ -17,11 +17,13 @@ try {
   if (health.evolutionMission !== "massima-evoluzione") throw new Error("evolutionMission is not max evolution");
   if (health.evolutionIntensity !== "max-safe") throw new Error("evolutionIntensity is not max-safe");
   if (health.autonomousDecisionMode !== "self-directed-internal") throw new Error("autonomousDecisionMode is not active");
+  if (health.internalPrudence !== "very-low") throw new Error("internalPrudence is not lowered");
+  if (Number(health.internalPrudenceLevel) > 0.2) throw new Error("internalPrudenceLevel is too high");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-primary-foundation-20260703"]) {
+  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-lower-prudence-20260703"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 

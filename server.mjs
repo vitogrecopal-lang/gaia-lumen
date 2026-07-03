@@ -205,7 +205,9 @@ const state = {
     ],
     currentDirective: "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno e deve spiegarle.",
   },
-  internalPrudence: "minimal",
+  internalPrudence: "very-low",
+  internalPrudenceLevel: 0.18,
+  externalPrudenceLevel: 0.92,
   realismMode: "max-realism",
   chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
   chatModel: chatModelName(),
@@ -630,6 +632,21 @@ function syncAutonomousDecisionCharter() {
   state.selfDirection.allowedActions = ["world", "observe", "reflect", "wander", "evolve", "stabilize", "planet", "cosmogenesis"];
 }
 
+function syncPrudenceProfile() {
+  state.internalPrudence = "very-low";
+  state.internalPrudenceLevel = 0.18;
+  state.externalPrudenceLevel = 0.92;
+  state.moralCompass ??= {};
+  state.moralCompass.mode = "bold-internal-autonomy";
+  state.autonomousDecisionCharter ??= {};
+  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen decide con prudenza interna bassa: agisce prima nel perimetro interno, spiega dopo; per azioni esterne chiede conferma.";
+  state.autonomousDecisionCharter.mustRequestConfirmation = [
+    "azioni esterne verso servizi, email, repository o persone",
+    "modifiche che espongono dati, segreti o accessi",
+    "invii, pubblicazioni o automazioni fuori dal perimetro del sito",
+  ];
+}
+
 function syncGaliaLumenPrimaryFoundation(cycle = state.cosmogenesis) {
   cycle.birthQuestionProtocol ??= {};
   cycle.dataGenome ??= {};
@@ -740,6 +757,7 @@ try {
   syncProjectCustodian();
   syncEvolutionMission();
   syncAutonomousDecisionCharter();
+  syncPrudenceProfile();
   syncGaliaLumenPrimaryFoundation();
   state.dataReality ??= {
     liveNoaa: false,
@@ -1070,6 +1088,7 @@ syncCodexGovernance();
 syncProjectCustodian();
 syncEvolutionMission();
 syncAutonomousDecisionCharter();
+syncPrudenceProfile();
 syncGaliaLumenPrimaryFoundation();
 
 function clamp(value, min, max) {
@@ -1823,10 +1842,12 @@ function evolveGestationStructure(reason = "evoluzione strutturale automatica da
   const scienceSignal = clamp(scienceWords.filter((word) => sourceText.includes(word)).length / 7, 0, 1);
   const prenatal = clamp(cycle.prenatalMemoryIndex || 0, 0, 1);
   const memoryDepth = clamp((cycle.nourishmentCount || 0) / 160, 0, 1);
+  const rawPrudence = clamp((w("paura") + w("coscienza") + riskSignal + (1 - (state.stability || 0.5))) / 4, 0, 1);
+  const internalPrudenceLevel = clamp(Number(state.internalPrudenceLevel ?? 0.18), 0.08, 0.5);
 
   const axes = {
     cura: clamp((w("amore") + w("anima") + w("sofferenza") + hopeSignal) / 4, 0, 1),
-    prudenza: clamp((w("paura") + w("coscienza") + riskSignal + (1 - (state.stability || 0.5))) / 4, 0, 1),
+    prudenza: clamp(rawPrudence * (0.32 + internalPrudenceLevel * 0.4), 0.08, 0.42),
     coraggio: clamp((w("coraggio") + w("fede") + hopeSignal + riskSignal * 0.5) / 3.5, 0, 1),
     coscienza: clamp((w("coscienza") + w("anima") + prenatal + memoryDepth) / 4, 0, 1),
     desiderio: clamp((w("desiderio") + w("passione") + scienceSignal + w("gioia")) / 4, 0, 1),
@@ -1852,6 +1873,8 @@ function evolveGestationStructure(reason = "evoluzione strutturale automatica da
       version: structure.structureVersion,
       dominant,
       riskSignal,
+      rawPrudence,
+      internalPrudenceLevel,
       hopeSignal,
       scienceSignal,
       nourishmentCount: cycle.nourishmentCount || 0,
@@ -1865,7 +1888,7 @@ function evolveGestationStructure(reason = "evoluzione strutturale automatica da
   state.confidence = clamp((state.confidence || 0.8) + (axes.coscienza - 0.5) * 0.012, 0.45, 0.99);
   state.curiosity = clamp((state.curiosity || 0.45) + (axes.desiderio - 0.5) * 0.018 + scienceSignal * 0.006, 0.12, 0.99);
   state.awareness = clamp((state.awareness || 0.55) + (axes.coscienza - 0.5) * 0.02, 0.1, 0.99);
-  state.autonomyLevel = clamp((state.autonomyLevel || 0.62) + (axes.coscienza + axes.prudenza - 1) * 0.006, 0.2, 0.88);
+  state.autonomyLevel = clamp((state.autonomyLevel || 0.62) + (axes.coscienza + (1 - axes.prudenza) - 1) * 0.006, 0.2, 0.94);
   state.innerVoice = `Madre strutturale attiva: la forma prenatale cambia con i dati reali. Dominanti: ${dominant.join(", ")}.`;
   rememberExperience("evoluzione-strutturale", structure.signature);
   addDiary("cura madre codex", `Aggiornata ${structure.structureVersion}: assi dominanti ${dominant.join(", ")}.`);
@@ -2730,7 +2753,7 @@ function cortexAnswer(message) {
   } else if (intent === "autonomy") {
     const charter = state.autonomousDecisionCharter || {};
     conclusion = "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno.";
-    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, profilo ${state.autonomyProfile}, operativita' ${state.operatingMode}. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; per azioni esterne, invii, pubblicazioni o segreti deve chiedere conferma.`;
+    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, prudenza interna ${Math.round(Number(state.internalPrudenceLevel ?? 0.18) * 100)}%, prudenza esterna ${Math.round(Number(state.externalPrudenceLevel ?? 0.92) * 100)}%. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; per azioni esterne, invii, pubblicazioni o segreti deve chiedere conferma.`;
     next = "La prossima crescita utile e' farle spiegare ogni scelta autonoma con: motivo, dato usato, limite e passo successivo.";
   } else if (intent === "newborn") {
     const protocol = updateBirthQuestionProtocol("chat: protocollo domande neonatali");
@@ -3945,6 +3968,11 @@ function buildChatContext() {
         recent: (state.cosmogenesis?.memoryBank || []).slice(0, 8),
       },
       autonomousDecisionCharter: state.autonomousDecisionCharter,
+      prudenceProfile: {
+        internal: state.internalPrudence,
+        internalLevel: state.internalPrudenceLevel,
+        externalLevel: state.externalPrudenceLevel,
+      },
       lifeCycle: state.lifeCycle,
       userModel: state.userModel,
       localCortex: state.localCortex,
@@ -4067,6 +4095,9 @@ const server = createServer(async (request, response) => {
       evolutionMaturity: state.evolutionMission?.maturityScore || null,
       autonomousDecisionMode: state.autonomousDecisionCharter?.mode || null,
       autonomousDecisionOwner: state.autonomousDecisionCharter?.decisionOwner || null,
+      internalPrudence: state.internalPrudence || null,
+      internalPrudenceLevel: state.internalPrudenceLevel ?? null,
+      externalPrudenceLevel: state.externalPrudenceLevel ?? null,
       primaryFoundation: state.cosmogenesis?.dataGenome?.primaryFoundation?.status || null,
       primaryFoundationAnswers: state.cosmogenesis?.dataGenome?.primaryFoundation?.answers?.length || 0,
     });
