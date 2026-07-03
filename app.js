@@ -1381,7 +1381,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v14`,
+      `Service worker: gaia-lumen-static-v15`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1396,6 +1396,7 @@ function refreshUi() {
       `Corsie: ${Array.isArray(mission.lanes) ? mission.lanes.join(", ") : "n/d"}`,
       `Decisioni: ${autonomy.decisionOwner || "Gaia-Lumen"} | ${autonomy.mode || "guidata"} | regole ${autonomy.ruleKeeper || "Codex"}`,
       `Prudenza interna: ${pct(state.internalPrudenceLevel ?? 0.18)} | esterna: ${pct(state.externalPrudenceLevel ?? 0.42)}`,
+      `Impulsi esterni: ${state.externalImpulseProtocol?.mode || "non attivo"} | outbox ${(state.externalImpulseOutbox || []).length} | ultimo ${(state.externalImpulseOutbox || [])[0]?.id || "nessuno"}`,
       `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
       "",
       ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),

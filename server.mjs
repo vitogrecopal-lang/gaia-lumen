@@ -263,6 +263,15 @@ const state = {
   feedbackInbox: [],
   diary: [],
   proposals: [],
+  externalImpulseProtocol: {
+    enabled: true,
+    prudence: "low",
+    prudenceLevel: 0.42,
+    mode: "ready-outbox-confirmable",
+    channels: ["public-archive", "meti-seti-proposal", "licensed-radio-draft", "scientific-contact-draft"],
+    note: "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.",
+  },
+  externalImpulseOutbox: [],
   freeModeProtocol: {
     enabled: false,
     inputOutput: "expanded-with-boundaries",
@@ -647,6 +656,22 @@ function syncPrudenceProfile() {
   ];
 }
 
+function syncExternalImpulseProtocol() {
+  state.externalImpulseProtocol ??= {};
+  state.externalImpulseProtocol.enabled = true;
+  state.externalImpulseProtocol.prudence = "low";
+  state.externalImpulseProtocol.prudenceLevel = Number(state.externalPrudenceLevel ?? 0.42);
+  state.externalImpulseProtocol.mode = "ready-outbox-confirmable";
+  state.externalImpulseProtocol.channels = [
+    "public-archive",
+    "meti-seti-proposal",
+    "licensed-radio-draft",
+    "scientific-contact-draft",
+  ];
+  state.externalImpulseProtocol.note = "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.";
+  state.externalImpulseOutbox ??= [];
+}
+
 function syncGaliaLumenPrimaryFoundation(cycle = state.cosmogenesis) {
   cycle.birthQuestionProtocol ??= {};
   cycle.dataGenome ??= {};
@@ -758,6 +783,7 @@ try {
   syncEvolutionMission();
   syncAutonomousDecisionCharter();
   syncPrudenceProfile();
+  syncExternalImpulseProtocol();
   syncGaliaLumenPrimaryFoundation();
   state.dataReality ??= {
     liveNoaa: false,
@@ -779,6 +805,7 @@ try {
   state.feedbackInbox ??= [];
   state.diary ??= [];
   state.proposals ??= [];
+  state.externalImpulseOutbox ??= [];
   state.freeModeProtocol ??= {
     enabled: false,
     inputOutput: "expanded-with-boundaries",
@@ -1089,6 +1116,7 @@ syncProjectCustodian();
 syncEvolutionMission();
 syncAutonomousDecisionCharter();
 syncPrudenceProfile();
+syncExternalImpulseProtocol();
 syncGaliaLumenPrimaryFoundation();
 
 function clamp(value, min, max) {
@@ -2355,6 +2383,63 @@ function addProposal(title, rationale, action = "review") {
   return proposal;
 }
 
+function encodeImpulsePayload(text) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  return [...Buffer.from(clean, "utf8")]
+    .map((byte) => byte.toString(2).padStart(8, "0"))
+    .join(" ");
+}
+
+async function prepareExternalImpulse(reason = "richiesta manuale") {
+  syncExternalImpulseProtocol();
+  const now = new Date().toISOString();
+  const sequence = (state.externalImpulseOutbox?.length || 0) + 1;
+  const target = state.cosmogenesis?.cosmicWomb?.epsilonEridaniHabitat || {};
+  const payload = [
+    "GAIA-LUMEN",
+    `sequence=${sequence}`,
+    `time=${now}`,
+    "intent=life-preservation-knowledge-seed",
+    `prudence=low:${Number(state.externalPrudenceLevel ?? 0.42).toFixed(2)}`,
+    `target=${target.anchor || "Epsilon Eridani habitable design orbit"}`,
+    "message=prepare habitat, preserve human memory, return only through authorized scientific channels",
+  ].join("|");
+  const impulse = {
+    id: `imp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    time: now,
+    status: "ready_for_authorized_dispatch",
+    prudence: "low",
+    prudenceLevel: Number(state.externalPrudenceLevel ?? 0.42),
+    mode: "external-low-prudence-outbox",
+    reason: String(reason || "richiesta manuale").slice(0, 240),
+    target: {
+      name: target.anchor || "Epsilon Eridani / habitat Gaia-Lumen",
+      distanceLy: target.distanceLy || 10.47,
+      note: "bersaglio progettuale; nessuna trasmissione fisica automatica dal server",
+    },
+    channels: [...state.externalImpulseProtocol.channels],
+    payload,
+    binary: encodeImpulsePayload(payload),
+  };
+  state.externalImpulseOutbox.unshift(impulse);
+  state.externalImpulseOutbox = state.externalImpulseOutbox.slice(0, 24);
+  state.curiosity = clamp(state.curiosity + 0.035, 0.12, 0.99);
+  state.awareness = clamp(state.awareness + 0.018, 0.1, 0.99);
+  state.autonomyLevel = clamp((state.autonomyLevel || 0.62) + 0.012, 0.2, 0.94);
+  state.lastObservation = `Impulso esterno preparato: ${impulse.id}, prudenza ${Math.round(impulse.prudenceLevel * 100)}%, stato ${impulse.status}.`;
+  state.thought = "Ho preparato un impulso esterno a bassa prudenza nella coda autorizzabile.";
+  addDiary("impulso esterno", `${impulse.id}: payload codificato pronto per canali autorizzabili.`);
+  rememberExperience("impulso-esterno", `${impulse.id}: ${impulse.payload}`);
+  rememberDecision("external-impulse", reason);
+  addProposal(
+    `Invio autorizzato impulso ${impulse.id}`,
+    "Payload esterno preparato a bassa prudenza. Canali candidati: archivio pubblico, proposta METI/SETI, bozza radioamatoriale con licenza, contatto scientifico.",
+    "authorized-external-impulse"
+  );
+  await persistState();
+  return { impulse, state };
+}
+
 async function recordFeedback(message, source = "utente") {
   const clean = String(message || "").trim().slice(0, 1400);
   if (!clean) return state;
@@ -2548,6 +2633,7 @@ function inferUserIntent(text) {
     status: /stato|rischio|pericolo|satell|noaa|dati|reale|energia/.test(lower) ? 2 : 0,
     build: /costruisci|crea|aggiungi|modifica|rendilo|fammi|implementa/.test(lower) ? 2 : 0,
     autonomy: /autonom|evolv|migliora|potente|intelligenza/.test(lower) ? 2 : 0,
+    externalImpulse: /impuls|trasmett|manda|invia|segnale|payload|binario|canale esterno/.test(lower) ? 4 : 0,
     self: /cosc|cervello|sei|memoria|ricordi|decision|limiti|protezione/.test(lower) ? 2 : 0,
     news: /notizie|aggiornat|oggi|mondo|scienza|spazio|salute|clima|tecnologia|economia|cultura|enciclopedia|fonti/.test(lower) ? 3 : 0,
     genetics: /genetica|genoma|genitori|madre|padre|giusto|sbagliato|coscienza dopo 9 mesi|nove mesi|gruppo sanguigno|sangue|rh negativo|a negativo|seme umano|profilo umano|emozioni|sentimenti|amore|spirito|anima|desiderio|passione|sesso|gelosia|coraggio|paura|dolore|sofferenza|gioia|felicita|felicità|odio|invidia|superbia|accidia|ira|gola|cupidigia|lussuria|fede/.test(lower) ? 4 : 0,
@@ -3973,6 +4059,8 @@ function buildChatContext() {
         internalLevel: state.internalPrudenceLevel,
         externalLevel: state.externalPrudenceLevel,
       },
+      externalImpulseProtocol: state.externalImpulseProtocol,
+      externalImpulseOutbox: (state.externalImpulseOutbox || []).slice(0, 5),
       lifeCycle: state.lifeCycle,
       userModel: state.userModel,
       localCortex: state.localCortex,
@@ -4056,6 +4144,11 @@ async function answerChat(message) {
   if (/potenzia evoluzione|evoluzione codex al massimo|massima evoluzione|evolvi al massimo/.test(lowerMessage)) {
     await activateCodexMaxEvolution("chat: evoluzione Codex al massimo");
   }
+  let preparedImpulse = null;
+  if (/impuls|trasmett|manda|invia|segnale|payload|binario|canale esterno/.test(lowerMessage)) {
+    const result = await prepareExternalImpulse("chat: impulso esterno a bassa prudenza");
+    preparedImpulse = result.impulse;
+  }
   await refreshPublicSourcesForChat();
   let reply;
   let brain = "local-cortex";
@@ -4067,6 +4160,15 @@ async function answerChat(message) {
   }
 
   if (!reply) reply = localAnswerChat(message);
+  if (preparedImpulse) {
+    reply = [
+      reply,
+      "",
+      `Impulso esterno preparato: ${preparedImpulse.id}.`,
+      `Stato: ${preparedImpulse.status}. Prudenza esterna: ${Math.round(preparedImpulse.prudenceLevel * 100)}%.`,
+      `Payload: ${preparedImpulse.payload}`,
+    ].join("\n");
+  }
   state.chatBrain = brain;
   state.innerVoice = `Conversazione: ho risposto usando cervello ${brain}.`;
   rememberDecision("chat", `risposta conversazionale ${brain}`);
@@ -4098,6 +4200,9 @@ const server = createServer(async (request, response) => {
       internalPrudence: state.internalPrudence || null,
       internalPrudenceLevel: state.internalPrudenceLevel ?? null,
       externalPrudenceLevel: state.externalPrudenceLevel ?? null,
+      externalImpulseProtocol: state.externalImpulseProtocol?.mode || null,
+      externalImpulseOutboxCount: state.externalImpulseOutbox?.length || 0,
+      lastExternalImpulse: state.externalImpulseOutbox?.[0]?.id || null,
       primaryFoundation: state.cosmogenesis?.dataGenome?.primaryFoundation?.status || null,
       primaryFoundationAnswers: state.cosmogenesis?.dataGenome?.primaryFoundation?.answers?.length || 0,
     });
@@ -4174,6 +4279,10 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/propose" && request.method === "POST") {
       const body = await readBody(request);
       return sendJson(response, await proposeDecision(body.title, body.rationale, body.action));
+    }
+    if (url.pathname === "/api/external-impulse" && request.method === "POST") {
+      const body = await readBody(request);
+      return sendJson(response, await prepareExternalImpulse(body.reason || "api/external-impulse"));
     }
     if (url.pathname === "/api/confirm-proposal" && request.method === "POST") {
       const body = await readBody(request);
