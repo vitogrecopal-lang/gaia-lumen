@@ -16,9 +16,10 @@ try {
   if (!health.codexConnectionVersion) throw new Error("codexConnectionVersion missing from healthz");
   if (health.evolutionMission !== "massima-evoluzione") throw new Error("evolutionMission is not max evolution");
   if (health.evolutionIntensity !== "max-safe") throw new Error("evolutionIntensity is not max-safe");
+  if (health.autonomousDecisionMode !== "self-directed-internal") throw new Error("autonomousDecisionMode is not active");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-codex-max-20260701"]) {
+  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-autonomous-decisions-20260703"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 

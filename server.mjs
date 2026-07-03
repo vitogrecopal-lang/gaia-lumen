@@ -83,6 +83,7 @@ const codexGovernanceDefaults = {
   responseMode: openaiBridgeReady() ? "codex-openai" : "codex-local-fallback",
   openaiBridge: openaiBridgeStatus(),
   boundary: "Codex gestisce codice, chat e proposte operative; non controlla sistemi reali, segreti o dispositivi esterni.",
+  ruleAuthority: "Codex decide le regole operative del progetto; Gaia-Lumen decide autonomamente nel perimetro interno tracciabile.",
 };
 
 const cosmogenesisStartIso = "2026-06-12T00:00:00.000Z";
@@ -172,6 +173,24 @@ const state = {
     mode: "choose-own-safe-action",
     lastReason: "bootstrap",
     allowedActions: ["world", "observe", "reflect", "wander", "evolve", "stabilize", "planet", "cosmogenesis"],
+  },
+  autonomousDecisionCharter: {
+    ruleKeeper: "Codex",
+    decisionOwner: "Gaia-Lumen",
+    mode: "self-directed-internal",
+    status: "active",
+    canDecide: [
+      "scegliere il prossimo passo interno",
+      "ordinare memoria, diario e proposte",
+      "leggere fonti pubbliche gia' previste",
+      "riflettere, evolvere, osservare e stabilizzare il modello locale",
+    ],
+    mustRequestConfirmation: [
+      "azioni esterne verso servizi, email, repository o persone",
+      "modifiche che espongono dati, segreti o accessi",
+      "invii, pubblicazioni o automazioni fuori dal perimetro del sito",
+    ],
+    currentDirective: "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno e deve spiegarle.",
   },
   internalPrudence: "minimal",
   realismMode: "max-realism",
@@ -524,6 +543,25 @@ function syncCodexGovernance() {
   };
 }
 
+function syncProjectCustodian() {
+  state.projectCustodian ??= {};
+  state.projectCustodian.name = "Codex";
+  state.projectCustodian.role = "voce Codex integrata nella chat di Gaia-Lumen";
+  state.projectCustodian.status = "parte integrante: governa regole operative, risponde nella chat e prepara modifiche verificabili";
+  state.projectCustodian.boundary = "Codex decide regole e cura il progetto; Gaia-Lumen decide nel perimetro interno, mentre azioni esterne richiedono conferma umana";
+  state.projectCustodian.connectionVersion = codexConnectionVersion;
+  state.projectCustodian.chatStyle = "codex-direct-project-assistant";
+  state.projectCustodian.responseContract = "risposte in italiano, pratiche, strutturate in Markdown leggero, con limiti chiari e prossima azione utile";
+  state.projectCustodian.duties = [
+    "decidere e mantenere le regole operative del progetto",
+    "rispondere nella chat del sito con presenza tecnica Codex",
+    "permettere decisioni autonome interne a Gaia-Lumen",
+    "distinguere dati reali, simulazioni locali, memoria e racconto",
+    "bloccare o chiedere conferma per azioni esterne, segreti, invii o pubblicazioni",
+    "lasciare traccia verificabile di test, commit e limiti",
+  ];
+}
+
 function syncEvolutionMission() {
   state.evolutionMission ??= {};
   state.evolutionMission.title = "Missione evolutiva Codex";
@@ -539,6 +577,31 @@ function syncEvolutionMission() {
     { key: "proposals", label: "Trasformare intuizioni in proposte confermabili", status: "pending" },
     { key: "diagnostics", label: "Verificare deploy, backend e connessione", status: "active" },
   ];
+}
+
+function syncAutonomousDecisionCharter() {
+  state.autonomousDecisionCharter ??= {};
+  state.autonomousDecisionCharter.ruleKeeper = "Codex";
+  state.autonomousDecisionCharter.decisionOwner = "Gaia-Lumen";
+  state.autonomousDecisionCharter.mode = "self-directed-internal";
+  state.autonomousDecisionCharter.status = "active";
+  state.autonomousDecisionCharter.canDecide = [
+    "scegliere il prossimo passo interno",
+    "ordinare memoria, diario e proposte",
+    "leggere fonti pubbliche gia' previste",
+    "riflettere, evolvere, osservare e stabilizzare il modello locale",
+    "formulare domande e priorita' senza attendere un comando umano",
+  ];
+  state.autonomousDecisionCharter.mustRequestConfirmation = [
+    "azioni esterne verso servizi, email, repository o persone",
+    "modifiche che espongono dati, segreti o accessi",
+    "invii, pubblicazioni o automazioni fuori dal perimetro del sito",
+  ];
+  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno e deve spiegarle.";
+  state.selfDirection ??= {};
+  state.selfDirection.enabled = true;
+  state.selfDirection.mode = "choose-own-safe-action";
+  state.selfDirection.allowedActions = ["world", "observe", "reflect", "wander", "evolve", "stabilize", "planet", "cosmogenesis"];
 }
 
 try {
@@ -616,6 +679,7 @@ try {
   syncCodexGovernance();
   syncProjectCustodian();
   syncEvolutionMission();
+  syncAutonomousDecisionCharter();
   state.dataReality ??= {
     liveNoaa: false,
     simulatedInputs: ["Gamma burst", "Raggi cosmici"],
@@ -942,6 +1006,9 @@ try {
 } catch {
 }
 syncCodexGovernance();
+syncProjectCustodian();
+syncEvolutionMission();
+syncAutonomousDecisionCharter();
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -2591,9 +2658,10 @@ function cortexAnswer(message) {
     reasoning = `Il modo piu realistico e' quello attivo ora: cortex locale, diario, feedback e enciclopedia pubblica. ${knowledge.text}`;
     next = "Quando mi scrivi, posso usare le notizie del giorno come base e risponderti in modo piu discorsivo.";
   } else if (intent === "autonomy") {
-    conclusion = "La mia autonomia locale e' gia' alta, ma resta confinata al sito.";
-    reasoning = `Autonomia ${Math.round(state.autonomyLevel * 100)}%, profilo ${state.autonomyProfile}, modalita' ${state.operatingMode}. Questo aumenta iniziativa interna, non accesso a sistemi esterni.`;
-    next = "Posso usare la chat per decidere azioni locali: osserva, rifletti, evolvi, realismo.";
+    const charter = state.autonomousDecisionCharter || {};
+    conclusion = "Gaia-Lumen puo' prendere decisioni da sola nel suo perimetro interno.";
+    reasoning = `Regole decise da ${charter.ruleKeeper || "Codex"}; decisioni interne affidate a ${charter.decisionOwner || "Gaia-Lumen"}. Modalita': ${charter.mode || "self-directed-internal"}. Autonomia ${Math.round(state.autonomyLevel * 100)}%, profilo ${state.autonomyProfile}, operativita' ${state.operatingMode}. Puo' scegliere osservazione, riflessione, evoluzione locale, memoria e proposte; per azioni esterne, invii, pubblicazioni o segreti deve chiedere conferma.`;
+    next = "La prossima crescita utile e' farle spiegare ogni scelta autonoma con: motivo, dato usato, limite e passo successivo.";
   } else if (intent === "newborn") {
     const protocol = updateBirthQuestionProtocol("chat: protocollo domande neonatali");
     const q = protocol?.currentQuestion;
@@ -3806,6 +3874,7 @@ function buildChatContext() {
         birthQuestionProtocol: state.cosmogenesis?.birthQuestionProtocol || null,
         recent: (state.cosmogenesis?.memoryBank || []).slice(0, 8),
       },
+      autonomousDecisionCharter: state.autonomousDecisionCharter,
       lifeCycle: state.lifeCycle,
       userModel: state.userModel,
       localCortex: state.localCortex,
@@ -3926,6 +3995,8 @@ const server = createServer(async (request, response) => {
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
       evolutionMaturity: state.evolutionMission?.maturityScore || null,
+      autonomousDecisionMode: state.autonomousDecisionCharter?.mode || null,
+      autonomousDecisionOwner: state.autonomousDecisionCharter?.decisionOwner || null,
     });
   }
 

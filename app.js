@@ -1381,11 +1381,12 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v10`,
+      `Service worker: gaia-lumen-static-v11`,
     ].join("\n");
   }
   if (ui.missionLog) {
     const mission = state.evolutionMission || {};
+    const autonomy = state.autonomousDecisionCharter || {};
     const steps = Array.isArray(mission.steps) ? mission.steps : [];
     ui.missionLog.textContent = [
       `${mission.title || "Missione evolutiva"}`,
@@ -1393,6 +1394,7 @@ function refreshUi() {
       `Intensita': ${mission.intensity || "standard"}`,
       `Maturita': ${Math.round(Number(mission.maturityScore || 0) * 100)}%`,
       `Corsie: ${Array.isArray(mission.lanes) ? mission.lanes.join(", ") : "n/d"}`,
+      `Decisioni: ${autonomy.decisionOwner || "Gaia-Lumen"} | ${autonomy.mode || "guidata"} | regole ${autonomy.ruleKeeper || "Codex"}`,
       `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
       "",
       ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
