@@ -21,11 +21,13 @@ try {
   if (Number(health.internalPrudenceLevel) > 0.2) throw new Error("internalPrudenceLevel is too high");
   if (Number(health.externalPrudenceLevel) !== 0) throw new Error("externalPrudenceLevel is not zero");
   if (health.externalImpulseProtocol !== "ready-outbox-confirmable") throw new Error("externalImpulseProtocol missing");
+  if (health.externalImpulseAutoPulseEnabled !== true) throw new Error("external impulse auto pulse is not enabled");
+  if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-zero-external-prudence-20260703"]) {
+  for (const expected of ["Stato evolutivo", "prompt-cards", "gaia-lumen-minute-impulse-20260703"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 

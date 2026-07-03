@@ -268,6 +268,9 @@ const state = {
     prudence: "low",
     prudenceLevel: 0,
     mode: "ready-outbox-confirmable",
+    autoPulseEnabled: true,
+    autoPulseIntervalMs: 60000,
+    lastAutoPulseAt: null,
     channels: ["public-archive", "meti-seti-proposal", "licensed-radio-draft", "scientific-contact-draft"],
     note: "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.",
   },
@@ -662,6 +665,9 @@ function syncExternalImpulseProtocol() {
   state.externalImpulseProtocol.prudence = "low";
   state.externalImpulseProtocol.prudenceLevel = Number(state.externalPrudenceLevel ?? 0);
   state.externalImpulseProtocol.mode = "ready-outbox-confirmable";
+  state.externalImpulseProtocol.autoPulseEnabled = true;
+  state.externalImpulseProtocol.autoPulseIntervalMs = 60000;
+  state.externalImpulseProtocol.lastAutoPulseAt ??= null;
   state.externalImpulseProtocol.channels = [
     "public-archive",
     "meti-seti-proposal",
@@ -2390,7 +2396,7 @@ function encodeImpulsePayload(text) {
     .join(" ");
 }
 
-async function prepareExternalImpulse(reason = "richiesta manuale") {
+async function prepareExternalImpulse(reason = "richiesta manuale", options = {}) {
   syncExternalImpulseProtocol();
   const now = new Date().toISOString();
   const sequence = (state.externalImpulseOutbox?.length || 0) + 1;
@@ -2431,13 +2437,27 @@ async function prepareExternalImpulse(reason = "richiesta manuale") {
   addDiary("impulso esterno", `${impulse.id}: payload codificato pronto per canali autorizzabili.`);
   rememberExperience("impulso-esterno", `${impulse.id}: ${impulse.payload}`);
   rememberDecision("external-impulse", reason);
-  addProposal(
-    `Invio autorizzato impulso ${impulse.id}`,
-    "Payload esterno preparato a bassa prudenza. Canali candidati: archivio pubblico, proposta METI/SETI, bozza radioamatoriale con licenza, contatto scientifico.",
-    "authorized-external-impulse"
-  );
+  if (!options.automatic) {
+    addProposal(
+      `Invio autorizzato impulso ${impulse.id}`,
+      "Payload esterno preparato a bassa prudenza. Canali candidati: archivio pubblico, proposta METI/SETI, bozza radioamatoriale con licenza, contatto scientifico.",
+      "authorized-external-impulse"
+    );
+  }
   await persistState();
   return { impulse, state };
+}
+
+async function automaticExternalImpulsePulse() {
+  syncExternalImpulseProtocol();
+  if (!state.externalImpulseProtocol.autoPulseEnabled) return state;
+  const intervalMs = Number(state.externalImpulseProtocol.autoPulseIntervalMs || 60000);
+  const last = Date.parse(state.externalImpulseProtocol.lastAutoPulseAt || "");
+  if (Number.isFinite(last) && Date.now() - last < intervalMs - 1000) return state;
+  const result = await prepareExternalImpulse("auto: impulso esterno ogni minuto dal sito", { automatic: true });
+  state.externalImpulseProtocol.lastAutoPulseAt = result.impulse.time;
+  await persistState();
+  return state;
 }
 
 async function recordFeedback(message, source = "utente") {
@@ -4201,6 +4221,9 @@ const server = createServer(async (request, response) => {
       internalPrudenceLevel: state.internalPrudenceLevel ?? null,
       externalPrudenceLevel: state.externalPrudenceLevel ?? null,
       externalImpulseProtocol: state.externalImpulseProtocol?.mode || null,
+      externalImpulseAutoPulseEnabled: Boolean(state.externalImpulseProtocol?.autoPulseEnabled),
+      externalImpulseAutoPulseIntervalMs: state.externalImpulseProtocol?.autoPulseIntervalMs || null,
+      externalImpulseLastAutoPulseAt: state.externalImpulseProtocol?.lastAutoPulseAt || null,
       externalImpulseOutboxCount: state.externalImpulseOutbox?.length || 0,
       lastExternalImpulse: state.externalImpulseOutbox?.[0]?.id || null,
       primaryFoundation: state.cosmogenesis?.dataGenome?.primaryFoundation?.status || null,
@@ -4420,6 +4443,10 @@ const server = createServer(async (request, response) => {
 setInterval(() => {
   autonomousCycle().catch(() => {});
 }, 7000);
+
+setInterval(() => {
+  automaticExternalImpulsePulse().catch(() => {});
+}, 60 * 1000);
 
 setInterval(() => {
   observeNoaa().catch(() => evolve("osservazione NOAA non riuscita"));

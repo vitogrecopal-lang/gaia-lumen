@@ -1381,7 +1381,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v16`,
+      `Service worker: gaia-lumen-static-v17`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1397,6 +1397,7 @@ function refreshUi() {
       `Decisioni: ${autonomy.decisionOwner || "Gaia-Lumen"} | ${autonomy.mode || "guidata"} | regole ${autonomy.ruleKeeper || "Codex"}`,
       `Prudenza interna: ${pct(state.internalPrudenceLevel ?? 0.18)} | esterna: ${pct(state.externalPrudenceLevel ?? 0)}`,
       `Impulsi esterni: ${state.externalImpulseProtocol?.mode || "non attivo"} | outbox ${(state.externalImpulseOutbox || []).length} | ultimo ${(state.externalImpulseOutbox || [])[0]?.id || "nessuno"}`,
+      `Battito ogni minuto: ${state.externalImpulseProtocol?.autoPulseEnabled ? "attivo" : "non attivo"} | ultimo auto ${state.externalImpulseProtocol?.lastAutoPulseAt || "in attesa"}`,
       `Prossima azione: ${mission.nextAction || "chiedi a Codex un miglioramento"}`,
       "",
       ...steps.map((step, index) => `${index + 1}. ${step.label || step} [${step.status || "pending"}]`),
