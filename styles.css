@@ -419,7 +419,8 @@ pre {
   padding: 0 10px;
 }
 
-input {
+input,
+select {
   min-width: 0;
   min-height: 42px;
   border: 1px solid rgba(110, 231, 255, 0.28);

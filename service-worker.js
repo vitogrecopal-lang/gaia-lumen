@@ -1,10 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v19";
+const CACHE_NAME = "gaia-lumen-static-v20";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
-  "/app.js?v=gaia-lumen-authorized-radio-20260703",
+  "/app.js?v=gaia-lumen-radio-70mhz-profile-20260704",
   "/manifest.webmanifest",
   "/assets/epsilon-eridani-map.svg",
   "/assets/gaia-lumen-born.png",

@@ -141,6 +141,16 @@ const state = {
   })),
 };
 
+const authorizedRadioProfile = {
+  area: "territorio nazionale, escluse le zone vietate",
+  forbiddenZones: "fascia di 30 km dai confini di Francia, Svizzera, Austria, Slovenia e Croazia",
+  channelsMhz: ["70.100 MHz", "70.200 MHz", "70.300 MHz"],
+  bandwidthKhz: 25,
+  maxErpW: 10,
+  equipment: "fissi, mobili, portatili, autocostruiti o commerciali",
+  antennas: "omnidirezionali o direttive",
+};
+
 function defaultNodes() {
   return [
     { name: "Terra", type: "core", level: 0.7, orbit: 0, angle: 0 },
@@ -1463,7 +1473,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v19`,
+      `Service worker: gaia-lumen-static-v20`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1933,6 +1943,14 @@ if (ui.radioForm) {
       ui.radioLog.textContent = "Servono nominativo e frequenza consentita dalla tua licenza prima di generare il segnale.";
       return;
     }
+    if (!authorizedRadioProfile.channelsMhz.includes(frequency)) {
+      ui.radioLog.textContent = `Frequenza non nel profilo autorizzato. Usa ${authorizedRadioProfile.channelsMhz.join(", ")}.`;
+      return;
+    }
+    if (Number(power) > authorizedRadioProfile.maxErpW) {
+      ui.radioLog.textContent = `Potenza sopra il limite dichiarato: massimo ${authorizedRadioProfile.maxErpW} W e.r.p.`;
+      return;
+    }
     try {
       const payload = getLatestImpulsePayload();
       const envelope = [
@@ -1940,6 +1958,9 @@ if (ui.radioForm) {
         `FREQUENCY=${frequency}`,
         `MODE=${mode}`,
         `POWER_W=${power}`,
+        `CHANNEL_WIDTH_KHZ=${authorizedRadioProfile.bandwidthKhz}`,
+        `AUTHORIZED_AREA=${authorizedRadioProfile.area}`,
+        `FORBIDDEN_ZONES=${authorizedRadioProfile.forbiddenZones}`,
         `CREATED=${new Date().toISOString()}`,
         `PAYLOAD=${payload}`,
       ].join("\n");
@@ -1959,9 +1980,11 @@ if (ui.radioForm) {
         "Pacchetto radio digitale generato.",
         `Nominativo: ${callsign}`,
         `Frequenza dichiarata: ${frequency}`,
-        `Modo: ${mode} | potenza: ${power} W`,
+        `Modo: ${mode} | canale: ${authorizedRadioProfile.bandwidthKhz} kHz | potenza: ${power} W e.r.p.`,
         `Durata audio: ${(samples.length / 44100).toFixed(2)} s`,
         `Checksum: ${checksum}`,
+        `Area: ${authorizedRadioProfile.area}`,
+        `Zone vietate: ${authorizedRadioProfile.forbiddenZones}`,
         "Uscita: file WAV AFSK 1200 da usare solo su apparato, banda e condizioni consentite dalla licenza.",
       ].join("\n");
     } catch (error) {

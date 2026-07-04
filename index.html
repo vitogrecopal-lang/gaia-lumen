@@ -57,12 +57,16 @@
 
         <div class="readout radio-status">
           <h2>Radio digitale autorizzata</h2>
-          <pre id="radioLog">Inserisci nominativo e parametri consentiti dalla tua licenza.</pre>
+          <pre id="radioLog">Canali autorizzati: 70.100, 70.200, 70.300 MHz | 25 kHz | max 10 W e.r.p. | fuori dalle zone vietate.</pre>
           <form id="radioForm" class="radio-form">
             <input id="radioCallsignInput" type="text" autocomplete="off" placeholder="Nominativo" aria-label="Nominativo radioamatore">
-            <input id="radioFrequencyInput" type="text" autocomplete="off" placeholder="Frequenza autorizzata" aria-label="Frequenza autorizzata">
-            <input id="radioModeInput" type="text" autocomplete="off" placeholder="AFSK 1200" aria-label="Modo digitale">
-            <input id="radioPowerInput" type="number" min="0" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
+            <select id="radioFrequencyInput" aria-label="Frequenza centrale autorizzata">
+              <option value="70.100 MHz">70.100 MHz</option>
+              <option value="70.200 MHz">70.200 MHz</option>
+              <option value="70.300 MHz">70.300 MHz</option>
+            </select>
+            <input id="radioModeInput" type="text" autocomplete="off" value="AFSK 1200" placeholder="Modo digitale" aria-label="Modo digitale">
+            <input id="radioPowerInput" type="number" min="0" max="10" step="0.1" value="10" placeholder="Watt e.r.p." aria-label="Potenza e.r.p. in watt">
             <button id="radioGenerateBtn" type="submit">Genera WAV</button>
             <a id="radioDownloadLink" class="download-link" href="#" download="gaia-lumen-impulse-afsk.wav" hidden>Scarica WAV</a>
           </form>
@@ -279,7 +283,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-authorized-radio-20260703"></script>
+    <script src="app.js?v=gaia-lumen-radio-70mhz-profile-20260704"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
