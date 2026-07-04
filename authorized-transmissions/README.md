@@ -49,3 +49,14 @@ Questo archivio pubblica il pacchetto come dato digitale verificabile. Non rappr
 - Stato: `ready_for_authorized_gateway_endpoint`
 - Profili preparati: `70 MHz autorizzato dall'operatore`, `WLAN standard data transport`
 - Requisito mancante: endpoint HTTPS/API reale del gateway e conferma dell'operatore autorizzato
+
+## AMPRNet Gateway Request
+
+- Dossier: `amprnet-gateway-request-20260704.md`
+- JSON: `amprnet-gateway-request-20260704.json`
+- Fonte locale letta: `AMPRNet_IntroCReSezioni.pdf`
+- Gateway candidato dal PDF: `gw.ampr.ari.it / 44.32.32.1`
+- Rete candidata: `44.32.32.0/21`
+- Metodi indicati dal PDF: `WireGuard`, `IPIP`, `GRE`
+- Stato: `prepared_for_authorized_amprnet_operator`
+- Requisito mancante: IP/tunnel AMPRNet assegnato e destinazione AMPRNet autorizzata

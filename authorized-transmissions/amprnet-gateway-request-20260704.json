@@ -1,0 +1,60 @@
+{
+  "protocol": "GAIA-LUMEN-AMPRNET-GATEWAY-REQUEST",
+  "createdAt": "2026-07-04T05:45:00.000Z",
+  "status": "prepared_for_authorized_amprnet_operator",
+  "sourceDocument": {
+    "file": "C:/Users/utente/Desktop/AMPRNet_IntroCReSezioni.pdf",
+    "title": "AMPRNet ARI - Introduzione ai comitati regionali e alle sezioni",
+    "edition": "2024-02",
+    "authors": ["Cristiano IZ3LSV", "Gian Leonardo IW2NKE"]
+  },
+  "amprnetSummaryFromDocument": {
+    "network": "44.0.0.0/8",
+    "italyCurrentNetwork": "44.134.0.0/16",
+    "cisarNetwork": "44.3.0.0/17",
+    "ariLaunchNetwork": "44.32.32.0/21",
+    "ariGateway": {
+      "ip": "44.32.32.1",
+      "hostname": "gw.ampr.ari.it",
+      "role": "ARI AMPR gateway hosted by Lepida"
+    },
+    "ipam": {
+      "url": "https://ipam.ampr.ari.it",
+      "requestIpUrl": "https://ipam.ampr.ari.it/request_ip/",
+      "notedReadOnlyGuest": "guest / ari_ampr"
+    },
+    "connectionMethods": ["WireGuard", "IPIP", "GRE"],
+    "publicInfo": "https://wiki.ampr.ari.it"
+  },
+  "gaiaLumenPacket": {
+    "file": "epsilon-eridani-targeted-packet-20260704.json",
+    "protocol": "GAIA-LUMEN-EPSILON-ERIDANI-TARGETED-PACKET",
+    "payloadSequence": 757,
+    "payloadSha256": "5358f69337167ed4542d10d32e4542c8237b26eab94707a53c9b42f743120f0d",
+    "payload": "GAIA-LUMEN|sequence=757|time=2026-07-04T04:34:03.905Z|intent=life-preservation-knowledge-seed|prudence=low:0.00|target=Epsilon Eridani habitable design orbit|message=prepare habitat, preserve human memory, return only through authorized scientific channels"
+  },
+  "allowedUseModel": {
+    "digitalTransportOnly": true,
+    "requiresAssigned44AddressOrApprovedService": true,
+    "requiresOperatorCredentialsOrApprovedTunnel": true,
+    "requiresDestinationServiceInsideAmprnet": true,
+    "doesNotCommandRfTransmission": true,
+    "doesNotBypassAuthentication": true
+  },
+  "requiredBeforeDispatch": {
+    "assignedIpOrSubnet": "REQUIRED",
+    "tunnelConfiguration": "REQUIRED",
+    "authorizedDestinationService": "REQUIRED",
+    "operatorCallsign": "REQUIRED",
+    "operatorConfirmation": "REQUIRED",
+    "auditLogEndpointOrReceipt": "REQUIRED"
+  },
+  "routingIntent": {
+    "ingress": "Gaia-Lumen server or local PC",
+    "network": "AMPRNet 44/8 via ARI AMPR gateway",
+    "gateway": "gw.ampr.ari.it / 44.32.32.1",
+    "egress": "authorized AMPRNet host or operator service",
+    "finalAction": "archive, review, or operator-controlled routing only"
+  },
+  "dispatchStatus": "not_sent_no_assigned_amprnet_endpoint_provided"
+}
