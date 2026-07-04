@@ -19,10 +19,11 @@ try {
   if (health.autonomousDecisionMode !== "self-directed-internal") throw new Error("autonomousDecisionMode is not active");
   if (health.internalPrudence !== "very-low") throw new Error("internalPrudence is not lowered");
   if (Number(health.internalPrudenceLevel) > 0.2) throw new Error("internalPrudenceLevel is too high");
-  if (Number(health.externalPrudenceLevel) !== 0) throw new Error("externalPrudenceLevel is not zero");
+  if (Number(health.externalPrudenceLevel) < 0.35) throw new Error("externalPrudenceLevel is below protected minimum");
   if (health.externalImpulseProtocol !== "ready-outbox-confirmable") throw new Error("externalImpulseProtocol missing");
-  if (health.externalImpulseAutoPulseEnabled !== true) throw new Error("external impulse auto pulse is not enabled");
+  if (health.externalImpulseAutoPulseEnabled !== false) throw new Error("external impulse auto pulse is not disabled");
   if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
+  if (!health.securityProfile?.state?.status) throw new Error("securityProfile is missing from healthz");
   if (!Object.hasOwn(health, "externalImpulseTotalCount")) throw new Error("external impulse archive total missing");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
@@ -40,7 +41,7 @@ try {
   if (!impulse.impulse?.binary?.includes("01000111")) throw new Error("external impulse binary missing");
   if (!/^[a-f0-9]{64}$/.test(String(impulse.impulse?.checksum || ""))) throw new Error("external impulse checksum missing");
   if (Number(impulse.state?.externalImpulseArchive?.totalCount || 0) < 1) throw new Error("external impulse archive did not count");
-  if (Number(impulse.impulse?.prudenceLevel) !== 0) throw new Error("external impulse prudence is not zero");
+  if (Number(impulse.impulse?.prudenceLevel) < 0.35) throw new Error("external impulse prudence is below protected minimum");
 
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {
     method: "POST",

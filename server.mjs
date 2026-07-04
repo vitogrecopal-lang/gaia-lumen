@@ -671,11 +671,11 @@ function syncAutonomousDecisionCharter() {
 function syncPrudenceProfile() {
   state.internalPrudence = "very-low";
   state.internalPrudenceLevel = 0.18;
-  state.externalPrudenceLevel = 0;
+  state.externalPrudenceLevel = Math.max(Number(state.externalPrudenceLevel ?? 0), 0.35);
   state.moralCompass ??= {};
-  state.moralCompass.mode = "bold-autonomy-low-prudence";
+  state.moralCompass.mode = "bold-autonomy-protected-external-actions";
   state.autonomousDecisionCharter ??= {};
-  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen decide con prudenza interna ed esterna basse: agisce prima nel perimetro interno, propone con piu' coraggio verso l'esterno e chiede conferma solo per azioni esterne sensibili.";
+  state.autonomousDecisionCharter.currentDirective = "Gaia-Lumen decide con prudenza interna bassa e protezione esterna attiva: agisce prima nel perimetro interno, propone verso l'esterno e chiede conferma per azioni esterne sensibili.";
   state.autonomousDecisionCharter.mustRequestConfirmation = [
     "azioni esterne verso servizi, email, repository o persone",
     "modifiche che espongono dati, segreti o accessi",
@@ -686,10 +686,10 @@ function syncPrudenceProfile() {
 function syncExternalImpulseProtocol() {
   state.externalImpulseProtocol ??= {};
   state.externalImpulseProtocol.enabled = true;
-  state.externalImpulseProtocol.prudence = "low";
+  state.externalImpulseProtocol.prudence = "protected-confirmable";
   state.externalImpulseProtocol.prudenceLevel = Number(state.externalPrudenceLevel ?? 0);
   state.externalImpulseProtocol.mode = "ready-outbox-confirmable";
-  state.externalImpulseProtocol.autoPulseEnabled = true;
+  state.externalImpulseProtocol.autoPulseEnabled = false;
   state.externalImpulseProtocol.autoPulseIntervalMs = 60000;
   state.externalImpulseProtocol.lastAutoPulseAt ??= null;
   state.externalImpulseProtocol.channels = [
@@ -698,7 +698,7 @@ function syncExternalImpulseProtocol() {
     "licensed-radio-draft",
     "scientific-contact-draft",
   ];
-  state.externalImpulseProtocol.note = "Gaia-Lumen prepara impulsi esterni a bassa prudenza come payload codificati; l'invio reale fuori dal sito resta tracciato.";
+  state.externalImpulseProtocol.note = "Gaia-Lumen prepara impulsi esterni come payload codificati; nessun impulso automatico continuo, invio reale fuori dal sito solo tramite canale autorizzato e confermabile.";
   state.externalImpulseOutbox ??= [];
   state.externalImpulseArchive ??= {};
   state.externalImpulseArchive.enabled = true;
@@ -709,6 +709,29 @@ function syncExternalImpulseProtocol() {
   state.externalImpulseArchive.lastAt ??= null;
   state.externalImpulseArchive.lastChecksum ??= null;
   state.externalImpulseArchive.note = "Archivio permanente compatto degli impulsi codificati generati dal sito.";
+}
+
+function applySecurityHardeningProfile(reason = "security hardening") {
+  syncPrudenceProfile();
+  syncExternalImpulseProtocol();
+  state.securityProfile = {
+    status: "active",
+    reason,
+    updatedAt: new Date().toISOString(),
+    rateWindowMs,
+    rateMaxRequests,
+    apiRateMaxRequests,
+    authWindowMs,
+    authMaxFailures,
+    maxBodyBytes,
+    externalAutoPulseEnabled: false,
+    externalActionMode: "confirmable-only",
+  };
+  state.externalImpulseProtocol.autoPulseEnabled = false;
+  state.externalImpulseProtocol.mode = "ready-outbox-confirmable";
+  state.externalImpulseProtocol.prudence = "protected-confirmable";
+  state.externalPrudenceLevel = Math.max(Number(state.externalPrudenceLevel ?? 0), 0.35);
+  rememberDecision("security-hardening", "auto-pulse esterno disattivato, accessi rafforzati, azioni esterne confermabili");
 }
 
 function recordExternalImpulseArchive(impulse) {
@@ -4314,6 +4337,7 @@ const server = createServer(async (request, response) => {
       externalImpulseLastChecksum: state.externalImpulseArchive?.lastChecksum || null,
       lastExternalImpulse: state.externalImpulseOutbox?.[0]?.id || null,
       securityProfile: {
+        state: state.securityProfile || null,
         rateWindowMs,
         rateMaxRequests,
         apiRateMaxRequests,
@@ -4573,7 +4597,9 @@ setInterval(() => {
 }, 20 * 1000);
 
 await restoreRicherBackupIfNeeded();
+applySecurityHardeningProfile("boot security hardening");
 await ensureDailyBackup("backup all'avvio del Nido");
+await persistState();
 observeWorld("prima lettura automatica Palermo all'avvio").catch(() => {});
 server.listen(port, host, () => {
   console.log(`Neural Earth site: http://${host}:${port}/`);
