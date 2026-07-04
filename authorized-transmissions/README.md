@@ -40,3 +40,12 @@ Questo archivio pubblica il pacchetto come dato digitale verificabile. Non rappr
 - Payload sequence: `757`
 - Payload SHA-256: `5358f69337167ed4542d10d32e4542c8237b26eab94707a53c9b42f743120f0d`
 - Stato: `prepared_for_authorized_directional_transmission`
+
+## Authorized Gateway Request
+
+- Dossier: `authorized-gateway-request-20260704.md`
+- JSON: `authorized-gateway-request-20260704.json`
+- Modello corretto: `Internet -> gateway autorizzato -> apparato/frequenza autorizzata`
+- Stato: `ready_for_authorized_gateway_endpoint`
+- Profili preparati: `70 MHz autorizzato dall'operatore`, `WLAN standard data transport`
+- Requisito mancante: endpoint HTTPS/API reale del gateway e conferma dell'operatore autorizzato

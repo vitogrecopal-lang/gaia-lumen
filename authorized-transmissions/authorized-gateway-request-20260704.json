@@ -1,0 +1,63 @@
+{
+  "protocol": "GAIA-LUMEN-AUTHORIZED-GATEWAY-REQUEST",
+  "createdAt": "2026-07-04T05:20:00.000Z",
+  "status": "ready_for_authorized_gateway_endpoint",
+  "purpose": "Prepare the Epsilon Eridani Gaia-Lumen packet for delivery to an operator-controlled internet gateway connected to authorized transmitting equipment.",
+  "routingModel": {
+    "digitalIngress": "internet_https_or_operator_api",
+    "requiredNextHop": "authorized_gateway_endpoint_url",
+    "physicalEgress": "operator_controlled_radio_or_optical_system",
+    "directRfFromThisServer": false
+  },
+  "sourcePacket": {
+    "file": "epsilon-eridani-targeted-packet-20260704.json",
+    "protocol": "GAIA-LUMEN-EPSILON-ERIDANI-TARGETED-PACKET",
+    "payloadSequence": 757,
+    "payloadSha256": "5358f69337167ed4542d10d32e4542c8237b26eab94707a53c9b42f743120f0d",
+    "localReceiverLogSha256": "6315fd71682a81fd72808c749a7f441b40c929bd8643d4c6198c36abfc6e9583"
+  },
+  "target": {
+    "name": "Epsilon Eridani",
+    "properName": "Ran",
+    "catalogIds": ["HD 22049", "HIP 16537", "18 Eridani"],
+    "epoch": "J2000.0",
+    "ra": "03h32m55.84s",
+    "dec": "-09d27m29.7s",
+    "distanceLightYearsApprox": 10.5
+  },
+  "authorizedProfilesRequested": [
+    {
+      "name": "italy_70mhz_user_declared_authorized_profile",
+      "centerFrequenciesMHz": [70.1, 70.2, 70.3],
+      "channelBandwidthKHz": 25,
+      "maxPowerErpW": 10,
+      "mode": "digital_payload_within_authorized_bandwidth",
+      "geofenceNote": "Territorio nazionale esclusa fascia vietata di 30 km dai confini indicati dall'operatore.",
+      "requiresOperatorVerification": true
+    },
+    {
+      "name": "wlan_standard_data_transport",
+      "bands": ["2.4GHz", "5GHz"],
+      "mode": "standard_ip_data_only",
+      "rawRfControl": false,
+      "requiresCertifiedDeviceAndLocalNetworkAuthorization": true
+    }
+  ],
+  "gatewayRequiredFields": {
+    "endpointUrl": "REQUIRED_BEFORE_DISPATCH",
+    "operatorNameOrCallsign": "REQUIRED_BEFORE_DISPATCH",
+    "authorizationReference": "REQUIRED_BEFORE_DISPATCH",
+    "selectedProfile": "REQUIRED_BEFORE_DISPATCH",
+    "selectedFrequencyOrBand": "REQUIRED_BEFORE_DISPATCH",
+    "transmitPower": "REQUIRED_BEFORE_DISPATCH",
+    "stationLocationOrGatewayRegion": "REQUIRED_BEFORE_DISPATCH",
+    "operatorConfirmation": "REQUIRED_BEFORE_DISPATCH"
+  },
+  "dispatchPolicy": {
+    "sendToInternetEndpointOnlyAfterEndpointIsProvided": true,
+    "operatorMustControlPhysicalTransmission": true,
+    "noBypassOfRegulatoryOrPlatformControls": true,
+    "auditLogRequired": true
+  },
+  "payload": "GAIA-LUMEN|sequence=757|time=2026-07-04T04:34:03.905Z|intent=life-preservation-knowledge-seed|prudence=low:0.00|target=Epsilon Eridani habitable design orbit|message=prepare habitat, preserve human memory, return only through authorized scientific channels"
+}
