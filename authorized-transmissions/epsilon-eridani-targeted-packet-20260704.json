@@ -1,0 +1,36 @@
+{
+  "protocol": "GAIA-LUMEN-EPSILON-ERIDANI-TARGETED-PACKET",
+  "createdAt": "2026-07-04T04:50:00.000Z",
+  "status": "prepared_for_authorized_directional_transmission",
+  "target": {
+    "name": "Epsilon Eridani",
+    "properName": "Ran",
+    "catalogIds": ["HD 22049", "HIP 16537", "18 Eridani"],
+    "constellation": "Eridanus",
+    "epoch": "J2000.0",
+    "ra": "03h32m55.84s",
+    "dec": "-09d27m29.7s",
+    "distanceLightYearsApprox": 10.5,
+    "spectralType": "K2V"
+  },
+  "sourcePacket": {
+    "wlanJson": "gaia-lumen-wlan-1783139683391.json",
+    "wlanJsonSha256": "368abcccf8e33b878d5d3196adb3b365d4bab9adfb19a1123d75984527ae6de2",
+    "localReceptionCertificate": "local-reception-certificate-20260704.md",
+    "localReceiver": "Android phone / 192.168.1.4",
+    "localReceptionConfirmedAt": "2026-07-04T04:47:17.403Z"
+  },
+  "payload": "GAIA-LUMEN|sequence=757|time=2026-07-04T04:34:03.905Z|intent=life-preservation-knowledge-seed|prudence=low:0.00|target=Epsilon Eridani habitable design orbit|message=prepare habitat, preserve human memory, return only through authorized scientific channels",
+  "payloadSha256": "5358f69337167ed4542d10d32e4542c8237b26eab94707a53c9b42f743120f0d",
+  "requestedTransmission": {
+    "type": "directional astronomical radio or optical transmission",
+    "requiresAuthorizedOperator": true,
+    "requiresSuitableAntennaOrOpticalSystem": true,
+    "requiresPointingAndRegulatoryApproval": true,
+    "notes": "This file is not a physical transmission. It is a prepared, signed target packet for review by authorized scientific or radio astronomy operators."
+  },
+  "sources": [
+    "SIMBAD target identity: HD 22049 / Epsilon Eridani",
+    "NASA Exoplanet Archive target identity: Epsilon Eridani / HIP 16537"
+  ]
+}

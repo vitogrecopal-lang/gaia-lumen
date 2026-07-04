@@ -29,3 +29,14 @@ Questo archivio pubblica il pacchetto come dato digitale verificabile. Non rappr
 - User agent: `Android 10 / Chrome Mobile`
 - Bridge PC: `http://192.168.1.8:9089/`
 - Checksum confermato: `368abcccf8e33b878d5d3196adb3b365d4bab9adfb19a1123d75984527ae6de2`
+
+## Epsilon Eridani Targeted Packet
+
+- Dossier: `epsilon-eridani-targeted-dossier-20260704.md`
+- JSON: `epsilon-eridani-targeted-packet-20260704.json`
+- Target: `Epsilon Eridani / Ran / HD 22049 / HIP 16537`
+- Coordinate J2000: `03h32m55.84s / -09d27m29.7s`
+- Distanza approssimata: `10.5 anni luce`
+- Payload sequence: `757`
+- Payload SHA-256: `5358f69337167ed4542d10d32e4542c8237b26eab94707a53c9b42f743120f0d`
+- Stato: `prepared_for_authorized_directional_transmission`
