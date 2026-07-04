@@ -18,3 +18,14 @@ Archivio verificabile del pacchetto dati Gaia-Lumen preparato per trasporto WLAN
 ## Scope
 
 Questo archivio pubblica il pacchetto come dato digitale verificabile. Non rappresenta una trasmissione RF grezza, non controlla apparati radio e non attiva dispositivi esterni.
+
+## Local Reception Certificate
+
+- Certificato: `local-reception-certificate-20260704.md`
+- Evento: prima ricezione locale confermata PC -> telefono
+- Ora pagina telefono: `2026-07-04T04:47:12.764Z`
+- Ora conferma telefono: `2026-07-04T04:47:17.403Z`
+- Telefono: `192.168.1.4`
+- User agent: `Android 10 / Chrome Mobile`
+- Bridge PC: `http://192.168.1.8:9089/`
+- Checksum confermato: `368abcccf8e33b878d5d3196adb3b365d4bab9adfb19a1123d75984527ae6de2`
