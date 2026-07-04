@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { createHash } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -25,19 +25,28 @@ const types = {
   ".webmanifest": "application/manifest+json; charset=utf-8",
 };
 
-const maxBodyBytes = 16 * 1024;
-const rateWindowMs = 60 * 1000;
-const rateMaxRequests = 30;
-const authWindowMs = 10 * 60 * 1000;
-const authMaxFailures = 50;
+function positiveIntEnv(name, fallback, min = 1, max = Number.MAX_SAFE_INTEGER) {
+  const value = Number(process.env[name]);
+  if (!Number.isFinite(value) || value < min) return fallback;
+  return Math.min(Math.floor(value), max);
+}
+
+const maxBodyBytes = positiveIntEnv("MAX_BODY_BYTES", 16 * 1024, 1024, 256 * 1024);
+const rateWindowMs = positiveIntEnv("RATE_WINDOW_MS", 60 * 1000, 1000);
+const rateMaxRequests = positiveIntEnv("RATE_MAX_REQUESTS", 30, 5, 300);
+const apiRateMaxRequests = positiveIntEnv("API_RATE_MAX_REQUESTS", 18, 3, 180);
+const authWindowMs = positiveIntEnv("AUTH_WINDOW_MS", 30 * 60 * 1000, 60 * 1000);
+const authMaxFailures = positiveIntEnv("AUTH_MAX_FAILURES", 8, 3, 100);
 const publicSourcesRefreshMs = 6 * 60 * 60 * 1000;
 const rateBuckets = new Map();
+const apiRateBuckets = new Map();
 const authBuckets = new Map();
 const allowedMethods = new Set(["GET", "HEAD", "POST"]);
 const publicAccessKey = process.env.PUBLIC_ACCESS_KEY || "";
 const publicAccessUser = process.env.PUBLIC_ACCESS_USER || "";
 const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
 const accessCookieName = "gaia_access";
+const trustProxyHeaders = Boolean(process.env.RENDER || String(process.env.TRUST_PROXY || "").toLowerCase() === "true");
 const codexConnectionVersion = "codex-chat-integrated-20260630";
 const habitatLocation = {
   name: "Palermo",
@@ -118,7 +127,11 @@ const securityHeaders = {
   "x-content-type-options": "nosniff",
   "x-frame-options": "DENY",
   "referrer-policy": "no-referrer",
-  "permissions-policy": "camera=(), microphone=(), geolocation=(), payment=()",
+  "permissions-policy": "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), publickey-credentials-get=(), usb=()",
+  "cross-origin-opener-policy": "same-origin",
+  "cross-origin-resource-policy": "same-origin",
+  "origin-agent-cluster": "?1",
+  "strict-transport-security": "max-age=31536000; includeSubDomains",
   "content-security-policy": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'",
 };
 
@@ -3882,21 +3895,38 @@ function headers(extra = {}) {
 }
 
 function clientKey(request) {
-  const forwarded = request.headers["x-forwarded-for"];
+  const cloudflare = trustProxyHeaders ? request.headers["cf-connecting-ip"] : "";
+  const forwarded = trustProxyHeaders ? request.headers["x-forwarded-for"] : "";
   const firstForwarded = Array.isArray(forwarded) ? forwarded[0] : forwarded;
-  return String(firstForwarded || request.socket.remoteAddress || "unknown").split(",")[0].trim();
+  const candidate = cloudflare || firstForwarded || request.socket.remoteAddress || "unknown";
+  return String(candidate).split(",")[0].trim();
 }
 
-function isRateLimited(request) {
-  const key = clientKey(request);
+function isBucketLimited(buckets, key, maxRequests) {
   const now = Date.now();
-  const bucket = rateBuckets.get(key);
+  const bucket = buckets.get(key);
   if (!bucket || now - bucket.startedAt > rateWindowMs) {
-    rateBuckets.set(key, { startedAt: now, count: 1 });
+    buckets.set(key, { startedAt: now, count: 1 });
     return false;
   }
   bucket.count += 1;
-  return bucket.count > rateMaxRequests;
+  return bucket.count > maxRequests;
+}
+
+function isRateLimited(request) {
+  return isBucketLimited(rateBuckets, clientKey(request), rateMaxRequests);
+}
+
+function isApiRateLimited(request, url) {
+  if (!url.pathname.startsWith("/api/")) return false;
+  return isBucketLimited(apiRateBuckets, `api:${clientKey(request)}`, apiRateMaxRequests);
+}
+
+function secureCompare(actual, expected) {
+  const actualValue = Buffer.from(String(actual || ""), "utf-8");
+  const expectedValue = Buffer.from(String(expected || ""), "utf-8");
+  if (actualValue.length !== expectedValue.length) return false;
+  return timingSafeEqual(actualValue, expectedValue);
 }
 
 function isAuthLocked(request) {
@@ -3922,6 +3952,15 @@ function clearAuthFailures(request) {
   authBuckets.delete(clientKey(request));
 }
 
+function isHttpsRequest(request) {
+  return request.socket.encrypted || String(request.headers["x-forwarded-proto"] || "").split(",")[0].trim() === "https";
+}
+
+function accessCookieValue(request) {
+  const secure = isHttpsRequest(request) ? "; Secure" : "";
+  return `${accessCookieName}=${encodeURIComponent(publicAccessKey)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400${secure}`;
+}
+
 function crossSiteApiRequest(request, url) {
   if (!url.pathname.startsWith("/api/")) return false;
   const site = request.headers["sec-fetch-site"];
@@ -3930,7 +3969,7 @@ function crossSiteApiRequest(request, url) {
 
 function hasAccess(request, url) {
   if (!publicAccessKey) return { allowed: true, fresh: false };
-  if (url.searchParams.get("key") === publicAccessKey) return { allowed: true, fresh: true };
+  if (secureCompare(url.searchParams.get("key") || "", publicAccessKey)) return { allowed: true, fresh: true };
   const cookie = String(request.headers.cookie || "");
   const expected = `${accessCookieName}=${encodeURIComponent(publicAccessKey)}`;
   return { allowed: cookie.split(/;\s*/).includes(expected), fresh: false };
@@ -3946,7 +3985,7 @@ function hasBasicAccess(request) {
     if (separator === -1) return false;
     const user = decoded.slice(0, separator);
     const pass = decoded.slice(separator + 1);
-    return user === publicAccessUser && pass === publicAccessPass;
+    return secureCompare(user, publicAccessUser) && secureCompare(pass, publicAccessPass);
   } catch {
     return false;
   }
@@ -4274,6 +4313,15 @@ const server = createServer(async (request, response) => {
       externalImpulseArchiveDays: state.externalImpulseArchive?.recentDaily?.length || 0,
       externalImpulseLastChecksum: state.externalImpulseArchive?.lastChecksum || null,
       lastExternalImpulse: state.externalImpulseOutbox?.[0]?.id || null,
+      securityProfile: {
+        rateWindowMs,
+        rateMaxRequests,
+        apiRateMaxRequests,
+        authWindowMs,
+        authMaxFailures,
+        maxBodyBytes,
+        trustProxyHeaders,
+      },
       primaryFoundation: state.cosmogenesis?.dataGenome?.primaryFoundation?.status || null,
       primaryFoundationAnswers: state.cosmogenesis?.dataGenome?.primaryFoundation?.answers?.length || 0,
     });
@@ -4281,6 +4329,10 @@ const server = createServer(async (request, response) => {
 
   if (isRateLimited(request)) {
     return sendJson(response, { error: "Troppe richieste: rallenta e riprova tra poco." }, 429);
+  }
+
+  if (isApiRateLimited(request, url)) {
+    return sendJson(response, { error: "Troppe richieste API: attendi prima di riprovare." }, 429);
   }
 
   const access = hasAccess(request, url);
@@ -4305,7 +4357,7 @@ const server = createServer(async (request, response) => {
   if (access.fresh) {
     response.setHeader(
       "set-cookie",
-      `${accessCookieName}=${encodeURIComponent(publicAccessKey)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=86400`
+      accessCookieValue(request)
     );
   }
 

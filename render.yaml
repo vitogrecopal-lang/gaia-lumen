@@ -22,6 +22,16 @@ services:
         sync: false
       - key: PUBLIC_ACCESS_KEY
         sync: false
+      - key: AUTH_MAX_FAILURES
+        value: 8
+      - key: AUTH_WINDOW_MS
+        value: 1800000
+      - key: RATE_MAX_REQUESTS
+        value: 30
+      - key: API_RATE_MAX_REQUESTS
+        value: 18
+      - key: MAX_BODY_BYTES
+        value: 16384
     disk:
       name: gaia-lumen-data
       mountPath: /var/data
