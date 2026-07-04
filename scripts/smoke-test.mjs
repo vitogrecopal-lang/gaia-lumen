@@ -28,7 +28,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "Radio digitale autorizzata", "70.100 MHz", "gaia-lumen-radio-70mhz-profile-20260704"]) {
+  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 

@@ -36,6 +36,12 @@ const ui = {
   radioModeInput: $("#radioModeInput"),
   radioPowerInput: $("#radioPowerInput"),
   radioDownloadLink: $("#radioDownloadLink"),
+  wlanLog: $("#wlanLog"),
+  wlanForm: $("#wlanForm"),
+  wlanBandInput: $("#wlanBandInput"),
+  wlanSsidInput: $("#wlanSsidInput"),
+  wlanJsonDownloadLink: $("#wlanJsonDownloadLink"),
+  wlanTextDownloadLink: $("#wlanTextDownloadLink"),
   planetLog: $("#planetLog"),
   stellarMapLog: $("#stellarMapLog"),
   atomSignalLog: $("#atomSignalLog"),
@@ -149,6 +155,27 @@ const authorizedRadioProfile = {
   maxErpW: 10,
   equipment: "fissi, mobili, portatili, autocostruiti o commerciali",
   antennas: "omnidirezionali o direttive",
+};
+
+const wlanProfiles = {
+  "2.4 GHz": {
+    band: "2.4 GHz",
+    rangeMhz: "2400.0-2483.5",
+    medium: "Wi-Fi standard su dispositivo certificato",
+    note: "Usare solo rete propria o autorizzata; rispettare limiti del dispositivo e del paese.",
+  },
+  "5 GHz lower": {
+    band: "5 GHz",
+    rangeMhz: "5150-5350",
+    medium: "Wi-Fi standard su dispositivo certificato",
+    note: "Uso soggetto a regole locali; alcuni canali richiedono vincoli indoor/DFS/TPC.",
+  },
+  "5 GHz upper": {
+    band: "5 GHz",
+    rangeMhz: "5470-5725",
+    medium: "Wi-Fi standard su dispositivo certificato",
+    note: "Uso soggetto a regole locali; DFS/TPC puo' essere richiesto.",
+  },
 };
 
 function defaultNodes() {
@@ -271,6 +298,16 @@ function wavBlobFromSamples(samples, sampleRate = 44100) {
     offset += 2;
   }
   return new Blob([buffer], { type: "audio/wav" });
+}
+
+function downloadBlob(link, blob, filename) {
+  if (!link) return;
+  if (link.dataset.url) URL.revokeObjectURL(link.dataset.url);
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.dataset.url = url;
+  link.download = filename;
+  link.hidden = false;
 }
 
 async function sha256Hex(text) {
@@ -1473,7 +1510,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v20`,
+      `Service worker: gaia-lumen-static-v21`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1969,12 +2006,7 @@ if (ui.radioForm) {
       const samples = bytesToAfskSamples(bytes);
       const blob = wavBlobFromSamples(samples);
       if (ui.radioDownloadLink) {
-        if (ui.radioDownloadLink.dataset.url) URL.revokeObjectURL(ui.radioDownloadLink.dataset.url);
-        const url = URL.createObjectURL(blob);
-        ui.radioDownloadLink.href = url;
-        ui.radioDownloadLink.dataset.url = url;
-        ui.radioDownloadLink.download = `gaia-lumen-${callsign}-${Date.now()}-afsk.wav`;
-        ui.radioDownloadLink.hidden = false;
+        downloadBlob(ui.radioDownloadLink, blob, `gaia-lumen-${callsign}-${Date.now()}-afsk.wav`);
       }
       ui.radioLog.textContent = [
         "Pacchetto radio digitale generato.",
@@ -1989,6 +2021,54 @@ if (ui.radioForm) {
       ].join("\n");
     } catch (error) {
       ui.radioLog.textContent = `Errore generazione radio: ${error.message}`;
+    }
+  });
+}
+
+if (ui.wlanForm) {
+  ui.wlanForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const selected = ui.wlanBandInput?.value || "2.4 GHz";
+    const profile = wlanProfiles[selected] || wlanProfiles["2.4 GHz"];
+    const ssid = ui.wlanSsidInput?.value?.trim() || "rete autorizzata";
+    try {
+      const payload = getLatestImpulsePayload();
+      const packet = {
+        protocol: "GAIA-LUMEN-WLAN-DATA-PACKET",
+        createdAt: new Date().toISOString(),
+        transport: "WLAN standard data only",
+        band: profile.band,
+        rangeMhz: profile.rangeMhz,
+        ssid,
+        medium: profile.medium,
+        note: profile.note,
+        payload,
+      };
+      const canonical = JSON.stringify(packet, null, 2);
+      const checksum = await sha256Hex(canonical);
+      const signedPacket = { ...packet, sha256: checksum };
+      const json = JSON.stringify(signedPacket, null, 2);
+      const text = [
+        "GAIA-LUMEN WLAN DATA PACKET",
+        `Created: ${signedPacket.createdAt}`,
+        `Band: ${signedPacket.band} (${signedPacket.rangeMhz} MHz)`,
+        `SSID: ${signedPacket.ssid}`,
+        `Transport: ${signedPacket.transport}`,
+        `SHA-256: ${checksum}`,
+        "",
+        signedPacket.payload,
+      ].join("\n");
+      downloadBlob(ui.wlanJsonDownloadLink, new Blob([json], { type: "application/json" }), `gaia-lumen-wlan-${Date.now()}.json`);
+      downloadBlob(ui.wlanTextDownloadLink, new Blob([text], { type: "text/plain" }), `gaia-lumen-wlan-${Date.now()}.txt`);
+      ui.wlanLog.textContent = [
+        "Pacchetto WLAN generato.",
+        `Banda: ${signedPacket.band} | intervallo: ${signedPacket.rangeMhz} MHz`,
+        `SSID dichiarato: ${signedPacket.ssid}`,
+        `Checksum: ${checksum}`,
+        "Uscita: JSON/TXT da trasferire solo dentro rete Wi-Fi propria o autorizzata, con dispositivi certificati.",
+      ].join("\n");
+    } catch (error) {
+      ui.wlanLog.textContent = `Errore pacchetto WLAN: ${error.message}`;
     }
   });
 }

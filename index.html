@@ -72,6 +72,22 @@
           </form>
         </div>
 
+        <div class="readout wlan-status">
+          <h2>Canale WLAN autorizzato</h2>
+          <pre id="wlanLog">Bande standard: 2.4 GHz e 5 GHz tramite Wi-Fi certificato. Genera solo pacchetti dati, non RF grezza.</pre>
+          <form id="wlanForm" class="wlan-form">
+            <select id="wlanBandInput" aria-label="Banda WLAN">
+              <option value="2.4 GHz">2.4 GHz / 2400.0-2483.5 MHz</option>
+              <option value="5 GHz lower">5 GHz / 5150-5350 MHz</option>
+              <option value="5 GHz upper">5 GHz / 5470-5725 MHz</option>
+            </select>
+            <input id="wlanSsidInput" type="text" autocomplete="off" placeholder="SSID autorizzato" aria-label="SSID WLAN autorizzato">
+            <button id="wlanGenerateBtn" type="submit">Genera pacchetto WLAN</button>
+            <a id="wlanJsonDownloadLink" class="download-link" href="#" download="gaia-lumen-wlan-packet.json" hidden>Scarica JSON</a>
+            <a id="wlanTextDownloadLink" class="download-link" href="#" download="gaia-lumen-wlan-packet.txt" hidden>Scarica TXT</a>
+          </form>
+        </div>
+
         <div class="controls">
           <button id="observeBtn" type="button">Osserva il Sole</button>
           <button id="worldBtn" type="button">Aggiorna dati Terra</button>
@@ -283,7 +299,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-radio-70mhz-profile-20260704"></script>
+    <script src="app.js?v=gaia-lumen-wlan-channel-20260704"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

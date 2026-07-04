@@ -360,14 +360,17 @@ pre {
   grid-column: 1 / -1;
 }
 
-.radio-form {
+.radio-form,
+.wlan-form {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
 
 .radio-form button,
-.radio-form .download-link {
+.radio-form .download-link,
+.wlan-form button,
+.wlan-form .download-link {
   grid-column: 1 / -1;
 }
 
@@ -511,6 +514,15 @@ select {
 
 .radio-status h2 {
   color: var(--green);
+}
+
+.wlan-status {
+  border-color: rgba(110, 231, 255, 0.34);
+  background: linear-gradient(135deg, rgba(110, 231, 255, 0.12), rgba(255, 209, 102, 0.07));
+}
+
+.wlan-status h2 {
+  color: var(--cyan);
 }
 
 .prompt-cards {
