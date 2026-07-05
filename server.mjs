@@ -85,7 +85,7 @@ function localModelDirectMode() {
   const value = String(process.env.LOCAL_AI_DIRECT || "").toLowerCase();
   if (["0", "off", "disabled", "false"].includes(value)) return false;
   if (["1", "on", "enabled", "true"].includes(value)) return true;
-  return /^llama([:.\-\s]|$)/i.test(localModelName());
+  return /^llama/i.test(localModelName());
 }
 
 function localModelBrainName() {
