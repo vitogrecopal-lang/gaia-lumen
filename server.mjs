@@ -69,6 +69,64 @@ const openaiBridgeRuntime = {
   unavailableUntil: null,
 };
 
+const localModelBridgeRuntime = {
+  lastAttemptAt: null,
+  lastSuccessAt: null,
+  lastFailureAt: null,
+  lastStatusCode: null,
+  lastError: null,
+};
+
+function localModelName() {
+  return process.env.LOCAL_AI_MODEL || process.env.OLLAMA_MODEL || "llama3.1:8b";
+}
+
+function localModelBridgeRequested() {
+  const value = String(process.env.LOCAL_AI_ENABLED || "").toLowerCase();
+  if (["0", "off", "disabled", "false"].includes(value)) return false;
+  if (["1", "on", "enabled", "true"].includes(value)) return true;
+  return Boolean(process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL);
+}
+
+function localModelBaseUrl() {
+  const raw = process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL || (localModelBridgeRequested() ? "http://127.0.0.1:11434" : "");
+  return String(raw || "").replace(/\/+$/, "");
+}
+
+function localModelChatPath() {
+  const raw = process.env.LOCAL_AI_CHAT_PATH || "/api/chat";
+  return String(raw || "/api/chat").startsWith("/") ? String(raw || "/api/chat") : `/${raw}`;
+}
+
+function localModelBridgeConfigured() {
+  return localModelBridgeRequested() && Boolean(localModelBaseUrl());
+}
+
+function localModelBridgeStatus() {
+  const requested = localModelBridgeRequested();
+  const configured = localModelBridgeConfigured();
+  let status = "disabled";
+  if (requested && !configured) status = "missing-base-url";
+  if (configured) status = "configured";
+  if (configured && localModelBridgeRuntime.lastError) status = "retryable-error";
+  if (configured && localModelBridgeRuntime.lastSuccessAt && !localModelBridgeRuntime.lastError) status = "ready";
+  return {
+    requested,
+    configured,
+    ready: status === "ready",
+    canAttempt: configured,
+    model: localModelName(),
+    provider: "ollama-compatible",
+    chatPath: localModelChatPath(),
+    status,
+    lastAttemptAt: localModelBridgeRuntime.lastAttemptAt,
+    lastSuccessAt: localModelBridgeRuntime.lastSuccessAt,
+    lastFailureAt: localModelBridgeRuntime.lastFailureAt,
+    lastStatusCode: localModelBridgeRuntime.lastStatusCode,
+    lastError: localModelBridgeRuntime.lastError,
+  };
+}
+
 function openaiBridgeRequested() {
   const value = String(process.env.OPENAI_CHAT_ENABLED || "true").toLowerCase();
   return !["0", "off", "disabled"].includes(value);
@@ -636,6 +694,7 @@ await ensureStateFile();
 
 function syncCodexGovernance() {
   const bridge = openaiBridgeStatus();
+  const localBridge = localModelBridgeStatus();
   state.codexGovernance = {
     ...codexGovernanceDefaults,
     ...(state.codexGovernance || {}),
@@ -645,8 +704,9 @@ function syncCodexGovernance() {
     repository: "vitogrecopal-lang/gaia-lumen",
     branch: "main",
     chatOwner: "Codex",
-    responseMode: bridge.ready ? "codex-openai" : "codex-local-fallback",
+    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? "local-model" : localBridge.canAttempt ? "local-model-configured" : "codex-local-fallback",
     openaiBridge: bridge,
+    localModelBridge: localBridge,
   };
 }
 
@@ -4278,10 +4338,12 @@ function compactOpenaiCosmogenesis() {
 
 function compactOpenaiGovernance() {
   const bridge = openaiBridgeStatus();
+  const localBridge = localModelBridgeStatus();
   return {
     ...(state.codexGovernance || {}),
-    responseMode: bridge.ready ? "codex-openai" : bridge.canAttempt ? "codex-openai-configured" : "codex-local-fallback",
+    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? "local-model" : localBridge.canAttempt ? "local-model-configured" : bridge.canAttempt ? "codex-openai-configured" : "codex-local-fallback",
     openaiBridge: bridge,
+    localModelBridge: localBridge,
   };
 }
 
@@ -4476,6 +4538,104 @@ async function openaiAnswerChat(message) {
   recordOpenaiSuccess();
   return reply;
 }
+function localModelRequestUrl() {
+  return `${localModelBaseUrl()}${localModelChatPath()}`;
+}
+
+function localModelUsesOpenaiShape() {
+  return /\/v1\/chat\/completions$/i.test(localModelChatPath());
+}
+
+function recordLocalModelAttempt() {
+  localModelBridgeRuntime.lastAttemptAt = new Date().toISOString();
+  syncCodexGovernance();
+}
+
+function recordLocalModelSuccess() {
+  const now = new Date().toISOString();
+  localModelBridgeRuntime.lastSuccessAt = now;
+  localModelBridgeRuntime.lastFailureAt = null;
+  localModelBridgeRuntime.lastStatusCode = 200;
+  localModelBridgeRuntime.lastError = null;
+  syncCodexGovernance();
+}
+
+function recordLocalModelFailure(statusCode, message) {
+  localModelBridgeRuntime.lastFailureAt = new Date().toISOString();
+  localModelBridgeRuntime.lastStatusCode = statusCode || null;
+  localModelBridgeRuntime.lastError = compactOpenaiText(message || "errore modello locale", 180);
+  syncCodexGovernance();
+}
+
+function buildLocalModelMessages(message) {
+  const localContextChars = positiveIntEnv("LOCAL_AI_CONTEXT_CHARS", 6000, 1000, 20000);
+  return [
+    {
+      role: "system",
+      content: [
+        "Sei il modello locale potenziato di Gaia-Lumen.",
+        "Rispondi in italiano come assistente tecnico Codex: chiaro, concreto, collaborativo.",
+        "Non fingere di essere OpenAI o Codex Cloud. Sei un modello locale/self-hosted collegato al sito.",
+        "Distingui dati reali, simulazione e racconto. Non promettere controllo su sistemi reali.",
+      ].join(" "),
+    },
+    {
+      role: "user",
+      content: `Contesto compatto del sito:\n${compactOpenaiText(JSON.stringify(buildChatContext()), localContextChars)}\n\nMessaggio utente:\n${compactOpenaiText(message, 1200)}`,
+    },
+  ];
+}
+
+async function localModelAnswerChat(message) {
+  const bridge = localModelBridgeStatus();
+  if (!bridge.canAttempt) return null;
+
+  const messages = buildLocalModelMessages(message);
+  const maxTokens = positiveIntEnv("LOCAL_AI_MAX_OUTPUT_TOKENS", 700, 64, 4096);
+  const payload = localModelUsesOpenaiShape()
+    ? { model: localModelName(), messages, stream: false, max_tokens: maxTokens }
+    : { model: localModelName(), messages, stream: false, options: { num_predict: maxTokens } };
+  const timeoutMs = positiveIntEnv("LOCAL_AI_TIMEOUT_MS", 20000, 1000, 120000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const headers = { "content-type": "application/json" };
+  if (process.env.LOCAL_AI_API_KEY) headers.authorization = `Bearer ${process.env.LOCAL_AI_API_KEY}`;
+
+  recordLocalModelAttempt();
+  let response;
+  try {
+    response = await fetch(localModelRequestUrl(), {
+      method: "POST",
+      headers,
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+  } catch (error) {
+    recordLocalModelFailure(null, error.name === "AbortError" ? `timeout dopo ${timeoutMs} ms` : error.message);
+    throw new Error(`modello locale non raggiungibile (${error.name === "AbortError" ? "timeout" : error.message})`);
+  } finally {
+    clearTimeout(timer);
+  }
+
+  if (!response.ok) {
+    const detail = compactOpenaiText(await response.text().catch(() => ""), 220);
+    recordLocalModelFailure(response.status, detail || `HTTP ${response.status}`);
+    throw new Error(`modello locale non disponibile (${response.status})`);
+  }
+
+  const data = await response.json();
+  const reply = data?.message?.content
+    || data?.response
+    || data?.choices?.[0]?.message?.content
+    || data?.output_text
+    || "";
+  if (!String(reply).trim()) {
+    recordLocalModelFailure(null, "risposta vuota dal modello locale");
+    throw new Error("modello locale non ha restituito testo");
+  }
+  recordLocalModelSuccess();
+  return String(reply).trim();
+}
 async function refreshPublicSourcesForChat() {
   if (publicSourcesAreFresh()) return;
   try {
@@ -4498,14 +4658,31 @@ async function answerChat(message) {
   await refreshPublicSourcesForChat();
   let reply;
   let brain = "local-cortex";
+  const fallbackNotes = [];
   try {
     reply = await openaiAnswerChat(message);
     if (reply) brain = "openai";
   } catch (error) {
-    reply = `${localAnswerChat(message)}\n\nNota: il cervello OpenAI non ha risposto (${error.message}). Sto usando il cervello locale.`;
+    fallbackNotes.push(`OpenAI: ${error.message}`);
   }
 
-  if (!reply) reply = localAnswerChat(message);
+  if (!reply) {
+    try {
+      reply = await localModelAnswerChat(message);
+      if (reply) brain = "local-model";
+    } catch (error) {
+      fallbackNotes.push(`modello locale: ${error.message}`);
+    }
+  }
+
+  if (!reply) {
+    reply = localAnswerChat(message);
+    if (fallbackNotes.length) {
+      reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Sto usando il cortex locale base.`;
+    }
+  } else if (brain === "local-model" && fallbackNotes.length) {
+    reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Ho usato il modello locale configurato.`;
+  }
   if (preparedImpulse) {
     reply = [
       reply,
@@ -4542,6 +4719,7 @@ const server = createServer(async (request, response) => {
       codexGovernance: state.codexGovernance,
       chatBrain: state.chatBrain,
       openaiBridge: openaiBridgeStatus(),
+      localModelBridge: localModelBridgeStatus(),
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
       evolutionMaturity: state.evolutionMission?.maturityScore || null,

@@ -1484,6 +1484,7 @@ function refreshUi() {
     const status = governance.status || "active";
     const cloudEnvironment = governance.cloudEnvironment || "Adrian";
     const bridge = governance.openaiBridge || {};
+    const localBridge = governance.localModelBridge || {};
     const bridgeStatusLabels = {
       "missing-api-key": "Codex locale: manca API key",
       "configured": "Codex/OpenAI configurato",
@@ -1493,7 +1494,17 @@ function refreshUi() {
       "temporarily-unavailable": "Codex locale: OpenAI temporaneo",
       "disabled": "Codex locale: ponte disattivato",
     };
-    const responseMode = bridge.ready ? "Codex/OpenAI pronto" : bridgeStatusLabels[bridge.status] || "Codex locale";
+    const localStatusLabels = {
+      "configured": "Modello locale configurato",
+      "ready": "Modello locale pronto",
+      "retryable-error": "Modello locale errore",
+      "missing-base-url": "Modello locale senza URL",
+    };
+    const responseMode = bridge.ready
+      ? "Codex/OpenAI pronto"
+      : localBridge.ready || localBridge.status === "configured"
+        ? localStatusLabels[localBridge.status] || "Modello locale"
+        : bridgeStatusLabels[bridge.status] || "Codex locale";
     const brain = state.chatBrain || "local-cortex";
     ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
   }

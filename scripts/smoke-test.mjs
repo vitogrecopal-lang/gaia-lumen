@@ -1,9 +1,22 @@
 import { spawn } from "node:child_process";
+import { createServer } from "node:http";
 
 const port = process.env.SMOKE_PORT || "8781";
+const localModelPort = String(Number(port) + 1);
 const base = `http://127.0.0.1:${port}`;
+const localModel = createServer((request, response) => {
+  if (request.method !== "POST" || request.url !== "/api/chat") {
+    response.writeHead(404);
+    response.end();
+    return;
+  }
+  request.resume();
+  response.writeHead(200, { "content-type": "application/json" });
+  response.end(JSON.stringify({ message: { content: "Codex local model smoke ok" } }));
+});
+await new Promise((resolve) => localModel.listen(Number(localModelPort), "127.0.0.1", resolve));
 const child = spawn(process.execPath, ["server.mjs"], {
-  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "" },
+  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "", LOCAL_AI_ENABLED: "true", LOCAL_AI_BASE_URL: `http://127.0.0.1:${localModelPort}`, LOCAL_AI_MODEL: "smoke-local-model" },
   stdio: ["ignore", "pipe", "pipe"],
 });
 
@@ -27,6 +40,7 @@ try {
   if (health.chatBrain !== "local-cortex") throw new Error("chatBrain should fall back locally without OpenAI credentials");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
+  if (health.localModelBridge?.status !== "configured") throw new Error("localModelBridge should be configured in smoke");
   if (!Object.hasOwn(health, "externalImpulseTotalCount")) throw new Error("external impulse archive total missing");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
@@ -51,9 +65,11 @@ try {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ message: "potenzia evoluzione Codex al massimo" }),
   }).then((response) => response.json());
-  if (!String(chat.reply || "").includes("Codex")) throw new Error("chat did not answer as Codex");
+  if (!String(chat.reply || "").includes("Codex local model smoke ok")) throw new Error("chat did not answer with the local model");
+  if (chat.state?.chatBrain !== "local-model") throw new Error("chat did not use local-model fallback");
 
   console.log("smoke ok");
 } finally {
   child.kill();
+  localModel.close();
 }

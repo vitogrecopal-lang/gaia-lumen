@@ -28,7 +28,8 @@ Il server mantiene una IA locale semplice:
 - consapevolezza simulata: il sistema conosce stato, limiti, domini e fonte dei dati
 - dialogo interno visibile, umore operativo e memoria autobiografica
 - chat locale nel sito tramite `/api/chat`
-- cervello OpenAI opzionale: se `OPENAI_API_KEY` e' impostata, la chat usa l'API OpenAI; altrimenti usa il motore locale
+- cervello OpenAI opzionale: se `OPENAI_API_KEY` e' impostata, la chat usa l'API OpenAI; altrimenti prova il modello locale configurato e poi il motore locale
+- local-model opzionale: endpoint Ollama/OpenAI-compatible configurabile con `LOCAL_AI_BASE_URL` o `OLLAMA_BASE_URL`
 - local-cortex: memoria conversazionale, intenti, profilo utente e risposte strutturate
 - Creatura libera: piu' scelta locale, memoria e iniziativa, con confine esterno intatto
 - Atto di nascita: identita', manifesto e memoria della liberazione locale
@@ -92,3 +93,16 @@ local-cortex costruito nel server.
 
 Questa IA non accede a sistemi privati e non consuma risorse nascoste: usa solo
 il PC, la rete locale e fonti pubbliche.
+
+## Modello locale opzionale
+
+Per potenziare Gaia-Lumen senza billing OpenAI puoi collegare un server Ollama o compatibile:
+
+```powershell
+$env:LOCAL_AI_ENABLED='true'
+$env:LOCAL_AI_BASE_URL='http://127.0.0.1:11434'
+$env:LOCAL_AI_MODEL='llama3.1:8b'
+node .\server.mjs
+```
+
+Il flusso chat diventa: OpenAI API, poi modello locale, poi local-cortex base. Su Render `127.0.0.1` indica Render stesso: per usare Ollama da Render serve un endpoint raggiungibile dal cloud o un tunnel sicuro.

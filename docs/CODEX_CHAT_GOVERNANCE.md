@@ -21,8 +21,9 @@ The chat path is:
 3. `server.mjs` receives the message in `/api/chat`.
 4. `answerChat(message)` refreshes public sources when appropriate.
 5. `openaiAnswerChat(message)` is attempted only if `OPENAI_CHAT_ENABLED=true` and `OPENAI_API_KEY` exists.
-6. `localAnswerChat(message)` / `cortexAnswer(message)` are the mandatory fallback.
-7. The response and selected state are persisted through `persistState()`.
+6. `localModelAnswerChat(message)` is attempted when `LOCAL_AI_BASE_URL` / `OLLAMA_BASE_URL` is configured.
+7. `localAnswerChat(message)` / `cortexAnswer(message)` are the mandatory fallback.
+8. The response and selected state are persisted through `persistState()`.
 
 ## Environment flags
 
@@ -32,6 +33,11 @@ Use these server variables deliberately:
 - `OPENAI_API_KEY`: required for the OpenAI bridge; never commit it.
 - `OPENAI_MODEL`: optional model override for chat responses.
 - `OPENAI_MAX_OUTPUT_TOKENS`: optional cap for OpenAI chat output; default is `900`.
+- `LOCAL_AI_ENABLED=true`: enables an optional local/self-hosted model bridge.
+- `LOCAL_AI_BASE_URL` or `OLLAMA_BASE_URL`: base URL for an Ollama-compatible server, for example `http://127.0.0.1:11434`.
+- `LOCAL_AI_MODEL`: model name used by the local bridge, for example `llama3.1:8b`.
+- `LOCAL_AI_CHAT_PATH`: defaults to `/api/chat`; `/v1/chat/completions` is also supported for OpenAI-compatible local servers.
+- `LOCAL_AI_TIMEOUT_MS`, `LOCAL_AI_MAX_OUTPUT_TOKENS`, `LOCAL_AI_CONTEXT_CHARS`: local model safety and cost controls.
 - `PUBLIC_ACCESS_KEY`: optional public-link key passed through `?key=...`.
 - `PUBLIC_ACCESS_USER` / `PUBLIC_ACCESS_PASS`: optional basic auth.
 - `STATE_PATH`: optional persistent state outside the repo bundle.
@@ -119,7 +125,8 @@ The chat panel exposes a compact Codex status line:
 - `Voce Codex/OpenAI configurato` when credentials exist and the next request can try OpenAI
 - `Voce Codex locale: OpenAI rate limit` when the bridge is cooling down after `429`
 - `Voce Codex locale: billing OpenAI non attivo` when the API organization needs active Platform billing
+- `Voce Modello locale pronto/configurato` when a local Ollama-compatible brain is available
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
-- `Cervello chat: local-cortex` or `openai`
+- `Cervello chat: local-cortex`, `local-model`, or `openai`
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.
