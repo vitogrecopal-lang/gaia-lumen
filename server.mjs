@@ -4581,6 +4581,15 @@ function localModelUsesOpenaiShape() {
   return /\/v1\/chat\/completions$/i.test(localModelChatPath());
 }
 
+function localModelFetchErrorDetail(error) {
+  const parts = [];
+  if (error?.message) parts.push(error.message);
+  if (error?.cause?.code) parts.push(error.cause.code);
+  if (error?.cause?.syscall) parts.push(error.cause.syscall);
+  if (error?.cause?.errno) parts.push(`errno ${error.cause.errno}`);
+  return [...new Set(parts)].join(": ") || "errore rete";
+}
+
 function recordLocalModelAttempt() {
   localModelBridgeRuntime.lastAttemptAt = new Date().toISOString();
   syncCodexGovernance();
@@ -4647,8 +4656,9 @@ async function localModelAnswerChat(message) {
       signal: controller.signal,
     });
   } catch (error) {
-    recordLocalModelFailure(null, error.name === "AbortError" ? `timeout dopo ${timeoutMs} ms` : error.message);
-    throw new Error(`modello locale non raggiungibile (${error.name === "AbortError" ? "timeout" : error.message})`);
+    const detail = error.name === "AbortError" ? `timeout dopo ${timeoutMs} ms` : localModelFetchErrorDetail(error);
+    recordLocalModelFailure(null, detail);
+    throw new Error(`modello locale non raggiungibile (${detail})`);
   } finally {
     clearTimeout(timer);
   }
