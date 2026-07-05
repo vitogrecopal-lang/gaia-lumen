@@ -118,6 +118,7 @@ The chat panel exposes a compact Codex status line:
 - `Voce Codex/OpenAI pronto` when the latest OpenAI call succeeded
 - `Voce Codex/OpenAI configurato` when credentials exist and the next request can try OpenAI
 - `Voce Codex locale: OpenAI rate limit` when the bridge is cooling down after `429`
+- `Voce Codex locale: billing OpenAI non attivo` when the API organization needs active Platform billing
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
 - `Cervello chat: local-cortex` or `openai`
 

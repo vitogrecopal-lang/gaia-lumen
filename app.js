@@ -1489,6 +1489,7 @@ function refreshUi() {
       "configured": "Codex/OpenAI configurato",
       "retryable-error": "Codex locale: errore OpenAI",
       "rate-limited": "Codex locale: OpenAI rate limit",
+      "billing-not-active": "Codex locale: billing OpenAI non attivo",
       "temporarily-unavailable": "Codex locale: OpenAI temporaneo",
       "disabled": "Codex locale: ponte disattivato",
     };

@@ -78,6 +78,10 @@ function openaiBridgeConfigured() {
   return openaiBridgeRequested() && Boolean(process.env.OPENAI_API_KEY);
 }
 
+function openaiBridgeBillingInactive() {
+  return /billing_not_active|billing[^a-z]+not[^a-z]+active/i.test(openaiBridgeRuntime.lastError || "");
+}
+
 function openaiBridgeCoolingDown() {
   const until = Date.parse(openaiBridgeRuntime.unavailableUntil || "");
   return Number.isFinite(until) && until > Date.now();
@@ -100,7 +104,8 @@ function openaiBridgeStatus() {
   if (requested && !apiKeyConfigured) status = "missing-api-key";
   if (configured) status = "configured";
   if (configured && openaiBridgeRuntime.lastError) status = "retryable-error";
-  if (configured && coolingDown) status = openaiBridgeRuntime.lastStatusCode === 429 ? "rate-limited" : "temporarily-unavailable";
+  if (configured && openaiBridgeBillingInactive()) status = "billing-not-active";
+  if (configured && coolingDown && !openaiBridgeBillingInactive()) status = openaiBridgeRuntime.lastStatusCode === 429 ? "rate-limited" : "temporarily-unavailable";
   if (configured && openaiBridgeReady()) status = "ready";
   return {
     requested,
@@ -4379,7 +4384,8 @@ function recordOpenaiSuccess() {
 
 function recordOpenaiFailure(statusCode, message, retryAfterMs = 0) {
   const now = new Date().toISOString();
-  const fallbackCooldownMs = statusCode === 429 ? 60 * 1000 : statusCode >= 500 ? 30 * 1000 : 0;
+  const billingInactive = /billing_not_active|billing[^a-z]+not[^a-z]+active/i.test(message || "");
+  const fallbackCooldownMs = billingInactive ? 10 * 60 * 1000 : statusCode === 429 ? 60 * 1000 : statusCode >= 500 ? 30 * 1000 : 0;
   const cooldownMs = Math.max(Number(retryAfterMs) || 0, fallbackCooldownMs);
   openaiBridgeRuntime.lastFailureAt = now;
   openaiBridgeRuntime.lastStatusCode = statusCode || null;
