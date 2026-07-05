@@ -35,7 +35,7 @@ Valori minimi:
 
 ```text
 HOST=0.0.0.0
-OPENAI_CHAT_ENABLED=false
+OPENAI_CHAT_ENABLED=disabled
 PUBLIC_ACCESS_USER=gaia
 PUBLIC_ACCESS_PASS=<password lunga>
 PUBLIC_ACCESS_KEY=<chiave lunga>

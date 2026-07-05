@@ -35,7 +35,7 @@ Use these server variables deliberately:
 - `OPENAI_MAX_OUTPUT_TOKENS`: optional cap for OpenAI chat output; default is `900`.
 - `LOCAL_AI_ENABLED=true`: enables an optional local/self-hosted model bridge.
 - `LOCAL_AI_BASE_URL` or `OLLAMA_BASE_URL`: base URL for an Ollama-compatible server, for example `http://127.0.0.1:11434`.
-- `LOCAL_AI_MODEL`: model name used by the local bridge, for example `llama3.1:8b`.
+- `LOCAL_AI_MODEL`: model name used by the local bridge, for example `llama3.2:3b`.
 - `LOCAL_AI_CHAT_PATH`: defaults to `/api/chat`; `/v1/chat/completions` is also supported for OpenAI-compatible local servers.
 - `LOCAL_AI_TIMEOUT_MS`, `LOCAL_AI_MAX_OUTPUT_TOKENS`, `LOCAL_AI_CONTEXT_CHARS`: local model safety and cost controls.
 - `PUBLIC_ACCESS_KEY`: optional public-link key passed through `?key=...`.

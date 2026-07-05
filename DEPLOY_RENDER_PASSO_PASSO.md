@@ -31,13 +31,19 @@ npm start
 
 ```text
 HOST=0.0.0.0
-OPENAI_CHAT_ENABLED=false
+OPENAI_CHAT_ENABLED=true
 PUBLIC_ACCESS_USER=gaia
 PUBLIC_ACCESS_PASS=<password lunga>
 PUBLIC_ACCESS_KEY=<chiave lunga>
+
+# opzionale: cervello locale/self-hosted raggiungibile dal cloud
+LOCAL_AI_ENABLED=false
+LOCAL_AI_BASE_URL=<url https del modello, non 127.0.0.1 del tuo PC>
+LOCAL_AI_MODEL=llama3.2:3b
+LOCAL_AI_CHAT_PATH=/api/chat
 ```
 
-Se l'hosting imposta `PORT` da solo, non inserirla manualmente.
+Se l'hosting imposta `PORT` da solo, non inserirla manualmente. Se non vuoi provare OpenAI, usa `OPENAI_CHAT_ENABLED=disabled`. Su Render `127.0.0.1` indica Render stesso, non il tuo PC.
 
 ## 4. Controlla salute
 

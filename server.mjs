@@ -78,7 +78,7 @@ const localModelBridgeRuntime = {
 };
 
 function localModelName() {
-  return process.env.LOCAL_AI_MODEL || process.env.OLLAMA_MODEL || "llama3.1:8b";
+  return process.env.LOCAL_AI_MODEL || process.env.OLLAMA_MODEL || "llama3.2:3b";
 }
 
 function localModelBridgeRequested() {

@@ -73,6 +73,7 @@ $env:HOST='0.0.0.0'
 node .\server.mjs
 ```
 
+
 ## Chat piu' simile a Codex
 
 Per usare un modello OpenAI nella chat del sito, imposta una chiave API valida
@@ -88,6 +89,7 @@ $env:HOST='0.0.0.0'
 node .\server.mjs
 ```
 
+
 Senza `OPENAI_CHAT_ENABLED='true'`, il sito resta completamente locale e usa il
 local-cortex costruito nel server.
 
@@ -101,8 +103,12 @@ Per potenziare Gaia-Lumen senza billing OpenAI puoi collegare un server Ollama o
 ```powershell
 $env:LOCAL_AI_ENABLED='true'
 $env:LOCAL_AI_BASE_URL='http://127.0.0.1:11434'
-$env:LOCAL_AI_MODEL='llama3.1:8b'
+$env:OPENAI_CHAT_ENABLED='disabled'
+$env:LOCAL_AI_MODEL='llama3.2:3b'
 node .\server.mjs
 ```
+
+Su Windows puoi usare direttamente `Gaia-Lumen-Local-AI.cmd` oppure `start_gaia_lumen_local_ai.ps1`: avviano il sito su `127.0.0.1:8767`, usano Ollama e salvano lo stato runtime in `.local-runtime/`.
+
 
 Il flusso chat diventa: OpenAI API, poi modello locale, poi local-cortex base. Su Render `127.0.0.1` indica Render stesso: per usare Ollama da Render serve un endpoint raggiungibile dal cloud o un tunnel sicuro.
