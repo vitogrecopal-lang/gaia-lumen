@@ -18,6 +18,10 @@ services:
         sync: false
       - key: LOCAL_AI_MODEL
         value: llama3.2:3b
+      - key: LOCAL_AI_DIRECT
+        value: true
+      - key: LOCAL_AI_REQUIRE
+        value: false
       - key: LOCAL_AI_CHAT_PATH
         value: /api/chat
       - key: LOCAL_AI_TIMEOUT_MS

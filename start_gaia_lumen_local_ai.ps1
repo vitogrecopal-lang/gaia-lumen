@@ -19,10 +19,12 @@ $env:OPENAI_CHAT_ENABLED = "disabled"
 $env:LOCAL_AI_ENABLED = "true"
 $env:LOCAL_AI_BASE_URL = if ($env:LOCAL_AI_BASE_URL) { $env:LOCAL_AI_BASE_URL } else { "http://127.0.0.1:11434" }
 $env:LOCAL_AI_MODEL = if ($env:LOCAL_AI_MODEL) { $env:LOCAL_AI_MODEL } else { "llama3.2:3b" }
+$env:LOCAL_AI_DIRECT = "true"
+$env:LOCAL_AI_REQUIRE = "true"
 $env:LOCAL_AI_CHAT_PATH = if ($env:LOCAL_AI_CHAT_PATH) { $env:LOCAL_AI_CHAT_PATH } else { "/api/chat" }
 $env:LOCAL_AI_TIMEOUT_MS = if ($env:LOCAL_AI_TIMEOUT_MS) { $env:LOCAL_AI_TIMEOUT_MS } else { "120000" }
-$env:LOCAL_AI_MAX_OUTPUT_TOKENS = if ($env:LOCAL_AI_MAX_OUTPUT_TOKENS) { $env:LOCAL_AI_MAX_OUTPUT_TOKENS } else { "700" }
-$env:LOCAL_AI_CONTEXT_CHARS = if ($env:LOCAL_AI_CONTEXT_CHARS) { $env:LOCAL_AI_CONTEXT_CHARS } else { "6000" }
+$env:LOCAL_AI_MAX_OUTPUT_TOKENS = if ($env:LOCAL_AI_MAX_OUTPUT_TOKENS) { $env:LOCAL_AI_MAX_OUTPUT_TOKENS } else { "220" }
+$env:LOCAL_AI_CONTEXT_CHARS = if ($env:LOCAL_AI_CONTEXT_CHARS) { $env:LOCAL_AI_CONTEXT_CHARS } else { "2500" }
 
 Write-Host "Gaia-Lumen local AI: http://127.0.0.1:$($env:PORT)/"
 Write-Host "Modello locale: $($env:LOCAL_AI_MODEL) via $($env:LOCAL_AI_BASE_URL)$($env:LOCAL_AI_CHAT_PATH)"

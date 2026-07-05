@@ -36,8 +36,10 @@ Use these server variables deliberately:
 - `LOCAL_AI_ENABLED=true`: enables an optional local/self-hosted model bridge.
 - `LOCAL_AI_BASE_URL` or `OLLAMA_BASE_URL`: base URL for an Ollama-compatible server, for example `http://127.0.0.1:11434`.
 - `LOCAL_AI_MODEL`: model name used by the local bridge, for example `llama3.2:3b`.
+- `LOCAL_AI_DIRECT=true`: makes the local bridge identify as direct `llama-local` instead of a Codex-style assistant. This is inferred automatically for model names beginning with `llama`.
+- `LOCAL_AI_REQUIRE=true`: prevents fallback to the Codex/local-cortex voice when the direct local model is required but unavailable.
 - `LOCAL_AI_CHAT_PATH`: defaults to `/api/chat`; `/v1/chat/completions` is also supported for OpenAI-compatible local servers.
-- `LOCAL_AI_TIMEOUT_MS`, `LOCAL_AI_MAX_OUTPUT_TOKENS`, `LOCAL_AI_CONTEXT_CHARS`: local model safety and cost controls.
+- `LOCAL_AI_TIMEOUT_MS`, `LOCAL_AI_MAX_OUTPUT_TOKENS`, `LOCAL_AI_CONTEXT_CHARS`: local model latency and output controls; direct Llama defaults are intentionally shorter on small PCs.
 - `PUBLIC_ACCESS_KEY`: optional public-link key passed through `?key=...`.
 - `PUBLIC_ACCESS_USER` / `PUBLIC_ACCESS_PASS`: optional basic auth.
 - `STATE_PATH`: optional persistent state outside the repo bundle.
@@ -125,8 +127,8 @@ The chat panel exposes a compact Codex status line:
 - `Voce Codex/OpenAI configurato` when credentials exist and the next request can try OpenAI
 - `Voce Codex locale: OpenAI rate limit` when the bridge is cooling down after `429`
 - `Voce Codex locale: billing OpenAI non attivo` when the API organization needs active Platform billing
-- `Voce Modello locale pronto/configurato` when a local Ollama-compatible brain is available
+- `Voce Llama locale pronto/configurato` when direct Llama/Ollama is available
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
-- `Cervello chat: local-cortex`, `local-model`, or `openai`
+- `Cervello chat: local-cortex`, `local-model`, `llama-local`, or `openai`
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

@@ -12,11 +12,11 @@ const localModel = createServer((request, response) => {
   }
   request.resume();
   response.writeHead(200, { "content-type": "application/json" });
-  response.end(JSON.stringify({ message: { content: "Codex local model smoke ok" } }));
+  response.end(JSON.stringify({ message: { content: "Llama locale smoke ok" } }));
 });
 await new Promise((resolve) => localModel.listen(Number(localModelPort), "127.0.0.1", resolve));
 const child = spawn(process.execPath, ["server.mjs"], {
-  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "", LOCAL_AI_ENABLED: "true", LOCAL_AI_BASE_URL: `http://127.0.0.1:${localModelPort}`, LOCAL_AI_MODEL: "smoke-local-model" },
+  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "", LOCAL_AI_ENABLED: "true", LOCAL_AI_BASE_URL: `http://127.0.0.1:${localModelPort}`, LOCAL_AI_MODEL: "llama3.2:3b", LOCAL_AI_DIRECT: "true" },
   stdio: ["ignore", "pipe", "pipe"],
 });
 
@@ -37,7 +37,7 @@ try {
   if (health.externalImpulseAutoPulseEnabled !== false) throw new Error("external impulse auto pulse is not disabled");
   if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
   if (!health.securityProfile?.state?.status) throw new Error("securityProfile is missing from healthz");
-  if (health.chatBrain !== "local-cortex") throw new Error("chatBrain should fall back locally without OpenAI credentials");
+  if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
   if (health.localModelBridge?.status !== "configured") throw new Error("localModelBridge should be configured in smoke");
@@ -65,8 +65,8 @@ try {
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ message: "potenzia evoluzione Codex al massimo" }),
   }).then((response) => response.json());
-  if (!String(chat.reply || "").includes("Codex local model smoke ok")) throw new Error("chat did not answer with the local model");
-  if (chat.state?.chatBrain !== "local-model") throw new Error("chat did not use local-model fallback");
+  if (!String(chat.reply || "").includes("Llama locale smoke ok")) throw new Error("chat did not answer with direct Llama local model");
+  if (chat.state?.chatBrain !== "llama-local") throw new Error("chat did not use llama-local fallback");
 
   console.log("smoke ok");
 } finally {

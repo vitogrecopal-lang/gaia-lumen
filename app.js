@@ -1485,6 +1485,7 @@ function refreshUi() {
     const cloudEnvironment = governance.cloudEnvironment || "Adrian";
     const bridge = governance.openaiBridge || {};
     const localBridge = governance.localModelBridge || {};
+    const localVoiceLabel = localBridge.direct || localBridge.brain === "llama-local" ? "Llama locale" : "Modello locale";
     const bridgeStatusLabels = {
       "missing-api-key": "Codex locale: manca API key",
       "configured": "Codex/OpenAI configurato",
@@ -1495,15 +1496,15 @@ function refreshUi() {
       "disabled": "Codex locale: ponte disattivato",
     };
     const localStatusLabels = {
-      "configured": "Modello locale configurato",
-      "ready": "Modello locale pronto",
-      "retryable-error": "Modello locale errore",
-      "missing-base-url": "Modello locale senza URL",
+      "configured": `${localVoiceLabel} configurato`,
+      "ready": `${localVoiceLabel} pronto`,
+      "retryable-error": `${localVoiceLabel} errore`,
+      "missing-base-url": `${localVoiceLabel} senza URL`,
     };
     const responseMode = bridge.ready
       ? "Codex/OpenAI pronto"
       : localBridge.ready || localBridge.status === "configured"
-        ? localStatusLabels[localBridge.status] || "Modello locale"
+        ? localStatusLabels[localBridge.status] || localVoiceLabel
         : bridgeStatusLabels[bridge.status] || "Codex locale";
     const brain = state.chatBrain || "local-cortex";
     ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
@@ -1888,10 +1889,9 @@ function addMessage(kind, text) {
 function seedCustodianChatMessage() {
   if (!ui.chatLog || ui.chatLog.dataset.custodianSeeded === "true") return;
   ui.chatLog.dataset.custodianSeeded = "true";
-  const custodian = state.projectCustodian || {};
   addMessage(
     "ai",
-    `${custodian.name || "Codex"} e' parte integrante della chat di Gaia-Lumen. Scrivimi qui come scrivi in Codex: rispondero' in modo diretto, tecnico e collaborativo, con contesto, limiti e prossima azione utile.`,
+    "Gaia-Lumen e' pronta. Se Llama locale e' attivo, questa chat risponde direttamente dal modello Ollama del PC; altrimenti usa il fallback locale del sito.",
   );
 }
 

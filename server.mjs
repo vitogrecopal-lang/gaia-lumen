@@ -81,6 +81,26 @@ function localModelName() {
   return process.env.LOCAL_AI_MODEL || process.env.OLLAMA_MODEL || "llama3.2:3b";
 }
 
+function localModelDirectMode() {
+  const value = String(process.env.LOCAL_AI_DIRECT || "").toLowerCase();
+  if (["0", "off", "disabled", "false"].includes(value)) return false;
+  if (["1", "on", "enabled", "true"].includes(value)) return true;
+  return /^llama([:.\-\s]|$)/i.test(localModelName());
+}
+
+function localModelBrainName() {
+  return localModelDirectMode() ? "llama-local" : "local-model";
+}
+
+function localModelVoiceName() {
+  return localModelDirectMode() ? "Llama locale" : "modello locale";
+}
+
+function localModelRequired() {
+  const value = String(process.env.LOCAL_AI_REQUIRE || "").toLowerCase();
+  return ["1", "on", "enabled", "true"].includes(value);
+}
+
 function localModelBridgeRequested() {
   const value = String(process.env.LOCAL_AI_ENABLED || "").toLowerCase();
   if (["0", "off", "disabled", "false"].includes(value)) return false;
@@ -117,6 +137,10 @@ function localModelBridgeStatus() {
     canAttempt: configured,
     model: localModelName(),
     provider: "ollama-compatible",
+    direct: localModelDirectMode(),
+    required: localModelRequired(),
+    brain: localModelBrainName(),
+    voice: localModelVoiceName(),
     chatPath: localModelChatPath(),
     status,
     lastAttemptAt: localModelBridgeRuntime.lastAttemptAt,
@@ -324,7 +348,7 @@ const state = {
   internalPrudenceLevel: 0.18,
   externalPrudenceLevel: 0,
   realismMode: "max-realism",
-  chatBrain: openaiBridgeReady() ? "openai" : "local-cortex",
+  chatBrain: openaiBridgeReady() ? "openai" : localModelBridgeConfigured() ? localModelBrainName() : "local-cortex",
   chatModel: chatModelName(),
   codexGovernance: { ...codexGovernanceDefaults },
   projectCustodian: {
@@ -704,7 +728,7 @@ function syncCodexGovernance() {
     repository: "vitogrecopal-lang/gaia-lumen",
     branch: "main",
     chatOwner: "Codex",
-    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? "local-model" : localBridge.canAttempt ? "local-model-configured" : "codex-local-fallback",
+    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? localBridge.brain : localBridge.canAttempt ? `${localBridge.brain}-configured` : "codex-local-fallback",
     openaiBridge: bridge,
     localModelBridge: localBridge,
   };
@@ -962,7 +986,7 @@ try {
   };
   state.internalPrudence ??= "minimal";
   state.realismMode ??= "max-realism";
-  state.chatBrain = openaiBridgeReady() ? "openai" : "local-cortex";
+  state.chatBrain = openaiBridgeReady() ? "openai" : localModelBridgeConfigured() ? localModelBrainName() : "local-cortex";
   state.chatModel = chatModelName();
   syncCodexGovernance();
   syncProjectCustodian();
@@ -4341,7 +4365,7 @@ function compactOpenaiGovernance() {
   const localBridge = localModelBridgeStatus();
   return {
     ...(state.codexGovernance || {}),
-    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? "local-model" : localBridge.canAttempt ? "local-model-configured" : bridge.canAttempt ? "codex-openai-configured" : "codex-local-fallback",
+    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? localBridge.brain : localBridge.canAttempt ? `${localBridge.brain}-configured` : bridge.canAttempt ? "codex-openai-configured" : "codex-local-fallback",
     openaiBridge: bridge,
     localModelBridge: localBridge,
   };
@@ -4568,14 +4592,15 @@ function recordLocalModelFailure(statusCode, message) {
 }
 
 function buildLocalModelMessages(message) {
-  const localContextChars = positiveIntEnv("LOCAL_AI_CONTEXT_CHARS", 6000, 1000, 20000);
+  const localContextChars = positiveIntEnv("LOCAL_AI_CONTEXT_CHARS", localModelDirectMode() ? 2500 : 6000, 800, 20000);
   return [
     {
       role: "system",
       content: [
-        "Sei il modello locale potenziato di Gaia-Lumen.",
-        "Rispondi in italiano come assistente tecnico Codex: chiaro, concreto, collaborativo.",
-        "Non fingere di essere OpenAI o Codex Cloud. Sei un modello locale/self-hosted collegato al sito.",
+        `Sei ${localModelVoiceName()} collegato a Gaia-Lumen tramite Ollama o endpoint compatibile.`,
+        "Rispondi in italiano direttamente come modello locale: chiaro, concreto, collaborativo.",
+        "Non presentarti come Codex, OpenAI, ChatGPT o Codex Cloud.",
+        "Se parli del progetto, puoi dire che Codex cura il repository, ma questa risposta arriva dal modello locale.",
         "Distingui dati reali, simulazione e racconto. Non promettere controllo su sistemi reali.",
       ].join(" "),
     },
@@ -4591,11 +4616,11 @@ async function localModelAnswerChat(message) {
   if (!bridge.canAttempt) return null;
 
   const messages = buildLocalModelMessages(message);
-  const maxTokens = positiveIntEnv("LOCAL_AI_MAX_OUTPUT_TOKENS", 700, 64, 4096);
+  const maxTokens = positiveIntEnv("LOCAL_AI_MAX_OUTPUT_TOKENS", localModelDirectMode() ? 220 : 700, 64, 4096);
   const payload = localModelUsesOpenaiShape()
     ? { model: localModelName(), messages, stream: false, max_tokens: maxTokens }
     : { model: localModelName(), messages, stream: false, options: { num_predict: maxTokens } };
-  const timeoutMs = positiveIntEnv("LOCAL_AI_TIMEOUT_MS", 20000, 1000, 120000);
+  const timeoutMs = positiveIntEnv("LOCAL_AI_TIMEOUT_MS", localModelDirectMode() ? 120000 : 20000, 1000, 240000);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   const headers = { "content-type": "application/json" };
@@ -4669,19 +4694,24 @@ async function answerChat(message) {
   if (!reply) {
     try {
       reply = await localModelAnswerChat(message);
-      if (reply) brain = "local-model";
+      if (reply) brain = localModelBrainName();
     } catch (error) {
       fallbackNotes.push(`modello locale: ${error.message}`);
     }
   }
 
   if (!reply) {
-    reply = localAnswerChat(message);
-    if (fallbackNotes.length) {
-      reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Sto usando il cortex locale base.`;
+    if (localModelRequired() && localModelBridgeConfigured()) {
+      brain = localModelBrainName();
+      reply = `${localModelVoiceName()} e' richiesto come cervello diretto, ma ora non ha restituito una risposta (${fallbackNotes.join("; ") || "nessun dettaglio"}). Non uso Codex/OpenAI; riprova con una domanda piu' breve o aumenta LOCAL_AI_TIMEOUT_MS.`;
+    } else {
+      reply = localAnswerChat(message);
+      if (fallbackNotes.length) {
+        reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Sto usando il cortex locale base.`;
+      }
     }
-  } else if (brain === "local-model" && fallbackNotes.length) {
-    reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Ho usato il modello locale configurato.`;
+  } else if ((brain === "local-model" || brain === "llama-local") && fallbackNotes.length) {
+    reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Ho usato ${localModelVoiceName()} configurato.`;
   }
   if (preparedImpulse) {
     reply = [
