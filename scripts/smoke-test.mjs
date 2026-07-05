@@ -1,9 +1,13 @@
 import { spawn } from "node:child_process";
+import { mkdtemp, rm } from "node:fs/promises";
 import { createServer } from "node:http";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
 const port = process.env.SMOKE_PORT || "8781";
 const localModelPort = String(Number(port) + 1);
 const base = `http://127.0.0.1:${port}`;
+const runtimeDir = await mkdtemp(join(tmpdir(), "gaia-lumen-smoke-"));
 const localModel = createServer((request, response) => {
   if (request.method !== "POST" || request.url !== "/api/chat") {
     response.writeHead(404);
@@ -16,7 +20,22 @@ const localModel = createServer((request, response) => {
 });
 await new Promise((resolve) => localModel.listen(Number(localModelPort), "127.0.0.1", resolve));
 const child = spawn(process.execPath, ["server.mjs"], {
-  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "", LOCAL_AI_ENABLED: "true", LOCAL_AI_BASE_URL: `http://127.0.0.1:${localModelPort}`, LOCAL_AI_MODEL: "llama3.2:3b", LOCAL_AI_DIRECT: "true" },
+  env: {
+    ...process.env,
+    PORT: port,
+    HOST: "127.0.0.1",
+    STATE_PATH: join(runtimeDir, "neural_state.json"),
+    BACKUPS_DIR: join(runtimeDir, "backups"),
+    PUBLIC_ACCESS_KEY: "smoke-key",
+    OPENAI_CHAT_ENABLED: "true",
+    OPENAI_API_KEY: "",
+    LOCAL_AI_ENABLED: "true",
+    LOCAL_AI_BASE_PROTOCOL: "http",
+    LOCAL_AI_BASE_HOST: "127.0.0.1",
+    LOCAL_AI_BASE_PORT: localModelPort,
+    LOCAL_AI_MODEL: "llama3.2:3b",
+    LOCAL_AI_DIRECT: "true",
+  },
   stdio: ["ignore", "pipe", "pipe"],
 });
 
@@ -72,4 +91,5 @@ try {
 } finally {
   child.kill();
   localModel.close();
+  await rm(runtimeDir, { recursive: true, force: true });
 }

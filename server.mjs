@@ -105,12 +105,23 @@ function localModelBridgeRequested() {
   const value = String(process.env.LOCAL_AI_ENABLED || "").toLowerCase();
   if (["0", "off", "disabled", "false"].includes(value)) return false;
   if (["1", "on", "enabled", "true"].includes(value)) return true;
-  return Boolean(process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL);
+  return Boolean(process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL || process.env.LOCAL_AI_BASE_HOST);
 }
 
 function localModelBaseUrl() {
-  const raw = process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL || (localModelBridgeRequested() ? "http://127.0.0.1:11434" : "");
+  const raw = process.env.LOCAL_AI_BASE_URL || process.env.OLLAMA_BASE_URL || localModelBaseUrlFromHost() || (localModelBridgeRequested() ? "http://127.0.0.1:11434" : "");
   return String(raw || "").replace(/\/+$/, "");
+}
+
+function localModelBaseUrlFromHost() {
+  const host = String(process.env.LOCAL_AI_BASE_HOST || "").trim();
+  if (!host) return "";
+  if (/^https?:\/\//i.test(host)) return host;
+  const protocol = String(process.env.LOCAL_AI_BASE_PROTOCOL || "http").replace(/:.*$/, "") || "http";
+  const port = String(process.env.LOCAL_AI_BASE_PORT || "").trim();
+  const cleanHost = host.replace(/\/+$/, "");
+  const hasPort = /:\d+$/.test(cleanHost);
+  return `${protocol}://${cleanHost}${port && !hasPort ? `:${port}` : ""}`;
 }
 
 function localModelChatPath() {

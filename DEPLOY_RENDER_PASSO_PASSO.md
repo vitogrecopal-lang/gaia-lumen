@@ -31,19 +31,25 @@ npm start
 
 ```text
 HOST=0.0.0.0
-OPENAI_CHAT_ENABLED=true
+OPENAI_CHAT_ENABLED=disabled
 PUBLIC_ACCESS_USER=gaia
 PUBLIC_ACCESS_PASS=<password lunga>
 PUBLIC_ACCESS_KEY=<chiave lunga>
 
-# opzionale: cervello locale/self-hosted raggiungibile dal cloud
-LOCAL_AI_ENABLED=false
-LOCAL_AI_BASE_URL=<url https del modello, non 127.0.0.1 del tuo PC>
+# cervello Llama su Render/private network
+LOCAL_AI_ENABLED=true
+LOCAL_AI_BASE_HOST=<host interno Render del servizio gaia-lumen-llama>
+LOCAL_AI_BASE_PORT=11434
+LOCAL_AI_BASE_PROTOCOL=http
 LOCAL_AI_MODEL=llama3.2:3b
 LOCAL_AI_CHAT_PATH=/api/chat
+LOCAL_AI_DIRECT=true
+LOCAL_AI_REQUIRE=true
 ```
 
-Se l'hosting imposta `PORT` da solo, non inserirla manualmente. Se non vuoi provare OpenAI, usa `OPENAI_CHAT_ENABLED=disabled`. Su Render `127.0.0.1` indica Render stesso, non il tuo PC.
+Se l'hosting imposta `PORT` da solo, non inserirla manualmente. Su Render `127.0.0.1` indica Render stesso, non il tuo PC.
+
+Il `render.yaml` del repository definisce anche un servizio privato `gaia-lumen-llama` basato su Docker/Ollama. Richiede un piano Render con RAM adeguata; `starter` non basta per caricare Llama.
 
 ## 4. Controlla salute
 
@@ -57,6 +63,15 @@ Risposta attesa:
 
 ```json
 {"ok":true,"service":"gaia-lumen"}
+```
+
+Per confermare Llama, in `/healthz` devono comparire:
+
+```text
+chatBrain=llama-local
+localModelBridge.requested=true
+localModelBridge.status=ready
+localModelBridge.model=llama3.2:3b
 ```
 
 ## 5. Apri Gaia-Lumen
@@ -73,7 +88,7 @@ Il file da proteggere e':
 neural_state.json
 ```
 
-Se l'hosting non offre disco persistente, la memoria puo' tornare indietro dopo riavvii o deploy.
+Se l'hosting non offre disco persistente, la memoria puo' tornare indietro dopo riavvii o deploy. Il modello Llama usa un secondo disco persistente montato su `/var/data` nel servizio privato Ollama.
 
 ## 7. Regola finale
 
@@ -82,4 +97,5 @@ Prima di spegnere il PC principale, verifica dal telefono:
 1. che il link cloud apra il sito;
 2. che la chat risponda;
 3. che `/healthz` risponda;
-4. che `neural_state.json` sia persistente o abbia backup.
+4. che `neural_state.json` sia persistente o abbia backup;
+5. che `localModelBridge.status` sia `ready` dopo il primo pull del modello.

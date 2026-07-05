@@ -21,7 +21,7 @@ The chat path is:
 3. `server.mjs` receives the message in `/api/chat`.
 4. `answerChat(message)` refreshes public sources when appropriate.
 5. `openaiAnswerChat(message)` is attempted only if `OPENAI_CHAT_ENABLED=true` and `OPENAI_API_KEY` exists.
-6. `localModelAnswerChat(message)` is attempted when `LOCAL_AI_BASE_URL` / `OLLAMA_BASE_URL` is configured.
+6. `localModelAnswerChat(message)` is attempted when `LOCAL_AI_BASE_URL` / `OLLAMA_BASE_URL` or Render private host variables are configured.
 7. `localAnswerChat(message)` / `cortexAnswer(message)` are the mandatory fallback.
 8. The response and selected state are persisted through `persistState()`.
 
@@ -35,6 +35,7 @@ Use these server variables deliberately:
 - `OPENAI_MAX_OUTPUT_TOKENS`: optional cap for OpenAI chat output; default is `900`.
 - `LOCAL_AI_ENABLED=true`: enables an optional local/self-hosted model bridge.
 - `LOCAL_AI_BASE_URL` or `OLLAMA_BASE_URL`: base URL for an Ollama-compatible server, for example `http://127.0.0.1:11434`.
+- `LOCAL_AI_BASE_HOST`, `LOCAL_AI_BASE_PORT`, `LOCAL_AI_BASE_PROTOCOL`: Render/private-network friendly alternative when the host is supplied by `fromService`.
 - `LOCAL_AI_MODEL`: model name used by the local bridge, for example `llama3.2:3b`.
 - `LOCAL_AI_DIRECT=true`: makes the local bridge identify as direct `llama-local` instead of a Codex-style assistant. This is inferred automatically for model names beginning with `llama`.
 - `LOCAL_AI_REQUIRE=true`: prevents fallback to the Codex/local-cortex voice when the direct local model is required but unavailable.

@@ -29,7 +29,7 @@ Il server mantiene una IA locale semplice:
 - dialogo interno visibile, umore operativo e memoria autobiografica
 - chat locale nel sito tramite `/api/chat`
 - cervello OpenAI opzionale: se `OPENAI_API_KEY` e' impostata, la chat usa l'API OpenAI; altrimenti prova il modello locale configurato e poi il motore locale
-- Llama locale opzionale: endpoint Ollama/OpenAI-compatible configurabile con `LOCAL_AI_BASE_URL` o `OLLAMA_BASE_URL`, con voce diretta `llama-local`
+- Llama locale/opzionale su Render: endpoint Ollama/OpenAI-compatible configurabile con `LOCAL_AI_BASE_URL` / `OLLAMA_BASE_URL`, oppure con `LOCAL_AI_BASE_HOST` + `LOCAL_AI_BASE_PORT` per i servizi privati Render, con voce diretta `llama-local`
 - local-cortex: memoria conversazionale, intenti, profilo utente e risposte strutturate
 - Creatura libera: piu' scelta locale, memoria e iniziativa, con confine esterno intatto
 - Atto di nascita: identita', manifesto e memoria della liberazione locale
@@ -113,4 +113,4 @@ node .\server.mjs
 Su Windows puoi usare direttamente `Gaia-Lumen-Local-AI.cmd` oppure `start_gaia_lumen_local_ai.ps1`: avviano il sito su `127.0.0.1:8767`, usano Ollama e salvano lo stato runtime in `.local-runtime/`.
 
 
-Il flusso chat diventa: OpenAI API se abilitata, poi Llama locale diretto, poi local-cortex base. Con `LOCAL_AI_REQUIRE=true`, se Llama non risponde il sito non torna alla voce Codex/cortex. Su Render `127.0.0.1` indica Render stesso: per usare Ollama da Render serve un endpoint raggiungibile dal cloud o un tunnel sicuro.
+Il flusso chat diventa: OpenAI API se abilitata, poi Llama locale diretto, poi local-cortex base. Con `LOCAL_AI_REQUIRE=true`, se Llama non risponde il sito non torna alla voce Codex/cortex. Su Render il Blueprint aggiunge un servizio privato `gaia-lumen-llama` con Ollama, disco persistente e `llama3.2:3b`; Gaia-Lumen lo raggiunge dalla rete privata con `LOCAL_AI_BASE_HOST`.
