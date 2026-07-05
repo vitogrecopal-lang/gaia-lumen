@@ -69,6 +69,8 @@ services:
     dockerContext: ./render-ollama
     dockerfilePath: ./render-ollama/Dockerfile
     envVars:
+      - key: PORT
+        value: 11434
       - key: OLLAMA_HOST
         value: 0.0.0.0:11434
       - key: OLLAMA_MODELS
