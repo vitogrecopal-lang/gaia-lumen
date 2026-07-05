@@ -1484,7 +1484,15 @@ function refreshUi() {
     const status = governance.status || "active";
     const cloudEnvironment = governance.cloudEnvironment || "Adrian";
     const bridge = governance.openaiBridge || {};
-    const responseMode = bridge.ready ? "Codex/OpenAI pronto" : bridge.status === "missing-api-key" ? "Codex locale: manca API key" : "Codex locale";
+    const bridgeStatusLabels = {
+      "missing-api-key": "Codex locale: manca API key",
+      "configured": "Codex/OpenAI configurato",
+      "retryable-error": "Codex locale: errore OpenAI",
+      "rate-limited": "Codex locale: OpenAI rate limit",
+      "temporarily-unavailable": "Codex locale: OpenAI temporaneo",
+      "disabled": "Codex locale: ponte disattivato",
+    };
+    const responseMode = bridge.ready ? "Codex/OpenAI pronto" : bridgeStatusLabels[bridge.status] || "Codex locale";
     const brain = state.chatBrain || "local-cortex";
     ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
   }

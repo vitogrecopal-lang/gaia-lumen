@@ -3,7 +3,7 @@ import { spawn } from "node:child_process";
 const port = process.env.SMOKE_PORT || "8781";
 const base = `http://127.0.0.1:${port}`;
 const child = spawn(process.execPath, ["server.mjs"], {
-  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key" },
+  env: { ...process.env, PORT: port, HOST: "127.0.0.1", PUBLIC_ACCESS_KEY: "smoke-key", OPENAI_CHAT_ENABLED: "true", OPENAI_API_KEY: "" },
   stdio: ["ignore", "pipe", "pipe"],
 });
 
@@ -24,6 +24,9 @@ try {
   if (health.externalImpulseAutoPulseEnabled !== false) throw new Error("external impulse auto pulse is not disabled");
   if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
   if (!health.securityProfile?.state?.status) throw new Error("securityProfile is missing from healthz");
+  if (health.chatBrain !== "local-cortex") throw new Error("chatBrain should fall back locally without OpenAI credentials");
+  if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
+  if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
   if (!Object.hasOwn(health, "externalImpulseTotalCount")) throw new Error("external impulse archive total missing");
   if (health.primaryFoundation !== "active") throw new Error("primaryFoundation is not active");
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");

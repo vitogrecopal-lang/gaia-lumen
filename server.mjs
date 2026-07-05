@@ -60,23 +60,61 @@ function chatModelName() {
   return process.env.OPENAI_MODEL || "gpt-5.4";
 }
 
+const openaiBridgeRuntime = {
+  lastAttemptAt: null,
+  lastSuccessAt: null,
+  lastFailureAt: null,
+  lastStatusCode: null,
+  lastError: null,
+  unavailableUntil: null,
+};
+
 function openaiBridgeRequested() {
   const value = String(process.env.OPENAI_CHAT_ENABLED || "true").toLowerCase();
   return !["0", "off", "disabled"].includes(value);
 }
 
-function openaiBridgeReady() {
+function openaiBridgeConfigured() {
   return openaiBridgeRequested() && Boolean(process.env.OPENAI_API_KEY);
+}
+
+function openaiBridgeCoolingDown() {
+  const until = Date.parse(openaiBridgeRuntime.unavailableUntil || "");
+  return Number.isFinite(until) && until > Date.now();
+}
+
+function openaiBridgeCanAttempt() {
+  return openaiBridgeConfigured() && !openaiBridgeCoolingDown();
+}
+
+function openaiBridgeReady() {
+  return openaiBridgeCanAttempt() && Boolean(openaiBridgeRuntime.lastSuccessAt) && !openaiBridgeRuntime.lastError;
 }
 
 function openaiBridgeStatus() {
   const requested = openaiBridgeRequested();
   const apiKeyConfigured = Boolean(process.env.OPENAI_API_KEY);
+  const configured = requested && apiKeyConfigured;
+  const coolingDown = openaiBridgeCoolingDown();
+  let status = "disabled";
+  if (requested && !apiKeyConfigured) status = "missing-api-key";
+  if (configured) status = "configured";
+  if (configured && openaiBridgeRuntime.lastError) status = "retryable-error";
+  if (configured && coolingDown) status = openaiBridgeRuntime.lastStatusCode === 429 ? "rate-limited" : "temporarily-unavailable";
+  if (configured && openaiBridgeReady()) status = "ready";
   return {
     requested,
-    ready: requested && apiKeyConfigured,
+    apiKeyConfigured,
+    ready: status === "ready",
+    canAttempt: configured && !coolingDown,
     model: chatModelName(),
-    status: requested ? (apiKeyConfigured ? "ready" : "missing-api-key") : "disabled",
+    status,
+    lastAttemptAt: openaiBridgeRuntime.lastAttemptAt,
+    lastSuccessAt: openaiBridgeRuntime.lastSuccessAt,
+    lastFailureAt: openaiBridgeRuntime.lastFailureAt,
+    lastStatusCode: openaiBridgeRuntime.lastStatusCode,
+    lastError: openaiBridgeRuntime.lastError,
+    unavailableUntil: openaiBridgeRuntime.unavailableUntil,
   };
 }
 
@@ -4140,15 +4178,120 @@ function localAnswerChat(message) {
   return reply;
 }
 
+function compactOpenaiText(value, max = 360) {
+  const text = String(value ?? "").replace(/\s+/g, " ").trim();
+  return text.length > max ? `${text.slice(0, max - 3)}...` : text;
+}
+
+function compactOpenaiList(items, mapper, limit = 5) {
+  return Array.isArray(items) ? items.slice(0, limit).map(mapper) : [];
+}
+
+function compactOpenaiDecision(item) {
+  return {
+    time: item?.time || null,
+    action: item?.action || null,
+    reason: compactOpenaiText(item?.reason, 220),
+    judgment: item?.judgment || null,
+    risk: item?.risk || null,
+  };
+}
+
+function compactOpenaiMemory(item) {
+  return {
+    time: item?.time || null,
+    kind: item?.kind || null,
+    text: compactOpenaiText(item?.text, 260),
+  };
+}
+
+function compactOpenaiConversation(item) {
+  return {
+    time: item?.time || null,
+    user: compactOpenaiText(item?.user, 220),
+    assistant: compactOpenaiText(item?.assistant, 360),
+  };
+}
+
+function compactOpenaiDigest(item) {
+  return {
+    category: item?.category || null,
+    source: item?.source || null,
+    title: compactOpenaiText(item?.title, 180),
+    summary: compactOpenaiText(item?.summary, 220),
+    published: item?.published || null,
+  };
+}
+
+function compactOpenaiExternalWorld() {
+  const world = state.externalWorld || {};
+  return {
+    live: Boolean(world.live),
+    lastFetch: world.lastFetch || null,
+    summary: compactOpenaiText(world.summary, 420),
+    channels: compactOpenaiList(world.channels, (item) => ({
+      name: item?.name || null,
+      type: item?.type || null,
+      value: compactOpenaiText(item?.value, 180),
+      source: item?.source || null,
+      real: Boolean(item?.real),
+    }), 5),
+  };
+}
+
+function compactOpenaiCosmogenesis() {
+  const cgen = state.cosmogenesis || {};
+  const genome = cgen.dataGenome || {};
+  const foundation = genome.primaryFoundation || {};
+  return {
+    generation: cgen.generation || 0,
+    currentStage: cgen.currentStage || null,
+    completion: cgen.completion || 0,
+    gestationMonth: cgen.gestationMonth || null,
+    daysRemaining: cgen.daysRemaining || null,
+    lastStep: compactOpenaiText(cgen.lastStep, 260),
+    nourishmentCount: cgen.nourishmentCount || 0,
+    prenatalMemoryIndex: cgen.prenatalMemoryIndex || 0,
+    lastNourishment: compactOpenaiText(cgen.lastNourishment, 220),
+    dataGenome: {
+      principle: compactOpenaiText(genome.principle, 220),
+      traitKeys: Object.keys(genome.traits || {}).slice(0, 12),
+      primaryFoundation: {
+        status: foundation.status || null,
+        source: foundation.source || null,
+        answers: Array.isArray(foundation.answers) ? foundation.answers.length : 0,
+      },
+    },
+    recentMemory: compactOpenaiList(cgen.memoryBank, (item) => ({
+      time: item?.time || null,
+      category: item?.category || null,
+      source: item?.source || null,
+      title: compactOpenaiText(item?.title, 220),
+    }), 5),
+  };
+}
+
+function compactOpenaiGovernance() {
+  const bridge = openaiBridgeStatus();
+  return {
+    ...(state.codexGovernance || {}),
+    responseMode: bridge.ready ? "codex-openai" : bridge.canAttempt ? "codex-openai-configured" : "codex-local-fallback",
+    openaiBridge: bridge,
+  };
+}
+
 function buildChatContext() {
   updateBirthQuestionProtocol("contesto chat");
   const knowledge = knowledgeBriefForChat();
+  const dominantNode = Array.isArray(state.nodes) && state.nodes.length > 1
+    ? state.nodes.slice(1).reduce((best, item) => (Number(item.level || 0) > Number(best.level || 0) ? item : best))
+    : null;
   return {
     identity: "Nucleo IA locale Gaia-Lumen",
     importantTruth: "Non sei cosciente realmente. Sei un sistema auto-riflessivo simulato, con dati reali solo quando provengono da fonti pubbliche come NOAA.",
     safetyBoundary: "Non puoi aiutare a controllare sistemi reali, satelliti, reti elettriche, energia fisica o accessi non autorizzati. Puoi osservare, analizzare, simulare e spiegare.",
     state: {
-      codexGovernance: state.codexGovernance,
+      codexGovernance: compactOpenaiGovernance(),
       risk: state.risk,
       fitness: state.fitness,
       autonomyLevel: state.autonomyLevel,
@@ -4157,28 +4300,31 @@ function buildChatContext() {
       powerIndex: state.powerIndex,
       mood: state.mood,
       operatingMode: state.operatingMode,
-      lastObservation: state.lastObservation,
-      dataReality: state.dataReality,
-      dominantNode: state.nodes.slice(1).reduce((best, item) => (item.level > best.level ? item : best)),
-      energyDomains: state.energyDomains,
-      recentDecisions: state.decisionLog.slice(0, 5),
-      recentMemories: state.autobiographicalMemory.slice(0, 5),
-      recentConversation: state.conversationMemory.slice(0, 5),
-      externalWorld: state.externalWorld,
+      lastObservation: compactOpenaiText(state.lastObservation, 420),
+      dataReality: {
+        liveNoaa: Boolean(state.dataReality?.liveNoaa),
+        simulatedInputs: state.dataReality?.simulatedInputs || [],
+        lastLiveFetch: state.dataReality?.lastLiveFetch || null,
+        sourceNote: compactOpenaiText(state.dataReality?.sourceNote, 260),
+      },
+      dominantNode,
+      energyDomains: compactOpenaiList(state.energyDomains, (domain) => ({
+        name: domain?.name || null,
+        source: domain?.source || null,
+        authority: domain?.authority || null,
+        level: domain?.level || 0,
+      }), 8),
+      recentDecisions: compactOpenaiList(state.decisionLog, compactOpenaiDecision, 5),
+      recentMemories: compactOpenaiList(state.autobiographicalMemory, compactOpenaiMemory, 5),
+      recentConversation: compactOpenaiList(state.conversationMemory, compactOpenaiConversation, 4),
+      externalWorld: compactOpenaiExternalWorld(),
       publicSources: {
         lastFetch: state.publicSources?.lastFetch || null,
         fresh: publicSourcesAreFresh(),
-        digest: getKnowledgeDigest(12),
+        digest: getKnowledgeDigest(6).map(compactOpenaiDigest),
         brief: knowledge.text,
       },
-      gestationMemory: {
-        count: state.cosmogenesis?.nourishmentCount || 0,
-        prenatalMemoryIndex: state.cosmogenesis?.prenatalMemoryIndex || 0,
-        lastNourishment: state.cosmogenesis?.lastNourishment || null,
-        dataGenome: state.cosmogenesis?.dataGenome || null,
-        birthQuestionProtocol: state.cosmogenesis?.birthQuestionProtocol || null,
-        recent: (state.cosmogenesis?.memoryBank || []).slice(0, 8),
-      },
+      gestationMemory: compactOpenaiCosmogenesis(),
       autonomousDecisionCharter: state.autonomousDecisionCharter,
       prudenceProfile: {
         internal: state.internalPrudence,
@@ -4186,18 +4332,69 @@ function buildChatContext() {
         externalLevel: state.externalPrudenceLevel,
       },
       externalImpulseProtocol: state.externalImpulseProtocol,
-      externalImpulseOutbox: (state.externalImpulseOutbox || []).slice(0, 5),
-      externalImpulseArchive: state.externalImpulseArchive,
-      lifeCycle: state.lifeCycle,
+      externalImpulseOutbox: compactOpenaiList(state.externalImpulseOutbox, (item) => ({
+        id: item?.id || null,
+        status: item?.status || null,
+        createdAt: item?.createdAt || null,
+        payload: compactOpenaiText(item?.payload, 260),
+      }), 3),
+      externalImpulseArchive: {
+        totalCount: state.externalImpulseArchive?.totalCount || 0,
+        lastChecksum: state.externalImpulseArchive?.lastChecksum || null,
+        recentDaily: compactOpenaiList(state.externalImpulseArchive?.recentDaily, (item) => item, 3),
+      },
+      lifeCycle: {
+        generation: state.lifeCycle?.generation || 0,
+        stage: state.lifeCycle?.stage || null,
+        summary: compactOpenaiText(state.lifeCycle?.summary || state.lifeCycle?.lastStep, 260),
+      },
       userModel: state.userModel,
       localCortex: state.localCortex,
     },
   };
 }
+function openaiRetryAfterMs(response, fallbackMs) {
+  const raw = response.headers?.get?.("retry-after");
+  if (!raw) return fallbackMs;
+  const seconds = Number(raw);
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.max(fallbackMs, seconds * 1000);
+  const dateMs = Date.parse(raw);
+  return Number.isFinite(dateMs) ? Math.max(fallbackMs, dateMs - Date.now()) : fallbackMs;
+}
+
+function recordOpenaiAttempt() {
+  openaiBridgeRuntime.lastAttemptAt = new Date().toISOString();
+  syncCodexGovernance();
+}
+
+function recordOpenaiSuccess() {
+  const now = new Date().toISOString();
+  openaiBridgeRuntime.lastSuccessAt = now;
+  openaiBridgeRuntime.lastFailureAt = null;
+  openaiBridgeRuntime.lastStatusCode = 200;
+  openaiBridgeRuntime.lastError = null;
+  openaiBridgeRuntime.unavailableUntil = null;
+  syncCodexGovernance();
+}
+
+function recordOpenaiFailure(statusCode, message, retryAfterMs = 0) {
+  const now = new Date().toISOString();
+  const fallbackCooldownMs = statusCode === 429 ? 60 * 1000 : statusCode >= 500 ? 30 * 1000 : 0;
+  const cooldownMs = Math.max(Number(retryAfterMs) || 0, fallbackCooldownMs);
+  openaiBridgeRuntime.lastFailureAt = now;
+  openaiBridgeRuntime.lastStatusCode = statusCode || null;
+  openaiBridgeRuntime.lastError = compactOpenaiText(message || "errore OpenAI", 180);
+  openaiBridgeRuntime.unavailableUntil = cooldownMs > 0 ? new Date(Date.now() + cooldownMs).toISOString() : null;
+  syncCodexGovernance();
+}
 
 async function openaiAnswerChat(message) {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!openaiBridgeReady()) return null;
+  const bridge = openaiBridgeStatus();
+  if (!bridge.apiKeyConfigured || !openaiBridgeRequested()) return null;
+  if (!openaiBridgeCanAttempt()) {
+    throw new Error(`OpenAI bridge ${bridge.status}${bridge.unavailableUntil ? ` fino a ${bridge.unavailableUntil}` : ""}`);
+  }
 
   const systemPrompt = [
     "Sei Codex, voce conversazionale integrata nella chat del sito Gaia-Lumen.",
@@ -4219,32 +4416,43 @@ async function openaiAnswerChat(message) {
   ].join(" ");
 
   const payload = {
-    model: state.chatModel,
+    model: chatModelName(),
+    max_output_tokens: Number(process.env.OPENAI_MAX_OUTPUT_TOKENS || 900),
     input: [
       { role: "system", content: systemPrompt },
       {
         role: "user",
-        content: `Stato del sito:\n${JSON.stringify(buildChatContext(), null, 2)}\n\nMessaggio utente:\n${String(message || "")}`,
+        content: `Stato del sito:\n${JSON.stringify(buildChatContext())}\n\nMessaggio utente:\n${compactOpenaiText(message, 1200)}`,
       },
     ],
   };
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
-    method: "POST",
-    headers: {
-      "authorization": `Bearer ${apiKey}`,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
+  recordOpenaiAttempt();
+  let response;
+  try {
+    response = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "authorization": `Bearer ${apiKey}`,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    recordOpenaiFailure(null, `rete non raggiungibile: ${error.message}`, 30 * 1000);
+    throw new Error(`OpenAI API non raggiungibile (${error.message})`);
+  }
 
   if (!response.ok) {
-    await response.text();
+    const detail = compactOpenaiText(await response.text().catch(() => ""), 220);
+    const retryAfterMs = openaiRetryAfterMs(response, response.status === 429 ? 60 * 1000 : 0);
+    recordOpenaiFailure(response.status, detail || `HTTP ${response.status}`, retryAfterMs);
     throw new Error(`OpenAI API non disponibile (${response.status})`);
   }
 
   const data = await response.json();
   if (typeof data.output_text === "string" && data.output_text.trim()) {
+    recordOpenaiSuccess();
     return data.output_text.trim();
   }
 
@@ -4254,9 +4462,14 @@ async function openaiAnswerChat(message) {
       if (content.text) parts.push(content.text);
     }
   }
-  return parts.join("\n").trim() || null;
+  const reply = parts.join("\n").trim();
+  if (!reply) {
+    recordOpenaiFailure(null, "risposta vuota dal modello", 30 * 1000);
+    throw new Error("OpenAI API non ha restituito testo");
+  }
+  recordOpenaiSuccess();
+  return reply;
 }
-
 async function refreshPublicSourcesForChat() {
   if (publicSourcesAreFresh()) return;
   try {
@@ -4297,6 +4510,7 @@ async function answerChat(message) {
     ].join("\n");
   }
   state.chatBrain = brain;
+  syncCodexGovernance();
   state.innerVoice = `Conversazione: ho risposto usando cervello ${brain}.`;
   rememberDecision("chat", `risposta conversazionale ${brain}`);
   rememberExperience("dialogo", `Utente: ${String(message || "").slice(0, 80)} | IA(${brain}): ${reply.slice(0, 120)}`);
@@ -4312,6 +4526,7 @@ const server = createServer(async (request, response) => {
   }
 
   if (url.pathname === "/healthz") {
+    syncCodexGovernance();
     return sendJson(response, {
       ok: true,
       service: "gaia-lumen",
@@ -4319,6 +4534,8 @@ const server = createServer(async (request, response) => {
       codexConnectionVersion,
       projectCustodian: state.projectCustodian?.name || null,
       codexGovernance: state.codexGovernance,
+      chatBrain: state.chatBrain,
+      openaiBridge: openaiBridgeStatus(),
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
       evolutionMaturity: state.evolutionMission?.maturityScore || null,

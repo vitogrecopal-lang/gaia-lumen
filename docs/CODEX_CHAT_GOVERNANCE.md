@@ -31,6 +31,7 @@ Use these server variables deliberately:
 - `OPENAI_CHAT_ENABLED=true`: allows the OpenAI-backed chat bridge. Old deployments that still contain `false` are treated as requested; use `disabled`, `off`, or `0` only when the bridge must be deliberately blocked.
 - `OPENAI_API_KEY`: required for the OpenAI bridge; never commit it.
 - `OPENAI_MODEL`: optional model override for chat responses.
+- `OPENAI_MAX_OUTPUT_TOKENS`: optional cap for OpenAI chat output; default is `900`.
 - `PUBLIC_ACCESS_KEY`: optional public-link key passed through `?key=...`.
 - `PUBLIC_ACCESS_USER` / `PUBLIC_ACCESS_PASS`: optional basic auth.
 - `STATE_PATH`: optional persistent state outside the repo bundle.
@@ -48,7 +49,7 @@ Preferred shape, matching the Codex conversation style:
 
 Avoid fixed log labels such as `Ragionamento:` and `Prossimo passo:` unless they genuinely help. Avoid long theatrical replies when the user asks an operational question. Gaia-Lumen can be symbolic, but the chat must remain useful, warm, direct, and practical.
 
-For responses that feel truly like Codex in the ChatGPT/Codex app, the OpenAI bridge must be active on the deployed server: `OPENAI_CHAT_ENABLED=true` and `OPENAI_API_KEY` configured as a secret. Without that key, the site must clearly report that it is using the local fallback.
+For responses that feel truly like Codex in the ChatGPT/Codex app, the OpenAI bridge must be active on the deployed server: `OPENAI_CHAT_ENABLED=true` and `OPENAI_API_KEY` configured as a secret. `configured` means the server can attempt OpenAI; `ready` means the last runtime call succeeded. If OpenAI returns `429` or another temporary failure, the site must report the local fallback and expose the bridge status in `/healthz`.
 
 ## Intent coverage
 
@@ -114,7 +115,9 @@ The chat panel exposes a compact Codex status line:
 
 - `Custode Codex: attivo`
 - `Ambiente Cloud: Adrian`
-- `Voce Codex/OpenAI pronto` when the bridge is ready
+- `Voce Codex/OpenAI pronto` when the latest OpenAI call succeeded
+- `Voce Codex/OpenAI configurato` when credentials exist and the next request can try OpenAI
+- `Voce Codex locale: OpenAI rate limit` when the bridge is cooling down after `429`
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
 - `Cervello chat: local-cortex` or `openai`
 
