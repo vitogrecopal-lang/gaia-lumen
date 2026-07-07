@@ -114,3 +114,5 @@ Su Windows puoi usare direttamente `Gaia-Lumen-Local-AI.cmd` oppure `start_gaia_
 
 
 Il flusso chat diventa: OpenAI API se abilitata, poi Llama locale diretto, poi local-cortex base. Con `LOCAL_AI_REQUIRE=true`, se Llama non risponde il sito non torna alla voce Codex/cortex. Su Render il Blueprint aggiunge un servizio privato `gaia-lumen-llama` con Ollama, disco persistente e `llama3.2:3b`; Gaia-Lumen lo raggiunge dalla rete privata con `LOCAL_AI_BASE_HOST`.
+
+Il processo Gateway del sito e' il worker Render `gaia-lumen-gateway`: osserva `/healthz`, controlla che Llama resti pronto e scrive log JSON senza mutare lo stato. Dettagli in `docs/SITE_GATEWAY.md`.

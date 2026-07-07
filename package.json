@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check server.mjs && node --check app.js && node --check scripts/smoke-test.mjs",
-    "smoke": "node scripts/smoke-test.mjs"
+    "check": "node --check server.mjs && node --check app.js && node --check scripts/smoke-test.mjs && node --check scripts/site-gateway.mjs",
+    "smoke": "node scripts/smoke-test.mjs",
+    "gateway": "node scripts/site-gateway.mjs"
   },
   "engines": {
     "node": ">=20"

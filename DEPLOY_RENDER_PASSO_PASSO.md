@@ -51,6 +51,8 @@ Se l'hosting imposta `PORT` da solo, non inserirla manualmente. Su Render `127.0
 
 Il `render.yaml` del repository definisce anche un servizio privato `gaia-lumen-llama` basato su Docker/Ollama. Richiede un piano Render con RAM adeguata; `starter` non basta per caricare Llama.
 
+Lo stesso Blueprint definisce il worker `gaia-lumen-gateway`, un processo osservatore che controlla `/healthz` e registra nei log se Llama non e' pronto.
+
 ## 4. Controlla salute
 
 Dopo il deploy apri:

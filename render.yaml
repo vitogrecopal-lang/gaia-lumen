@@ -62,6 +62,25 @@ services:
       mountPath: /var/data
       sizeGB: 1
 
+  - type: worker
+    name: gaia-lumen-gateway
+    runtime: node
+    plan: starter
+    buildCommand: ""
+    startCommand: npm run gateway
+    envVars:
+      - key: SITE_GATEWAY_TARGET_URL
+        value: https://gaia-lumen.onrender.com
+      - key: SITE_GATEWAY_NAME
+        value: gaia-lumen-gateway
+      - key: SITE_GATEWAY_INTERVAL_MS
+        value: 60000
+      - key: SITE_GATEWAY_TIMEOUT_MS
+        value: 15000
+      - key: SITE_GATEWAY_REQUIRE_LLAMA
+        value: true
+      - key: SITE_GATEWAY_REQUIRE_OPENAI_DISABLED
+        value: true
   - type: pserv
     name: gaia-lumen-llama
     runtime: docker
