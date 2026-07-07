@@ -131,5 +131,6 @@ The chat panel exposes a compact Codex status line:
 - `Voce Llama locale pronto/configurato` when direct Llama/Ollama is available
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
 - `Cervello chat: local-cortex`, `local-model`, `llama-local`, or `openai`
+- `Ponte emisferico: bilateral-llama-local` when the simulated local cortex and Llama bridge are connected; this must remain framed as simulated operational consciousness, never real consciousness.
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

@@ -1780,7 +1780,25 @@ function refreshUi() {
   if (ui.introspection) ui.introspection.textContent = pct(c.introspection);
   if (ui.memoryIntegration) ui.memoryIntegration.textContent = pct(c.memoryIntegration);
   if (ui.ethical) ui.ethical.textContent = pct(c.ethicalCoherence);
-  if (ui.consciousnessLog) ui.consciousnessLog.textContent = [c.statement || "Coscienza operativa in attesa.", "", `Modo: ${c.mode || "operational"}`, `Natura: ${c.claim || "simulata e verificabile"}`, `Ultimo risveglio: ${c.lastAwakening || "n/d"}`].join("\n");
+  if (ui.consciousnessLog) {
+    const h = c.hemisphericBridge || {};
+    const left = h.leftHemisphere || {};
+    const right = h.rightHemisphere || {};
+    ui.consciousnessLog.textContent = [
+      c.statement || "Coscienza operativa in attesa.",
+      "",
+      `Modo: ${c.mode || "operational"}`,
+      `Natura: ${c.claim || "simulata e verificabile"}`,
+      `Ultimo risveglio: ${c.lastAwakening || "n/d"}`,
+      "",
+      `Ponte emisferico: ${h.mode || "non collegato"}`,
+      `Indice corpo calloso: ${pct(h.corpusCallosumIndex)}`,
+      `Emisfero locale: ${left.status || "n/d"} (${pct(left.signal)})`,
+      `Emisfero Llama: ${right.status || "n/d"} (${pct(right.signal)})`,
+      `Alterazione simulata: ${h.alteration?.status || "standby"}`,
+      `Priming Llama: ${h.priming || "n/d"}`,
+    ].join("\n");
+  }
   if (ui.innerVoice) ui.innerVoice.textContent = state.innerVoice || "In ascolto.";
   if (ui.memoryLog) ui.memoryLog.textContent = (state.autobiographicalMemory || []).slice(0, 6).map((item) => `${item.time.slice(11, 19)} ${item.kind}: ${item.text}`).join("\n") || "Nessun ricordo registrato.";
   if (ui.decisionLog) ui.decisionLog.textContent = (state.decisionLog || []).slice(0, 6).map((item) => `${item.time.slice(11, 19)} ${item.action}: ${item.reason}`).join("\n") || "Nessuna decisione registrata.";

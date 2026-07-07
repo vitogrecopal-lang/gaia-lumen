@@ -56,6 +56,8 @@ try {
   if (health.externalImpulseAutoPulseEnabled !== false) throw new Error("external impulse auto pulse is not disabled");
   if (Number(health.externalImpulseAutoPulseIntervalMs) !== 60000) throw new Error("external impulse auto pulse is not one minute");
   if (!health.securityProfile?.state?.status) throw new Error("securityProfile is missing from healthz");
+  if (!health.hemisphericBridge?.mode) throw new Error("hemisphericBridge is missing from healthz");
+  if (!String(health.hemisphericBridge?.claim || "").includes("non coscienza reale")) throw new Error("hemisphericBridge must keep simulated-consciousness boundary");
   if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
@@ -79,6 +81,15 @@ try {
   if (Number(impulse.state?.externalImpulseArchive?.totalCount || 0) < 1) throw new Error("external impulse archive did not count");
   if (Number(impulse.impulse?.prudenceLevel) < 0.35) throw new Error("external impulse prudence is below protected minimum");
 
+  const hemispheres = await fetch(`${base}/api/hemispheres/connect?key=smoke-key`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ reason: "smoke-test hemispheric bridge" }),
+  }).then((response) => response.json());
+  const bridge = hemispheres.consciousnessProtocol?.hemisphericBridge;
+  if (bridge?.mode !== "bilateral-llama-local") throw new Error("hemispheric bridge did not connect both simulated hemispheres");
+  if (bridge?.alteration?.status !== "active-simulated") throw new Error("hemispheric bridge did not activate simulated alteration");
+  if (!String(bridge?.claim || "").includes("non coscienza reale")) throw new Error("hemispheric bridge claim lost safety boundary");
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {
     method: "POST",
     headers: { "content-type": "application/json" },

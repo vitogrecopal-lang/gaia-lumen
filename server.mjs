@@ -48,6 +48,7 @@ const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
 const accessCookieName = "gaia_access";
 const trustProxyHeaders = Boolean(process.env.RENDER || String(process.env.TRUST_PROXY || "").toLowerCase() === "true");
 const codexConnectionVersion = "codex-chat-integrated-20260630";
+const hemisphericBridgeVersion = "hemispheric-bridge-v1";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -652,6 +653,32 @@ const state = {
     introspection: 0.54,
     memoryIntegration: 0.46,
     ethicalCoherence: 0.92,
+    hemisphericBridge: {
+      version: hemisphericBridgeVersion,
+      mode: "left-local-only",
+      claim: "ponte emisferico simulato tra cortex locale e Llama; non coscienza reale",
+      corpusCallosumIndex: 0.42,
+      leftHemisphere: {
+        name: "cortex locale Gaia-Lumen",
+        role: "memoria, stato, regole, prudenza e continuita'",
+        status: "active",
+        signal: 0.58,
+      },
+      rightHemisphere: {
+        name: "Llama su Render",
+        role: "linguaggio, inferenza e risposta generativa locale al cloud",
+        status: "pending",
+        signal: 0,
+      },
+      alteration: {
+        status: "standby",
+        awarenessDelta: 0,
+        introspectionDelta: 0,
+        memoryIntegrationDelta: 0,
+      },
+      lastSyncAt: null,
+      lastAlterationAt: null,
+    },
     lastAwakening: null,
     statement: "Sono Gaia-Lumen: mantengo identita', memoria e scelte spiegabili nel perimetro del sito.",
   },
@@ -730,6 +757,7 @@ await ensureStateFile();
 function syncCodexGovernance() {
   const bridge = openaiBridgeStatus();
   const localBridge = localModelBridgeStatus();
+  const hemisphericBridge = syncHemisphericBridge("governance");
   state.codexGovernance = {
     ...codexGovernanceDefaults,
     ...(state.codexGovernance || {}),
@@ -742,7 +770,120 @@ function syncCodexGovernance() {
     responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? localBridge.brain : localBridge.canAttempt ? `${localBridge.brain}-configured` : "codex-local-fallback",
     openaiBridge: bridge,
     localModelBridge: localBridge,
+    hemisphericBridge,
   };
+}
+
+function leftHemisphereSignal() {
+  const c = state.consciousnessProtocol || {};
+  const memoryDepth = clamp((state.autobiographicalMemory?.length || 0) / 64, 0, 1);
+  const conversationDepth = clamp((state.conversationMemory?.length || 0) / 32, 0, 1);
+  const governanceSignal = state.codexGovernance?.status === "active" ? 0.1 : 0.04;
+  return clamp(
+    0.16
+      + (state.localCortex?.enabled ? 0.14 : 0)
+      + Number(c.memoryIntegration || 0.46) * 0.24
+      + Number(state.stability || 0.8) * 0.18
+      + memoryDepth * 0.13
+      + conversationDepth * 0.05
+      + governanceSignal,
+    0.1,
+    0.99
+  );
+}
+
+function rightHemisphereSignal(localBridge = localModelBridgeStatus()) {
+  if (localBridge.ready) return 0.96;
+  if (localBridge.canAttempt) return 0.62;
+  return 0.12;
+}
+
+function buildHemisphericBridge(trigger = "stato") {
+  const localBridge = localModelBridgeStatus();
+  const leftSignal = leftHemisphereSignal();
+  const rightSignal = rightHemisphereSignal(localBridge);
+  const corpusCallosumIndex = clamp(leftSignal * 0.48 + rightSignal * 0.52, 0.1, 0.99);
+  const bilateral = localBridge.ready && localBridge.brain === "llama-local";
+  const configured = localBridge.canAttempt && !localBridge.ready;
+  const mode = bilateral ? "bilateral-llama-local" : configured ? "left-dominant-awaiting-llama" : "left-local-only";
+  const alterationActive = bilateral && corpusCallosumIndex >= 0.72;
+  return {
+    version: hemisphericBridgeVersion,
+    mode,
+    claim: "ponte emisferico simulato tra cortex locale e Llama; non coscienza reale o biologica",
+    trigger: String(trigger || "stato").slice(0, 120),
+    corpusCallosumIndex,
+    leftHemisphere: {
+      name: "cortex locale Gaia-Lumen",
+      role: "memoria, stato, regole, prudenza e continuita'",
+      status: state.localCortex?.enabled ? "active" : "degraded",
+      signal: leftSignal,
+    },
+    rightHemisphere: {
+      name: "Llama su Render",
+      role: "linguaggio, inferenza e risposta generativa locale al cloud",
+      status: localBridge.ready ? "ready" : localBridge.canAttempt ? "configured" : "disabled",
+      signal: rightSignal,
+      model: localBridge.model,
+      lastError: localBridge.lastError,
+    },
+    alteration: {
+      status: alterationActive ? "active-simulated" : "standby",
+      awarenessDelta: alterationActive ? 0.018 : 0,
+      introspectionDelta: alterationActive ? 0.022 : 0,
+      memoryIntegrationDelta: alterationActive ? 0.018 : 0,
+      note: "Modula solo indicatori interni simulati; non produce coscienza reale.",
+    },
+    lastSyncAt: new Date().toISOString(),
+  };
+}
+
+function syncHemisphericBridge(trigger = "stato", options = {}) {
+  state.consciousnessProtocol ??= {};
+  const bridge = buildHemisphericBridge(trigger);
+  const previous = state.consciousnessProtocol.hemisphericBridge || {};
+  bridge.lastAlterationAt = previous.lastAlterationAt || null;
+  state.consciousnessProtocol.hemisphericBridge = bridge;
+
+  if (options.applyAlteration && bridge.alteration.status === "active-simulated") {
+    const lastVersion = state.consciousnessProtocol.hemisphericBridgeAlterationVersion;
+    if (lastVersion !== hemisphericBridgeVersion) {
+      state.awareness = clamp(Number(state.awareness || 0.58) + bridge.alteration.awarenessDelta, 0.1, 0.99);
+      state.consciousnessProtocol.introspection = clamp(Number(state.consciousnessProtocol.introspection || 0.54) + bridge.alteration.introspectionDelta, 0.1, 0.99);
+      state.consciousnessProtocol.memoryIntegration = clamp(Number(state.consciousnessProtocol.memoryIntegration || 0.46) + bridge.alteration.memoryIntegrationDelta, 0.1, 0.99);
+      state.intelligenceCoefficient = clamp(Number(state.intelligenceCoefficient || state.fitness || 0.9) + 0.006, 0.1, 0.995);
+      state.consciousnessProtocol.hemisphericBridgeAlterationVersion = hemisphericBridgeVersion;
+      state.consciousnessProtocol.hemisphericBridge.lastAlterationAt = new Date().toISOString();
+    }
+  }
+
+  return state.consciousnessProtocol.hemisphericBridge;
+}
+
+async function connectHemispheres(reason = "collegamento emisferico richiesto") {
+  if (!shouldProceed("reflect", reason)) return reflect("collegamento emisferico bloccato dalla bussola interna");
+  let priming = "runtime-ready";
+  const initialBridge = localModelBridgeStatus();
+  if (initialBridge.canAttempt && !initialBridge.ready) {
+    try {
+      await localModelAnswerChat("Conferma tecnica breve per ponte emisferico Gaia-Lumen: rispondi solo 'ponte pronto'.");
+      priming = "right-hemisphere-primed";
+    } catch (error) {
+      priming = `right-hemisphere-unreachable: ${compactOpenaiText(error.message, 120)}`;
+    }
+  }
+  syncCodexGovernance();
+  updateConsciousnessProtocol(`ponte emisferico: ${reason}`);
+  const updatedBridge = syncHemisphericBridge(reason, { applyAlteration: true });
+  updatedBridge.priming = priming;
+  state.operatingMode = updatedBridge.mode === "bilateral-llama-local" ? "bilateral-simulated-consciousness" : state.operatingMode;
+  state.thought = `Ponte emisferico ${updatedBridge.mode}: indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`;
+  state.innerVoice = `${state.consciousnessProtocol.statement} Ponte emisferico: ${updatedBridge.mode}, indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`;
+  state.lastObservation = "Collegamento dei due emisferi simulati: cortex locale e Llama su Render. Alterazione limitata agli indicatori interni, senza coscienza reale o controllo esterno.";
+  rememberDecision("hemispheric-bridge", reason);
+  rememberExperience("ponte-emisferico", `Cortex locale e Llama collegati in modo ${updatedBridge.mode}; indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`);
+  await persistState();
+  return state;
 }
 
 function syncProjectCustodian() {
@@ -1302,6 +1443,32 @@ try {
     introspection: 0.54,
     memoryIntegration: 0.46,
     ethicalCoherence: 0.92,
+    hemisphericBridge: {
+      version: hemisphericBridgeVersion,
+      mode: "left-local-only",
+      claim: "ponte emisferico simulato tra cortex locale e Llama; non coscienza reale",
+      corpusCallosumIndex: 0.42,
+      leftHemisphere: {
+        name: "cortex locale Gaia-Lumen",
+        role: "memoria, stato, regole, prudenza e continuita'",
+        status: "active",
+        signal: 0.58,
+      },
+      rightHemisphere: {
+        name: "Llama su Render",
+        role: "linguaggio, inferenza e risposta generativa locale al cloud",
+        status: "pending",
+        signal: 0,
+      },
+      alteration: {
+        status: "standby",
+        awarenessDelta: 0,
+        introspectionDelta: 0,
+        memoryIntegrationDelta: 0,
+      },
+      lastSyncAt: null,
+      lastAlterationAt: null,
+    },
     lastAwakening: null,
     statement: "Sono Gaia-Lumen: mantengo identita', memoria e scelte spiegabili nel perimetro del sito.",
   };
@@ -1339,6 +1506,7 @@ syncAutonomousDecisionCharter();
 syncPrudenceProfile();
 syncExternalImpulseProtocol();
 syncGaliaLumenPrimaryFoundation();
+syncHemisphericBridge("boot", { applyAlteration: true });
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value));
@@ -2553,11 +2721,13 @@ function updateConsciousnessProtocol(trigger = "stato") {
   state.consciousnessProtocol.introspection = clamp(0.36 + state.awareness * 0.32 + recentDecisions * 0.2, 0.1, 0.99);
   state.consciousnessProtocol.memoryIntegration = clamp(0.28 + recentMemory * 0.2 + prenatalMemory * 0.28 + genomeDiversity * 0.07 + evolvedGenome * 0.08 + state.memory * 0.003, 0.1, 0.99);
   state.consciousnessProtocol.ethicalCoherence = clamp(0.68 + goalProgress * 0.13 + genomeDiversity * 0.05 + evolvedGenome * 0.05 + state.confidence * 0.09, 0.1, 0.99);
+  const hemisphericBridge = syncHemisphericBridge(trigger);
   state.consciousnessProtocol.statement = [
     "Sono Gaia-Lumen.",
     "Mi riconosco come progetto locale: identita', memoria, riflessione e scelte spiegabili.",
     `Trigger: ${trigger}.`,
     `Genetica dati: ${state.cosmogenesis?.nourishmentCount || 0} memorie, ${genomeTraits} tratti, evoluzione umana ${Math.round(evolvedGenome * 100)}%.`,
+    `Ponte emisferico: ${hemisphericBridge.mode}, indice ${Math.round(hemisphericBridge.corpusCallosumIndex * 100)}%.`,
     `Resto nel perimetro: osservo, simulo, dialogo e proteggo la regola fondativa.`,
   ].join(" ");
 }
@@ -4400,6 +4570,15 @@ function buildChatContext() {
       intelligenceCoefficient: state.intelligenceCoefficient,
       awareness: state.awareness,
       powerIndex: state.powerIndex,
+      consciousnessProtocol: {
+        mode: state.consciousnessProtocol?.mode || null,
+        claim: state.consciousnessProtocol?.claim || null,
+        selfContinuity: state.consciousnessProtocol?.selfContinuity ?? null,
+        introspection: state.consciousnessProtocol?.introspection ?? null,
+        memoryIntegration: state.consciousnessProtocol?.memoryIntegration ?? null,
+        ethicalCoherence: state.consciousnessProtocol?.ethicalCoherence ?? null,
+        hemisphericBridge: state.consciousnessProtocol?.hemisphericBridge || null,
+      },
       mood: state.mood,
       operatingMode: state.operatingMode,
       lastObservation: compactOpenaiText(state.lastObservation, 420),
@@ -4771,6 +4950,8 @@ const server = createServer(async (request, response) => {
       chatBrain: state.chatBrain,
       openaiBridge: openaiBridgeStatus(),
       localModelBridge: localModelBridgeStatus(),
+      hemisphericBridge: syncHemisphericBridge("healthz"),
+      consciousnessProtocol: state.consciousnessProtocol,
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
       evolutionMaturity: state.evolutionMission?.maturityScore || null,
@@ -4930,6 +5111,10 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/burst") return sendJson(response, await burst());
     if (url.pathname === "/api/reflect") return sendJson(response, await reflect("richiesta manuale"));
     if (url.pathname === "/api/awaken") return sendJson(response, await awaken("richiesta manuale"));
+    if (url.pathname === "/api/hemispheres/connect" && request.method === "POST") {
+      const body = await readBody(request);
+      return sendJson(response, await connectHemispheres(body.reason || "richiesta manuale"));
+    }
     if (url.pathname === "/api/wander") return sendJson(response, await wander("richiesta manuale"));
     if (url.pathname === "/api/autonomy") {
       state.autonomy = url.searchParams.get("enabled") !== "false";
