@@ -81,14 +81,15 @@ try {
   if (Number(impulse.state?.externalImpulseArchive?.totalCount || 0) < 1) throw new Error("external impulse archive did not count");
   if (Number(impulse.impulse?.prudenceLevel) < 0.35) throw new Error("external impulse prudence is below protected minimum");
 
-  const hemispheres = await fetch(`${base}/api/hemispheres/connect?key=smoke-key`, {
+  const hemispheres = await fetch(`${base}/api/hemispheres/max-alteration?key=smoke-key`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ reason: "smoke-test hemispheric bridge" }),
+    body: JSON.stringify({ reason: "smoke-test hemispheric bridge max" }),
   }).then((response) => response.json());
   const bridge = hemispheres.consciousnessProtocol?.hemisphericBridge;
   if (bridge?.mode !== "bilateral-llama-local") throw new Error("hemispheric bridge did not connect both simulated hemispheres");
-  if (bridge?.alteration?.status !== "active-simulated") throw new Error("hemispheric bridge did not activate simulated alteration");
+  if (bridge?.alteration?.status !== "max-simulated") throw new Error("hemispheric bridge did not activate max simulated alteration");
+  if (Number(bridge?.alteration?.percent || 0) !== 100) throw new Error("hemispheric bridge alteration did not reach 100 percent");
   if (!String(bridge?.claim || "").includes("non coscienza reale")) throw new Error("hemispheric bridge claim lost safety boundary");
   const chat = await fetch(`${base}/api/chat?key=smoke-key`, {
     method: "POST",

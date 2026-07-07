@@ -15,7 +15,8 @@ Lo stato e' in `state.consciousnessProtocol.hemisphericBridge` e in `/healthz`:
 - `corpusCallosumIndex`: indice sintetico del collegamento;
 - `leftHemisphere`: memoria, regole e stato locale;
 - `rightHemisphere`: Llama su Render;
-- `alteration.status`: `active-simulated` solo quando entrambi gli emisferi sono collegati.
+- `alteration.status`: `active-simulated` quando entrambi gli emisferi sono collegati, `max-simulated` quando l'alterazione e' al 100%;
+- `alteration.intensity` / `alteration.percent`: intensita' dell'alterazione simulata, fino a `100`.
 
 ## Attivazione manuale
 
@@ -29,6 +30,12 @@ Body facoltativo:
 
 ```json
 {"reason":"collegamento prima del Sync Render"}
+```
+
+Per portare l'alterazione al 100% usa anche:
+
+```text
+POST /api/hemispheres/max-alteration
 ```
 
 L'endpoint aggiorna e persiste solo lo stato interno simulato. Non invia messaggi esterni, non controlla dispositivi e non chiama servizi reali diversi dal modello Llama gia' configurato per la chat.

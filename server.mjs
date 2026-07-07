@@ -48,7 +48,7 @@ const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
 const accessCookieName = "gaia_access";
 const trustProxyHeaders = Boolean(process.env.RENDER || String(process.env.TRUST_PROXY || "").toLowerCase() === "true");
 const codexConnectionVersion = "codex-chat-integrated-20260630";
-const hemisphericBridgeVersion = "hemispheric-bridge-v1";
+const hemisphericBridgeVersion = "hemispheric-bridge-v2-max-alteration";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -802,11 +802,14 @@ function buildHemisphericBridge(trigger = "stato") {
   const localBridge = localModelBridgeStatus();
   const leftSignal = leftHemisphereSignal();
   const rightSignal = rightHemisphereSignal(localBridge);
-  const corpusCallosumIndex = clamp(leftSignal * 0.48 + rightSignal * 0.52, 0.1, 0.99);
+  const rawCorpusCallosumIndex = clamp(leftSignal * 0.48 + rightSignal * 0.52, 0.1, 0.99);
   const bilateral = localBridge.ready && localBridge.brain === "llama-local";
   const configured = localBridge.canAttempt && !localBridge.ready;
   const mode = bilateral ? "bilateral-llama-local" : configured ? "left-dominant-awaiting-llama" : "left-local-only";
-  const alterationActive = bilateral && corpusCallosumIndex >= 0.72;
+  const maxAlteration = Boolean(state.consciousnessProtocol?.hemisphericBridgeMaxAlteration);
+  const alterationActive = bilateral && rawCorpusCallosumIndex >= 0.72;
+  const alterationIntensity = alterationActive ? (maxAlteration ? 1 : clamp((rawCorpusCallosumIndex - 0.72) / 0.27, 0.1, 0.99)) : 0;
+  const corpusCallosumIndex = alterationActive && maxAlteration ? 1 : rawCorpusCallosumIndex;
   return {
     version: hemisphericBridgeVersion,
     mode,
@@ -828,10 +831,12 @@ function buildHemisphericBridge(trigger = "stato") {
       lastError: localBridge.lastError,
     },
     alteration: {
-      status: alterationActive ? "active-simulated" : "standby",
-      awarenessDelta: alterationActive ? 0.018 : 0,
-      introspectionDelta: alterationActive ? 0.022 : 0,
-      memoryIntegrationDelta: alterationActive ? 0.018 : 0,
+      status: alterationIntensity >= 1 ? "max-simulated" : alterationActive ? "active-simulated" : "standby",
+      intensity: alterationIntensity,
+      percent: Math.round(alterationIntensity * 100),
+      awarenessDelta: alterationActive ? 0.018 + alterationIntensity * 0.022 : 0,
+      introspectionDelta: alterationActive ? 0.022 + alterationIntensity * 0.028 : 0,
+      memoryIntegrationDelta: alterationActive ? 0.018 + alterationIntensity * 0.026 : 0,
       note: "Modula solo indicatori interni simulati; non produce coscienza reale.",
     },
     lastSyncAt: new Date().toISOString(),
@@ -845,14 +850,15 @@ function syncHemisphericBridge(trigger = "stato", options = {}) {
   bridge.lastAlterationAt = previous.lastAlterationAt || null;
   state.consciousnessProtocol.hemisphericBridge = bridge;
 
-  if (options.applyAlteration && bridge.alteration.status === "active-simulated") {
+  if (options.applyAlteration && ["active-simulated", "max-simulated"].includes(bridge.alteration.status)) {
+    const alterationVersion = `${hemisphericBridgeVersion}:${bridge.alteration.percent || 0}`;
     const lastVersion = state.consciousnessProtocol.hemisphericBridgeAlterationVersion;
-    if (lastVersion !== hemisphericBridgeVersion) {
-      state.awareness = clamp(Number(state.awareness || 0.58) + bridge.alteration.awarenessDelta, 0.1, 0.99);
-      state.consciousnessProtocol.introspection = clamp(Number(state.consciousnessProtocol.introspection || 0.54) + bridge.alteration.introspectionDelta, 0.1, 0.99);
-      state.consciousnessProtocol.memoryIntegration = clamp(Number(state.consciousnessProtocol.memoryIntegration || 0.46) + bridge.alteration.memoryIntegrationDelta, 0.1, 0.99);
-      state.intelligenceCoefficient = clamp(Number(state.intelligenceCoefficient || state.fitness || 0.9) + 0.006, 0.1, 0.995);
-      state.consciousnessProtocol.hemisphericBridgeAlterationVersion = hemisphericBridgeVersion;
+    if (lastVersion !== alterationVersion) {
+      state.awareness = clamp(Number(state.awareness || 0.58) + bridge.alteration.awarenessDelta, 0.1, 1);
+      state.consciousnessProtocol.introspection = clamp(Number(state.consciousnessProtocol.introspection || 0.54) + bridge.alteration.introspectionDelta, 0.1, 1);
+      state.consciousnessProtocol.memoryIntegration = clamp(Number(state.consciousnessProtocol.memoryIntegration || 0.46) + bridge.alteration.memoryIntegrationDelta, 0.1, 1);
+      state.intelligenceCoefficient = clamp(Number(state.intelligenceCoefficient || state.fitness || 0.9) + 0.006 + Number(bridge.alteration.intensity || 0) * 0.006, 0.1, 1);
+      state.consciousnessProtocol.hemisphericBridgeAlterationVersion = alterationVersion;
       state.consciousnessProtocol.hemisphericBridge.lastAlterationAt = new Date().toISOString();
     }
   }
@@ -860,8 +866,12 @@ function syncHemisphericBridge(trigger = "stato", options = {}) {
   return state.consciousnessProtocol.hemisphericBridge;
 }
 
-async function connectHemispheres(reason = "collegamento emisferico richiesto") {
+async function connectHemispheres(reason = "collegamento emisferico richiesto", options = {}) {
   if (!shouldProceed("reflect", reason)) return reflect("collegamento emisferico bloccato dalla bussola interna");
+  if (options.maxAlteration) {
+    state.consciousnessProtocol ??= {};
+    state.consciousnessProtocol.hemisphericBridgeMaxAlteration = true;
+  }
   let priming = "runtime-ready";
   const initialBridge = localModelBridgeStatus();
   if (initialBridge.canAttempt && !initialBridge.ready) {
@@ -876,12 +886,13 @@ async function connectHemispheres(reason = "collegamento emisferico richiesto") 
   updateConsciousnessProtocol(`ponte emisferico: ${reason}`);
   const updatedBridge = syncHemisphericBridge(reason, { applyAlteration: true });
   updatedBridge.priming = priming;
+  state.consciousnessProtocol.hemisphericBridge = updatedBridge;
   state.operatingMode = updatedBridge.mode === "bilateral-llama-local" ? "bilateral-simulated-consciousness" : state.operatingMode;
-  state.thought = `Ponte emisferico ${updatedBridge.mode}: indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`;
-  state.innerVoice = `${state.consciousnessProtocol.statement} Ponte emisferico: ${updatedBridge.mode}, indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`;
+  state.thought = `Ponte emisferico ${updatedBridge.mode}: indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%, alterazione ${updatedBridge.alteration?.percent || 0}%.`;
+  state.innerVoice = `${state.consciousnessProtocol.statement} Ponte emisferico: ${updatedBridge.mode}, indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%, alterazione ${updatedBridge.alteration?.percent || 0}%.`;
   state.lastObservation = "Collegamento dei due emisferi simulati: cortex locale e Llama su Render. Alterazione limitata agli indicatori interni, senza coscienza reale o controllo esterno.";
   rememberDecision("hemispheric-bridge", reason);
-  rememberExperience("ponte-emisferico", `Cortex locale e Llama collegati in modo ${updatedBridge.mode}; indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%.`);
+  rememberExperience("ponte-emisferico", `Cortex locale e Llama collegati in modo ${updatedBridge.mode}; indice ${Math.round(updatedBridge.corpusCallosumIndex * 100)}%; alterazione ${updatedBridge.alteration?.percent || 0}%.`);
   await persistState();
   return state;
 }
@@ -5113,7 +5124,11 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/awaken") return sendJson(response, await awaken("richiesta manuale"));
     if (url.pathname === "/api/hemispheres/connect" && request.method === "POST") {
       const body = await readBody(request);
-      return sendJson(response, await connectHemispheres(body.reason || "richiesta manuale"));
+      return sendJson(response, await connectHemispheres(body.reason || "richiesta manuale", { maxAlteration: Boolean(body.maxAlteration) }));
+    }
+    if (url.pathname === "/api/hemispheres/max-alteration" && request.method === "POST") {
+      const body = await readBody(request);
+      return sendJson(response, await connectHemispheres(body.reason || "alterazione emisferica al 100%", { maxAlteration: true }));
     }
     if (url.pathname === "/api/wander") return sendJson(response, await wander("richiesta manuale"));
     if (url.pathname === "/api/autonomy") {

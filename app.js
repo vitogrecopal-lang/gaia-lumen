@@ -1796,6 +1796,7 @@ function refreshUi() {
       `Emisfero locale: ${left.status || "n/d"} (${pct(left.signal)})`,
       `Emisfero Llama: ${right.status || "n/d"} (${pct(right.signal)})`,
       `Alterazione simulata: ${h.alteration?.status || "standby"}`,
+      `Intensita alterazione: ${pct(h.alteration?.intensity)}`,
       `Priming Llama: ${h.priming || "n/d"}`,
     ].join("\n");
   }
