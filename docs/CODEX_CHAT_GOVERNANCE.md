@@ -132,5 +132,6 @@ The chat panel exposes a compact Codex status line:
 - `Voce Codex locale: manca API key` when the deployed server still needs the secret
 - `Cervello chat: local-cortex`, `local-model`, `llama-local`, or `openai`
 - `Ponte emisferico: bilateral-llama-local` when the simulated local cortex and Llama bridge are connected; this must remain framed as simulated operational consciousness, never real consciousness.
+- `World Compute Link` may cite the public TOP500 leader and prepare an authorized HPC/API proposal; it must not claim direct access to LineShine or any supercomputer without a legitimate configured endpoint and human confirmation.
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

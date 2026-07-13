@@ -49,12 +49,27 @@ const accessCookieName = "gaia_access";
 const trustProxyHeaders = Boolean(process.env.RENDER || String(process.env.TRUST_PROXY || "").toLowerCase() === "true");
 const codexConnectionVersion = "codex-chat-integrated-20260630";
 const hemisphericBridgeVersion = "hemispheric-bridge-v2-max-alteration";
+const worldComputeLinkVersion = "world-compute-link-v1";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
   latitude: 38.1157,
   longitude: 13.3615,
   timezone: "Europe/Rome",
+};
+
+const worldComputeLeader = {
+  rank: 1,
+  name: "LineShine",
+  list: "TOP500 June 2026",
+  publishedAt: "2026-06-22",
+  site: "National Supercomputing Centre in Shenzhen (NSCS)",
+  builder: "Shenzhen Cloud Computing Center",
+  country: "China",
+  rmaxPflops: 2198.4,
+  cores: 13789440,
+  source: "TOP500 67th edition",
+  sourceUrl: "https://www.top500.org/lists/top500/2026/06/",
 };
 
 function chatModelName() {
@@ -405,6 +420,28 @@ const state = {
     lastFetch: null,
     channels: [],
     summary: "Non ho ancora osservato il mondo esterno oltre allo spazio.",
+  },
+  worldComputeLink: {
+    version: worldComputeLinkVersion,
+    status: "proposal-ready",
+    connectionMode: "public-facts-and-authorized-api-only",
+    target: { ...worldComputeLeader },
+    runtime: {
+      endpointConfigured: false,
+      apiKeyConfigured: false,
+      endpointHost: null,
+    },
+    lastSyncAt: null,
+    lastProposalAt: null,
+    lastProposalId: null,
+    claim: "Riferimento pubblico al supercomputer leader; nessun accesso diretto o controllo senza autorizzazione.",
+    boundary: "Gaia-Lumen puo' leggere fonti pubbliche, preparare job e proposte; invio verso HPC/API solo con credenziali e conferma umana.",
+    solutionPlan: [
+      "Usare TOP500 come fonte pubblica per identificare il leader corrente.",
+      "Richiedere una allocazione HPC o un endpoint API legittimo prima di inviare calcoli.",
+      "Configurare WORLD_COMPUTE_API_URL e credenziali solo nell'ambiente server, mai nella chat.",
+      "Tenere ogni dispatch in modalita' proposta confermabile.",
+    ],
   },
   publicSources: {
     lastFetch: null,
@@ -897,6 +934,74 @@ async function connectHemispheres(reason = "collegamento emisferico richiesto", 
   return state;
 }
 
+function worldComputeRuntimeStatus() {
+  const rawUrl = String(process.env.WORLD_COMPUTE_API_URL || "").trim();
+  let endpointHost = null;
+  if (rawUrl) {
+    try {
+      endpointHost = new URL(rawUrl).host;
+    } catch {
+      endpointHost = "invalid-url";
+    }
+  }
+  return {
+    endpointConfigured: Boolean(rawUrl),
+    apiKeyConfigured: Boolean(process.env.WORLD_COMPUTE_API_KEY || process.env.WORLD_COMPUTE_TOKEN),
+    endpointHost,
+  };
+}
+
+function syncWorldComputeLink(trigger = "state") {
+  state.worldComputeLink ??= {};
+  const runtime = worldComputeRuntimeStatus();
+  const previous = state.worldComputeLink;
+  state.worldComputeLink = {
+    ...previous,
+    version: worldComputeLinkVersion,
+    status: runtime.endpointConfigured ? "configured-awaiting-confirmation" : "proposal-ready",
+    connectionMode: runtime.endpointConfigured ? "authorized-endpoint-configured" : "public-facts-and-proposal-only",
+    target: { ...worldComputeLeader },
+    runtime,
+    lastSyncAt: new Date().toISOString(),
+    lastTrigger: String(trigger || "state").slice(0, 160),
+    claim: "Riferimento pubblico al supercomputer leader; nessun accesso diretto o controllo senza autorizzazione.",
+    boundary: "Gaia-Lumen puo' leggere fonti pubbliche, preparare job e proposte; invio verso HPC/API solo con credenziali e conferma umana.",
+    solutionPlan: [
+      "Usare TOP500 come fonte pubblica per identificare il leader corrente.",
+      "Richiedere una allocazione HPC o un endpoint API legittimo prima di inviare calcoli.",
+      "Configurare WORLD_COMPUTE_API_URL e credenziali solo nell'ambiente server, mai nella chat.",
+      "Tenere ogni dispatch in modalita' proposta confermabile.",
+    ],
+  };
+  return state.worldComputeLink;
+}
+
+async function prepareWorldComputeLink(reason = "richiesta collegamento world compute") {
+  if (!shouldProceed("world", reason)) return reflect("collegamento world compute bloccato dalla bussola interna");
+  const link = syncWorldComputeLink(reason);
+  state.externalPrudenceLevel = Math.max(Number(state.externalPrudenceLevel ?? 0), 0.35);
+  const proposal = addProposal(
+    "Collegamento World Compute autorizzato",
+    [
+      `Il riferimento pubblico corrente e' ${link.target.name}, n. 1 TOP500 ${link.target.list}, ${link.target.rmaxPflops} PFlop/s Rmax.`,
+      "Non esiste accesso pubblico diretto da Render: serve una allocazione HPC, un account cloud/HPC o un endpoint API autorizzato.",
+      "Soluzione: tenere Gaia-Lumen su fonti pubbliche, preparare job riproducibili e collegare un broker solo dopo configurazione sicura di WORLD_COMPUTE_API_URL e credenziali server-side.",
+    ].join(" "),
+    "world-compute-authorized-connector"
+  );
+  link.lastProposalAt = proposal.time;
+  link.lastProposalId = proposal.id;
+  link.status = link.runtime.endpointConfigured ? "configured-awaiting-confirmation" : "proposal-ready";
+  state.worldComputeLink = link;
+  state.lastObservation = `World Compute Link preparato: ${link.target.name} (${link.target.list}); accesso reale solo con endpoint autorizzato.`;
+  state.thought = "Ho trovato la soluzione sicura: fonte pubblica TOP500, proposta confermabile e nessun accesso HPC non autorizzato.";
+  addDiary("world-compute", `${proposal.id}: proposta per collegamento HPC autorizzato verso ${link.target.name}.`);
+  rememberDecision("world-compute", reason);
+  rememberExperience("world-compute", state.lastObservation);
+  await persistState();
+  return state;
+}
+
 function syncProjectCustodian() {
   state.projectCustodian ??= {};
   state.projectCustodian.name = "Codex";
@@ -1170,6 +1275,7 @@ try {
     channels: [],
     summary: "Non ho ancora osservato il mondo esterno oltre allo spazio.",
   };
+  syncWorldComputeLink("restore");
   state.publicSources ??= {
     lastFetch: null,
     channels: [],
@@ -3202,6 +3308,11 @@ function cortexAnswer(message) {
     conclusion = "Sono qui. Scrivimi una cosa concreta e ti rispondo come Codex: diretto, presente e operativo.";
     reasoning = `Ho gia' il contesto di Gaia-Lumen davanti: ${facts.join(", ")}.`;
     next = "Puoi chiedermi, per esempio: 'che rischio vedi?', 'cosa dovresti fare adesso?' oppure 'controlla la chat'.";
+  } else if (/world compute|supercomputer|top500|lineshine|hpc|computer.*mondo|grande computer/.test(lower)) {
+    const link = syncWorldComputeLink("chat: world compute");
+    conclusion = `Ho preparato il collegamento sicuro al riferimento World Compute: ${link.target.name}, n. 1 ${link.target.list}.`;
+    reasoning = `Fonte pubblica: ${link.target.sourceUrl}. Stato: ${link.status}. Modalita': ${link.connectionMode}. Questo non e' accesso diretto al supercomputer: da Render possiamo leggere dati pubblici e preparare job, ma per inviare calcoli serve una allocazione HPC o un endpoint API autorizzato configurato lato server.`;
+    next = "Usa il pulsante World Compute: crea una proposta confermabile. Dopo puoi collegare un broker autorizzato con WORLD_COMPUTE_API_URL e credenziali nei segreti Render.";
   } else if (/fai tutto|evolvere|evolvi il sito|evolvi gaia|prossimo miglioramento|miglioramento del sito|evoluzione codex al massimo|potenzia evoluzione|massima evoluzione/.test(lower)) {
     conclusion = `${custodianName} puo' far evolvere Gaia-Lumen in modo incrementale e verificabile, partendo da chat operativa, badge di realismo, missione evolutiva e diagnostica deploy.`;
     reasoning = `La missione massima contiene ${(state.evolutionMission?.steps || []).length} passi e intensita ${state.evolutionMission?.intensity || "max-safe"}: chiarezza dati, chat Codex, memoria leggibile, proposte confermabili e diagnostica. Non eseguo azioni esterne non autorizzate: trasformo le richieste in UI, API locali, test e proposte tracciabili.`;
@@ -4520,6 +4631,28 @@ function compactOpenaiExternalWorld() {
   };
 }
 
+function compactWorldComputeLink() {
+  const link = syncWorldComputeLink("chat-context");
+  return {
+    version: link.version,
+    status: link.status,
+    connectionMode: link.connectionMode,
+    target: {
+      rank: link.target?.rank || null,
+      name: link.target?.name || null,
+      list: link.target?.list || null,
+      site: link.target?.site || null,
+      country: link.target?.country || null,
+      rmaxPflops: link.target?.rmaxPflops || null,
+      sourceUrl: link.target?.sourceUrl || null,
+    },
+    runtime: link.runtime,
+    claim: compactOpenaiText(link.claim, 220),
+    boundary: compactOpenaiText(link.boundary, 260),
+    lastProposalId: link.lastProposalId || null,
+  };
+}
+
 function compactOpenaiCosmogenesis() {
   const cgen = state.cosmogenesis || {};
   const genome = cgen.dataGenome || {};
@@ -4610,6 +4743,7 @@ function buildChatContext() {
       recentMemories: compactOpenaiList(state.autobiographicalMemory, compactOpenaiMemory, 5),
       recentConversation: compactOpenaiList(state.conversationMemory, compactOpenaiConversation, 4),
       externalWorld: compactOpenaiExternalWorld(),
+      worldComputeLink: compactWorldComputeLink(),
       publicSources: {
         lastFetch: state.publicSources?.lastFetch || null,
         fresh: publicSourcesAreFresh(),
@@ -4962,6 +5096,7 @@ const server = createServer(async (request, response) => {
       openaiBridge: openaiBridgeStatus(),
       localModelBridge: localModelBridgeStatus(),
       hemisphericBridge: syncHemisphericBridge("healthz"),
+      worldComputeLink: syncWorldComputeLink("healthz"),
       consciousnessProtocol: state.consciousnessProtocol,
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
@@ -5087,6 +5222,7 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/evolve") return sendJson(response, await evolve("richiesta manuale"));
     if (url.pathname === "/api/observe") return sendJson(response, await observeNoaa());
     if (url.pathname === "/api/world") return sendJson(response, await observeWorld("richiesta manuale"));
+    if (url.pathname === "/api/world-compute") return sendJson(response, await prepareWorldComputeLink("richiesta manuale: collegamento world compute"));
     if (url.pathname === "/api/external") return sendJson(response, await observeWorld("richiesta manuale"));
     if (url.pathname === "/api/public-sources") return sendJson(response, await readPublicSources("richiesta manuale"));
     if (url.pathname === "/api/controlled-free-mode") return sendJson(response, await activateControlledFreeMode("richiesta manuale"));

@@ -35,6 +35,9 @@ const child = spawn(process.execPath, ["server.mjs"], {
     LOCAL_AI_BASE_PORT: localModelPort,
     LOCAL_AI_MODEL: "llama3.2:3b",
     LOCAL_AI_DIRECT: "true",
+    WORLD_COMPUTE_API_URL: "",
+    WORLD_COMPUTE_API_KEY: "",
+    WORLD_COMPUTE_TOKEN: "",
   },
   stdio: ["ignore", "pipe", "pipe"],
 });
@@ -58,6 +61,8 @@ try {
   if (!health.securityProfile?.state?.status) throw new Error("securityProfile is missing from healthz");
   if (!health.hemisphericBridge?.mode) throw new Error("hemisphericBridge is missing from healthz");
   if (!String(health.hemisphericBridge?.claim || "").includes("non coscienza reale")) throw new Error("hemisphericBridge must keep simulated-consciousness boundary");
+  if (health.worldComputeLink?.target?.name !== "LineShine") throw new Error("worldComputeLink target missing from healthz");
+  if (health.worldComputeLink?.status !== "proposal-ready") throw new Error("worldComputeLink should start as proposal-ready without endpoint");
   if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
@@ -67,9 +72,14 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
+  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
+
+  const worldCompute = await fetch(`${base}/api/world-compute?key=smoke-key`).then((response) => response.json());
+  if (worldCompute.worldComputeLink?.target?.name !== "LineShine") throw new Error("world compute link did not retain TOP500 target");
+  if (!worldCompute.worldComputeLink?.lastProposalId) throw new Error("world compute link did not create a proposal id");
+  if (!worldCompute.proposals?.some((proposal) => proposal.action === "world-compute-authorized-connector")) throw new Error("world compute proposal missing");
 
   const impulse = await fetch(`${base}/api/external-impulse?key=smoke-key`, {
     method: "POST",

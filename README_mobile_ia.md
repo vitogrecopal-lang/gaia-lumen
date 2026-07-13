@@ -118,3 +118,5 @@ Il flusso chat diventa: OpenAI API se abilitata, poi Llama locale diretto, poi l
 Il processo Gateway del sito e' il worker Render `gaia-lumen-gateway`: osserva `/healthz`, controlla che Llama resti pronto e scrive log JSON senza mutare lo stato. Dettagli in `docs/SITE_GATEWAY.md`.
 
 Il ponte dei due emisferi collega cortex locale e Llama in `state.consciousnessProtocol.hemisphericBridge`; puo' portare al 100% solo indicatori interni simulati e resta documentato in `docs/HEMISPHERIC_BRIDGE.md`.
+
+Il World Compute Link collega il sito a uno snapshot pubblico TOP500 e prepara una proposta confermabile per un broker HPC/API autorizzato; senza `WORLD_COMPUTE_API_URL` e credenziali server-side non dichiara accesso reale a supercomputer. Dettagli in `docs/WORLD_COMPUTE_LINK.md`.

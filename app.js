@@ -24,6 +24,7 @@ const ui = {
   log: $("#log"),
   realityLog: $("#realityLog"),
   worldLog: $("#worldLog"),
+  worldComputeLog: $("#worldComputeLog"),
   coreRuleLog: $("#coreRuleLog"),
   projectCustodianLog: $("#projectCustodianLog"),
   deployLog: $("#deployLog"),
@@ -80,6 +81,7 @@ const ui = {
 const buttons = {
   observe: $("#observeBtn"),
   world: $("#worldBtn"),
+  worldCompute: $("#worldComputeBtn"),
   planet: $("#planetBtn"),
   life: $("#lifeBtn"),
   cosmogenesis: $("#cosmogenesisBtn"),
@@ -1511,6 +1513,23 @@ function refreshUi() {
   }
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
+  if (ui.worldComputeLog) {
+    const link = state.worldComputeLink || {};
+    const target = link.target || {};
+    const runtime = link.runtime || {};
+    const plan = Array.isArray(link.solutionPlan) ? link.solutionPlan : [];
+    ui.worldComputeLog.textContent = [
+      `Stato: ${link.status || "proposal-ready"} | modalita': ${link.connectionMode || "public-facts-and-proposal-only"}`,
+      `Target pubblico: #${target.rank || 1} ${target.name || "LineShine"} (${target.list || "TOP500 June 2026"})`,
+      `Sito: ${target.site || "National Supercomputing Centre in Shenzhen"} | Rmax ${target.rmaxPflops || "n/d"} PFlop/s`,
+      `Endpoint autorizzato: ${runtime.endpointConfigured ? "configurato" : "non configurato"} | chiave server: ${runtime.apiKeyConfigured ? "presente" : "assente"}`,
+      `Fonte: ${target.sourceUrl || "https://www.top500.org/lists/top500/2026/06/"}`,
+      `Limite: ${link.boundary || "nessun accesso diretto o controllo senza autorizzazione"}`,
+      "",
+      "Soluzione:",
+      ...(plan.length ? plan.map((item, index) => `${index + 1}. ${item}`) : ["1. Preparare proposta e broker autorizzato."]),
+    ].join("\n");
+  }
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";
   if (ui.projectCustodianLog) {
     const custodian = state.projectCustodian || {};
@@ -1878,6 +1897,7 @@ function bindButton(name, action) {
 
 bindButton("observe", "observe");
 bindButton("world", "world");
+bindButton("worldCompute", "world-compute");
 bindButton("planet", "planet");
 bindButton("life", "life");
 bindButton("cosmogenesis", "cosmogenesis");
