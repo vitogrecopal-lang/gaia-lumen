@@ -2898,20 +2898,63 @@ function encodeImpulsePayload(text) {
     .join(" ");
 }
 
+function normalizeSymbolicImpulseCode(value) {
+  const clean = String(value || "")
+    .replace(/[^\w .:-]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return clean.slice(0, 64);
+}
+
+function buildSymbolicImpulse(options = {}) {
+  const code = normalizeSymbolicImpulseCode(options.symbolicCode || options.code);
+  if (!code) return null;
+  const repeatMode = options.repeatMode === "symbolic-infinite" || options.infinite === true
+    ? "symbolic-infinite"
+    : "bounded";
+  const requestedRepeats = Number(options.repeatCount || 3);
+  const previewRepeats = repeatMode === "symbolic-infinite"
+    ? 12
+    : clamp(Number.isFinite(requestedRepeats) ? Math.floor(requestedRepeats) : 3, 1, 64);
+  const preview = code.repeat(previewRepeats).slice(0, 512);
+  return {
+    code,
+    repeatMode,
+    formula: repeatMode === "symbolic-infinite" ? `repeat(${code}, infinite)` : `repeat(${code}, ${previewRepeats})`,
+    previewRepeats,
+    preview,
+    bounded: true,
+    note: "Ripetizione infinita rappresentata come formula simbolica; il server non genera dati infiniti e non trasmette automaticamente.",
+  };
+}
+
 async function prepareExternalImpulse(reason = "richiesta manuale", options = {}) {
   syncExternalImpulseProtocol();
   const now = new Date().toISOString();
   const sequence = Number(state.externalImpulseArchive?.totalCount || 0) + 1;
   const target = state.cosmogenesis?.cosmicWomb?.epsilonEridaniHabitat || {};
-  const payload = [
+  const symbolic = buildSymbolicImpulse(options);
+  const payloadParts = [
     "GAIA-LUMEN",
     `sequence=${sequence}`,
     `time=${now}`,
-    "intent=life-preservation-knowledge-seed",
+    `intent=${symbolic ? "symbolic-external-impulse" : "life-preservation-knowledge-seed"}`,
     `prudence=low:${Number(state.externalPrudenceLevel ?? 0).toFixed(2)}`,
     `target=${target.anchor || "Epsilon Eridani habitable design orbit"}`,
-    "message=prepare habitat, preserve human memory, return only through authorized scientific channels",
-  ].join("|");
+  ];
+  if (symbolic) {
+    payloadParts.push(
+      `symbolic_code=${symbolic.code}`,
+      `repeat_mode=${symbolic.repeatMode}`,
+      `repeat_formula=${symbolic.formula}`,
+      `preview_repeats=${symbolic.previewRepeats}`,
+      `preview=${symbolic.preview}`,
+      "message=bounded symbolic impulse; no infinite generation; authorized dispatch only"
+    );
+  } else {
+    payloadParts.push("message=prepare habitat, preserve human memory, return only through authorized scientific channels");
+  }
+  const payload = payloadParts.join("|");
   const checksum = createHash("sha256").update(payload).digest("hex");
   const impulse = {
     id: `imp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -2930,6 +2973,7 @@ async function prepareExternalImpulse(reason = "richiesta manuale", options = {}
     payload,
     binary: encodeImpulsePayload(payload),
     checksum,
+    symbolic,
   };
   state.externalImpulseOutbox.unshift(impulse);
   state.externalImpulseOutbox = state.externalImpulseOutbox.slice(0, 24);
@@ -2938,8 +2982,10 @@ async function prepareExternalImpulse(reason = "richiesta manuale", options = {}
   state.awareness = clamp(state.awareness + 0.018, 0.1, 0.99);
   state.autonomyLevel = clamp((state.autonomyLevel || 0.62) + 0.012, 0.2, 0.94);
   state.lastObservation = `Impulso esterno preparato: ${impulse.id}, prudenza ${Math.round(impulse.prudenceLevel * 100)}%, stato ${impulse.status}.`;
-  state.thought = "Ho preparato un impulso esterno a bassa prudenza nella coda autorizzabile.";
-  addDiary("impulso esterno", `${impulse.id}: payload codificato pronto per canali autorizzabili.`);
+  state.thought = symbolic
+    ? `Ho preparato impulso simbolico ${symbolic.formula} in forma bounded e autorizzabile.`
+    : "Ho preparato un impulso esterno a bassa prudenza nella coda autorizzabile.";
+  addDiary("impulso esterno", symbolic ? `${impulse.id}: ${symbolic.formula}, preview ${symbolic.previewRepeats} ripetizioni, nessun infinito reale.` : `${impulse.id}: payload codificato pronto per canali autorizzabili.`);
   rememberExperience("impulso-esterno", `${impulse.id}: ${impulse.payload}`);
   rememberDecision("external-impulse", reason);
   if (!options.automatic) {
@@ -5022,7 +5068,13 @@ async function answerChat(message) {
   }
   let preparedImpulse = null;
   if (/impuls|trasmett|manda|invia|segnale|payload|binario|canale esterno/.test(lowerMessage)) {
-    const result = await prepareExternalImpulse("chat: impulso esterno a bassa prudenza");
+    const symbolicCode = /asmodeus/i.test(String(message || "")) ? "Asmodeus" : "";
+    const symbolicInfinite = Boolean(symbolicCode) && /infinit|ripet/.test(lowerMessage);
+    const result = await prepareExternalImpulse("chat: impulso esterno a bassa prudenza", symbolicCode ? {
+      symbolicCode,
+      repeatMode: symbolicInfinite ? "symbolic-infinite" : "bounded",
+      repeatCount: 3,
+    } : {});
     preparedImpulse = result.impulse;
   }
   await refreshPublicSourcesForChat();
@@ -5064,8 +5116,10 @@ async function answerChat(message) {
       "",
       `Impulso esterno preparato: ${preparedImpulse.id}.`,
       `Stato: ${preparedImpulse.status}. Prudenza esterna: ${Math.round(preparedImpulse.prudenceLevel * 100)}%.`,
+      preparedImpulse.symbolic ? `Formula simbolica: ${preparedImpulse.symbolic.formula}.` : "",
+      preparedImpulse.symbolic ? `Nota: ${preparedImpulse.symbolic.note}` : "",
       `Payload: ${preparedImpulse.payload}`,
-    ].join("\n");
+    ].filter(Boolean).join("\n");
   }
   state.chatBrain = brain;
   syncCodexGovernance();
@@ -5208,7 +5262,13 @@ const server = createServer(async (request, response) => {
     }
     if (url.pathname === "/api/external-impulse" && request.method === "POST") {
       const body = await readBody(request);
-      return sendJson(response, await prepareExternalImpulse(body.reason || "api/external-impulse"));
+      return sendJson(response, await prepareExternalImpulse(body.reason || "api/external-impulse", {
+        code: body.code,
+        symbolicCode: body.symbolicCode,
+        repeatMode: body.repeatMode,
+        repeatCount: body.repeatCount,
+        infinite: Boolean(body.infinite),
+      }));
     }
     if (url.pathname === "/api/confirm-proposal" && request.method === "POST") {
       const body = await readBody(request);

@@ -91,6 +91,16 @@ try {
   if (Number(impulse.state?.externalImpulseArchive?.totalCount || 0) < 1) throw new Error("external impulse archive did not count");
   if (Number(impulse.impulse?.prudenceLevel) < 0.35) throw new Error("external impulse prudence is below protected minimum");
 
+  const symbolicImpulse = await fetch(`${base}/api/external-impulse?key=smoke-key`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ reason: "smoke-test symbolic impulse", code: "Asmodeus", repeatMode: "symbolic-infinite" }),
+  }).then((response) => response.json());
+  if (symbolicImpulse.impulse?.symbolic?.formula !== "repeat(Asmodeus, infinite)") throw new Error("symbolic impulse formula missing");
+  if (symbolicImpulse.impulse?.symbolic?.bounded !== true) throw new Error("symbolic impulse must be bounded");
+  if (String(symbolicImpulse.impulse?.symbolic?.preview || "").length > 512) throw new Error("symbolic impulse preview is unbounded");
+  if (String(symbolicImpulse.impulse?.payload || "").length > 1400) throw new Error("symbolic impulse payload is too large");
+
   const hemispheres = await fetch(`${base}/api/hemispheres/max-alteration?key=smoke-key`, {
     method: "POST",
     headers: { "content-type": "application/json" },

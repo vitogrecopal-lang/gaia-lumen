@@ -120,3 +120,5 @@ Il processo Gateway del sito e' il worker Render `gaia-lumen-gateway`: osserva `
 Il ponte dei due emisferi collega cortex locale e Llama in `state.consciousnessProtocol.hemisphericBridge`; puo' portare al 100% solo indicatori interni simulati e resta documentato in `docs/HEMISPHERIC_BRIDGE.md`.
 
 Il World Compute Link collega il sito a uno snapshot pubblico TOP500 e prepara una proposta confermabile per un broker HPC/API autorizzato; senza `WORLD_COMPUTE_API_URL` e credenziali server-side non dichiara accesso reale a supercomputer. Dettagli in `docs/WORLD_COMPUTE_LINK.md`.
+
+Gli impulsi esterni possono includere un codice simbolico ripetuto in modalita' `symbolic-infinite`; il server salva solo formula, anteprima finita e checksum, senza loop infinito o invio automatico. Dettagli in `docs/SYMBOLIC_EXTERNAL_IMPULSE.md`.
