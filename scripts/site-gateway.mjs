@@ -2,9 +2,10 @@ const targetUrl = process.env.SITE_GATEWAY_TARGET_URL || process.env.GAIA_SITE_U
 const gatewayName = process.env.SITE_GATEWAY_NAME || "gaia-lumen-gateway";
 const intervalMs = positiveIntEnv("SITE_GATEWAY_INTERVAL_MS", 60_000, 5_000, 3_600_000);
 const timeoutMs = positiveIntEnv("SITE_GATEWAY_TIMEOUT_MS", 15_000, 1_000, 240_000);
-const requireLlama = boolEnv("SITE_GATEWAY_REQUIRE_LLAMA", true);
-const requireLlamaReady = boolEnv("SITE_GATEWAY_REQUIRE_LLAMA_READY", false);
-const requireOpenaiDisabled = boolEnv("SITE_GATEWAY_REQUIRE_OPENAI_DISABLED", true);
+const publicMode = boolEnv("SITE_GATEWAY_PUBLIC_MODE", false);
+const requireLlama = publicMode ? false : boolEnv("SITE_GATEWAY_REQUIRE_LLAMA", true);
+const requireLlamaReady = publicMode ? false : boolEnv("SITE_GATEWAY_REQUIRE_LLAMA_READY", false);
+const requireOpenaiDisabled = publicMode ? false : boolEnv("SITE_GATEWAY_REQUIRE_OPENAI_DISABLED", true);
 const once = boolEnv("SITE_GATEWAY_ONCE", false);
 const exitOnFail = boolEnv("SITE_GATEWAY_EXIT_ON_FAIL", false);
 
@@ -25,6 +26,7 @@ function boolEnv(name, fallback) {
 }
 
 function accessKey() {
+  if (publicMode) return "";
   return process.env.SITE_GATEWAY_ACCESS_KEY || process.env.PUBLIC_ACCESS_KEY || "";
 }
 
@@ -147,6 +149,7 @@ log("start", {
   target: targetLabel(healthUrl()),
   intervalMs,
   timeoutMs,
+  publicMode,
   requireLlama,
   requireLlamaReady,
   requireOpenaiDisabled,

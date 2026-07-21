@@ -77,12 +77,14 @@ services:
         value: 60000
       - key: SITE_GATEWAY_TIMEOUT_MS
         value: 15000
-      - key: SITE_GATEWAY_REQUIRE_LLAMA
+      - key: SITE_GATEWAY_PUBLIC_MODE
         value: true
+      - key: SITE_GATEWAY_REQUIRE_LLAMA
+        value: false
       - key: SITE_GATEWAY_REQUIRE_LLAMA_READY
         value: false
       - key: SITE_GATEWAY_REQUIRE_OPENAI_DISABLED
-        value: true
+        value: false
   - type: pserv
     name: gaia-lumen-llama
     runtime: docker

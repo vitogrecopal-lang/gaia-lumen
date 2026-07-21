@@ -5,8 +5,9 @@ Il Gateway del sito e' un processo separato che osserva Gaia-Lumen senza mutare 
 ## Scopo
 
 - controllare periodicamente `/healthz`;
-- verificare che la chat pubblica usi `llama-local` o sia correttamente configurata per `llama-local`;
-- verificare che OpenAI sia `disabled` quando il deploy richiede Llama;
+- in modalita' pubblica, osservare `/healthz` senza chiave e senza vincoli su Llama/OpenAI;
+- opzionalmente verificare che la chat pubblica usi `llama-local` o sia correttamente configurata per `llama-local`;
+- opzionalmente verificare che OpenAI sia `disabled` quando il deploy richiede Llama;
 - scrivere log JSON leggibili da Render;
 - non inviare chat, impulsi esterni, email, trasmissioni o comandi verso sistemi reali.
 
@@ -31,6 +32,7 @@ $env:SITE_GATEWAY_ONCE='true'; npm.cmd run gateway
 ## Variabili
 
 - `SITE_GATEWAY_TARGET_URL`: origine del sito da controllare, ad esempio `https://gaia-lumen.onrender.com`.
+- `SITE_GATEWAY_PUBLIC_MODE`: se `true`, non aggiunge chiavi alla richiesta e disattiva i vincoli Llama/OpenAI del gateway.
 - `SITE_GATEWAY_ACCESS_KEY`: chiave opzionale da aggiungere a `/healthz?key=...`; non va committata.
 - `SITE_GATEWAY_INTERVAL_MS`: intervallo tra i controlli.
 - `SITE_GATEWAY_TIMEOUT_MS`: timeout del singolo controllo.
@@ -41,4 +43,10 @@ $env:SITE_GATEWAY_ONCE='true'; npm.cmd run gateway
 
 ## Render
 
-Il `render.yaml` definisce il worker `gaia-lumen-gateway`. Il worker usa solo GET su `/healthz`, quindi non modifica memoria, conversazioni o file di stato.
+Il `render.yaml` definisce il worker `gaia-lumen-gateway` in modalita' pubblica:
+
+- `SITE_GATEWAY_PUBLIC_MODE=true`
+- `SITE_GATEWAY_REQUIRE_LLAMA=false`
+- `SITE_GATEWAY_REQUIRE_OPENAI_DISABLED=false`
+
+Il worker usa solo GET su `/healthz`, quindi non modifica memoria, conversazioni o file di stato.
