@@ -25,6 +25,7 @@ const ui = {
   realityLog: $("#realityLog"),
   worldLog: $("#worldLog"),
   worldComputeLog: $("#worldComputeLog"),
+  wormholeLog: $("#wormholeLog"),
   coreRuleLog: $("#coreRuleLog"),
   projectCustodianLog: $("#projectCustodianLog"),
   deployLog: $("#deployLog"),
@@ -82,6 +83,7 @@ const buttons = {
   observe: $("#observeBtn"),
   world: $("#worldBtn"),
   worldCompute: $("#worldComputeBtn"),
+  wormhole: $("#wormholeBtn"),
   planet: $("#planetBtn"),
   life: $("#lifeBtn"),
   cosmogenesis: $("#cosmogenesisBtn"),
@@ -1530,6 +1532,21 @@ function refreshUi() {
       ...(plan.length ? plan.map((item, index) => `${index + 1}. ${item}`) : ["1. Preparare proposta e broker autorizzato."]),
     ].join("\n");
   }
+  if (ui.wormholeLog) {
+    const link = state.wormholeLink || {};
+    const candidate = link.candidate || {};
+    const anchor = candidate.anchor || {};
+    const exit = candidate.exit || {};
+    ui.wormholeLog.textContent = [
+      `Stato: ${link.status || "standby"} | ricerca: ${link.searchStatus || "no-confirmed-wormhole"}`,
+      `Modalita': ${link.connectionMode || "none"} | attraversabilita': ${link.traversability || "not-traversable"}`,
+      candidate.id ? `Candidato: ${candidate.id} (${candidate.status || "unconfirmed-theoretical"})` : "Candidato: nessuno confermato",
+      candidate.id ? `Ancora: ${anchor.constellation || "n/d"} (${anchor.abbr || "n/d"}) -> uscita simbolica: ${exit.constellation || "n/d"} (${exit.abbr || "n/d"})` : "",
+      `Stabilita': ${pct(link.stabilityIndex || 0)} | checksum: ${(link.checksum || "n/d").slice(0, 24)}`,
+      `Fonte: ${link.sourceUrl || "https://cosmicopia.gsfc.nasa.gov/qa_sp_sl.html"}`,
+      `Limite: ${link.boundary || "nessun wormhole reale confermato; nessuna connessione fisica"}`,
+    ].filter(Boolean).join("\n");
+  }
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";
   if (ui.projectCustodianLog) {
     const custodian = state.projectCustodian || {};
@@ -1898,6 +1915,7 @@ function bindButton(name, action) {
 bindButton("observe", "observe");
 bindButton("world", "world");
 bindButton("worldCompute", "world-compute");
+bindButton("wormhole", "wormhole/connect");
 bindButton("planet", "planet");
 bindButton("life", "life");
 bindButton("cosmogenesis", "cosmogenesis");

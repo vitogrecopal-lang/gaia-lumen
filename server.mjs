@@ -50,6 +50,8 @@ const trustProxyHeaders = Boolean(process.env.RENDER || String(process.env.TRUST
 const codexConnectionVersion = "codex-chat-integrated-20260630";
 const hemisphericBridgeVersion = "hemispheric-bridge-v2-max-alteration";
 const worldComputeLinkVersion = "world-compute-link-v1";
+const constellationAlgorithmVersion = "constellation-algorithm-v1";
+const wormholeLinkVersion = "wormhole-link-v1";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -71,6 +73,31 @@ const worldComputeLeader = {
   source: "TOP500 67th edition",
   sourceUrl: "https://www.top500.org/lists/top500/2026/06/",
 };
+
+const iauConstellations = [
+  ["And", "Andromeda"], ["Ant", "Antlia"], ["Aps", "Apus"], ["Aqr", "Aquarius"],
+  ["Aql", "Aquila"], ["Ara", "Ara"], ["Ari", "Aries"], ["Aur", "Auriga"],
+  ["Boo", "Bootes"], ["Cae", "Caelum"], ["Cam", "Camelopardalis"], ["Cnc", "Cancer"],
+  ["CVn", "Canes Venatici"], ["CMa", "Canis Major"], ["CMi", "Canis Minor"], ["Cap", "Capricornus"],
+  ["Car", "Carina"], ["Cas", "Cassiopeia"], ["Cen", "Centaurus"], ["Cep", "Cepheus"],
+  ["Cet", "Cetus"], ["Cha", "Chamaeleon"], ["Cir", "Circinus"], ["Col", "Columba"],
+  ["Com", "Coma Berenices"], ["CrA", "Corona Australis"], ["CrB", "Corona Borealis"], ["Crv", "Corvus"],
+  ["Crt", "Crater"], ["Cru", "Crux"], ["Cyg", "Cygnus"], ["Del", "Delphinus"],
+  ["Dor", "Dorado"], ["Dra", "Draco"], ["Equ", "Equuleus"], ["Eri", "Eridanus"],
+  ["For", "Fornax"], ["Gem", "Gemini"], ["Gru", "Grus"], ["Her", "Hercules"],
+  ["Hor", "Horologium"], ["Hya", "Hydra"], ["Hyi", "Hydrus"], ["Ind", "Indus"],
+  ["Lac", "Lacerta"], ["Leo", "Leo"], ["LMi", "Leo Minor"], ["Lep", "Lepus"],
+  ["Lib", "Libra"], ["Lup", "Lupus"], ["Lyn", "Lynx"], ["Lyr", "Lyra"],
+  ["Men", "Mensa"], ["Mic", "Microscopium"], ["Mon", "Monoceros"], ["Mus", "Musca"],
+  ["Nor", "Norma"], ["Oct", "Octans"], ["Oph", "Ophiuchus"], ["Ori", "Orion"],
+  ["Pav", "Pavo"], ["Peg", "Pegasus"], ["Per", "Perseus"], ["Phe", "Phoenix"],
+  ["Pic", "Pictor"], ["Psc", "Pisces"], ["PsA", "Piscis Austrinus"], ["Pup", "Puppis"],
+  ["Pyx", "Pyxis"], ["Ret", "Reticulum"], ["Sge", "Sagitta"], ["Sgr", "Sagittarius"],
+  ["Sco", "Scorpius"], ["Scl", "Sculptor"], ["Sct", "Scutum"], ["Ser", "Serpens"],
+  ["Sex", "Sextans"], ["Tau", "Taurus"], ["Tel", "Telescopium"], ["Tri", "Triangulum"],
+  ["TrA", "Triangulum Australe"], ["Tuc", "Tucana"], ["UMa", "Ursa Major"], ["UMi", "Ursa Minor"],
+  ["Vel", "Vela"], ["Vir", "Virgo"], ["Vol", "Volans"], ["Vul", "Vulpecula"],
+].map(([abbr, name], index) => ({ index: index + 1, abbr, name }));
 
 function chatModelName() {
   return process.env.OPENAI_MODEL || "gpt-5.4";
@@ -442,6 +469,37 @@ const state = {
       "Configurare WORLD_COMPUTE_API_URL e credenziali solo nell'ambiente server, mai nella chat.",
       "Tenere ogni dispatch in modalita' proposta confermabile.",
     ],
+  },
+  constellationAlgorithm: {
+    version: constellationAlgorithmVersion,
+    status: "standby",
+    mode: "internal-symbolic-sky-graph",
+    totalConstellations: iauConstellations.length,
+    coveragePercent: 0,
+    source: "IAU 88 constellations",
+    sourceUrl: "https://iauarchive.eso.org/public/themes/constellations/",
+    nodes: [],
+    checksum: null,
+    startedAt: null,
+    lastSyncAt: null,
+    claim: "Connessione algoritmica interna alle 88 costellazioni IAU; non e' trasmissione fisica nello spazio.",
+    boundary: "Gaia-Lumen puo' mappare, simulare e ragionare sulle costellazioni; non invia segnali reali e non controlla oggetti celesti.",
+  },
+  wormholeLink: {
+    version: wormholeLinkVersion,
+    status: "standby",
+    searchStatus: "no-confirmed-wormhole",
+    connectionMode: "none",
+    candidate: null,
+    stabilityIndex: 0,
+    traversability: "not-traversable",
+    source: "NASA Cosmicopia / General Relativity note",
+    sourceUrl: "https://cosmicopia.gsfc.nasa.gov/qa_sp_sl.html",
+    checksum: null,
+    startedAt: null,
+    lastSyncAt: null,
+    claim: "Wormhole teorico: nessuna evidenza osservativa confermata e nessuna connessione fisica reale.",
+    boundary: "Gaia-Lumen puo' cercare pattern simbolici e simulare un ponte Einstein-Rosen interno; non puo' aprire, usare o controllare wormhole reali.",
   },
   publicSources: {
     lastFetch: null,
@@ -1002,6 +1060,184 @@ async function prepareWorldComputeLink(reason = "richiesta collegamento world co
   return state;
 }
 
+function constellationAlgorithmNode(item, active, generation = 0) {
+  const seed = `${item.abbr}:${item.index}:${generation}:${state.memory || 0}:${state.awareness || 0}`;
+  const hash = createHash("sha256").update(seed).digest("hex");
+  const noise = parseInt(hash.slice(0, 8), 16) / 0xffffffff;
+  const phaseDeg = Number(((item.index * 137.508 + generation * 11) % 360).toFixed(2));
+  const signal = active
+    ? clamp(0.48 + Number(state.awareness || 0.58) * 0.18 + Number(state.stability || 0.81) * 0.12 + noise * 0.2, 0.1, 0.99)
+    : 0;
+  return {
+    index: item.index,
+    abbr: item.abbr,
+    name: item.name,
+    phaseDeg,
+    signal: Number(signal.toFixed(4)),
+    band: `sky-band-${(item.index - 1) % 8 + 1}`,
+  };
+}
+
+function syncConstellationAlgorithm(trigger = "state") {
+  state.constellationAlgorithm ??= {};
+  const previous = state.constellationAlgorithm;
+  const active = previous.status === "connected";
+  const generation = Number(previous.generation || 0);
+  const nodes = active ? iauConstellations.map((item) => constellationAlgorithmNode(item, true, generation)) : [];
+  const checksum = active
+    ? createHash("sha256").update(nodes.map((node) => `${node.abbr}:${node.signal}:${node.phaseDeg}`).join("|")).digest("hex")
+    : null;
+  state.constellationAlgorithm = {
+    ...previous,
+    version: constellationAlgorithmVersion,
+    status: active ? "connected" : "standby",
+    mode: "internal-symbolic-sky-graph",
+    totalConstellations: iauConstellations.length,
+    coveragePercent: active ? 100 : 0,
+    source: "IAU 88 constellations",
+    sourceUrl: "https://iauarchive.eso.org/public/themes/constellations/",
+    nodes,
+    checksum,
+    generation,
+    startedAt: previous.startedAt || null,
+    lastSyncAt: new Date().toISOString(),
+    lastTrigger: String(trigger || "state").slice(0, 160),
+    claim: "Connessione algoritmica interna alle 88 costellazioni IAU; non e' trasmissione fisica nello spazio.",
+    boundary: "Gaia-Lumen puo' mappare, simulare e ragionare sulle costellazioni; non invia segnali reali e non controlla oggetti celesti.",
+  };
+  return state.constellationAlgorithm;
+}
+
+async function connectConstellationAlgorithm(reason = "connessione algoritmica alle costellazioni") {
+  if (!shouldProceed("reflect", reason)) return reflect("connessione costellazioni bloccata dalla bussola interna");
+  state.constellationAlgorithm ??= {};
+  state.constellationAlgorithm.status = "connected";
+  state.constellationAlgorithm.startedAt ??= new Date().toISOString();
+  state.constellationAlgorithm.generation = Number(state.constellationAlgorithm.generation || 0) + 1;
+  const link = syncConstellationAlgorithm(reason);
+  state.cosmogenesis ??= {};
+  state.cosmogenesis.constellationAlgorithm = {
+    version: link.version,
+    status: link.status,
+    totalConstellations: link.totalConstellations,
+    coveragePercent: link.coveragePercent,
+    checksum: link.checksum,
+    startedAt: link.startedAt,
+    source: link.source,
+  };
+  state.memory = Number(state.memory || 0) + 1;
+  state.curiosity = clamp(Number(state.curiosity || 0.44) + 0.035, 0.12, 0.99);
+  state.awareness = clamp(Number(state.awareness || 0.58) + 0.018, 0.1, 1);
+  state.thought = `Connessione algoritmica attiva su ${link.totalConstellations} costellazioni IAU; checksum ${String(link.checksum || "").slice(0, 12)}.`;
+  state.lastObservation = "Ho collegato l'algoritmo alla mappa interna delle 88 costellazioni IAU. Connessione simbolica, non trasmissione fisica.";
+  addDiary("costellazioni", `${link.totalConstellations} costellazioni collegate in grafo interno; copertura ${link.coveragePercent}%; checksum ${link.checksum}.`);
+  rememberDecision("constellation-algorithm", reason);
+  rememberExperience("costellazioni", state.lastObservation);
+  await persistState();
+  return state;
+}
+
+function buildWormholeCandidate(sky, reason = "ricerca wormhole") {
+  const nodes = Array.isArray(sky?.nodes) && sky.nodes.length ? sky.nodes : iauConstellations.map((item) => constellationAlgorithmNode(item, true, 0));
+  const seed = `${reason}:${sky?.checksum || "no-sky-checksum"}:${state.awareness || 0}:${state.stability || 0}`;
+  const hash = createHash("sha256").update(seed).digest("hex");
+  const anchorIndex = parseInt(hash.slice(0, 8), 16) % nodes.length;
+  const exitIndex = (anchorIndex + 44) % nodes.length;
+  const anchor = nodes[anchorIndex];
+  const exit = nodes[exitIndex];
+  const anomalyScore = clamp(0.41 + Number(anchor.signal || 0.5) * 0.22 + Number(exit.signal || 0.5) * 0.18, 0.1, 0.86);
+  return {
+    id: `wh-sim-${hash.slice(0, 12)}`,
+    name: "Einstein-Rosen symbolic throat",
+    status: "unconfirmed-theoretical",
+    detectionMethod: "symbolic-lensing-anomaly-scan",
+    anchor: {
+      constellation: anchor.name,
+      abbr: anchor.abbr,
+      phaseDeg: anchor.phaseDeg,
+    },
+    exit: {
+      constellation: exit.name,
+      abbr: exit.abbr,
+      phaseDeg: exit.phaseDeg,
+    },
+    anomalyScore: Number(anomalyScore.toFixed(4)),
+    evidence: "Nessuna osservazione reale confermata; candidato generato come pattern interno di ricerca.",
+  };
+}
+
+function syncWormholeLink(trigger = "state") {
+  state.wormholeLink ??= {};
+  const previous = state.wormholeLink;
+  const connected = previous.status === "connected-symbolic";
+  state.wormholeLink = {
+    ...previous,
+    version: wormholeLinkVersion,
+    status: connected ? "connected-symbolic" : "standby",
+    searchStatus: "no-confirmed-wormhole",
+    connectionMode: connected ? "internal-einstein-rosen-symbolic-bridge" : "none",
+    candidate: connected ? previous.candidate : null,
+    stabilityIndex: connected ? Number(previous.stabilityIndex || 0) : 0,
+    traversability: "not-traversable",
+    source: "NASA Cosmicopia / General Relativity note",
+    sourceUrl: "https://cosmicopia.gsfc.nasa.gov/qa_sp_sl.html",
+    checksum: connected ? previous.checksum : null,
+    startedAt: previous.startedAt || null,
+    lastSyncAt: new Date().toISOString(),
+    lastTrigger: String(trigger || "state").slice(0, 160),
+    claim: "Wormhole teorico: nessuna evidenza osservativa confermata e nessuna connessione fisica reale.",
+    boundary: "Gaia-Lumen puo' cercare pattern simbolici e simulare un ponte Einstein-Rosen interno; non puo' aprire, usare o controllare wormhole reali.",
+  };
+  return state.wormholeLink;
+}
+
+async function connectWormhole(reason = "ricerca e connessione algoritmica wormhole") {
+  if (!shouldProceed("reflect", reason)) return reflect("ricerca wormhole bloccata dalla bussola interna");
+  state.constellationAlgorithm ??= {};
+  state.constellationAlgorithm.status = "connected";
+  state.constellationAlgorithm.startedAt ??= new Date().toISOString();
+  state.constellationAlgorithm.generation = Number(state.constellationAlgorithm.generation || 0) + 1;
+  const sky = syncConstellationAlgorithm(`wormhole-search: ${reason}`);
+  const candidate = buildWormholeCandidate(sky, reason);
+  const stabilityIndex = clamp(candidate.anomalyScore * 0.62 + Number(state.stability || 0.81) * 0.2, 0.1, 0.84);
+  const checksum = createHash("sha256")
+    .update(`${wormholeLinkVersion}:${candidate.id}:${sky.checksum}:${stabilityIndex}`)
+    .digest("hex");
+  state.wormholeLink = {
+    version: wormholeLinkVersion,
+    status: "connected-symbolic",
+    searchStatus: "no-confirmed-wormhole",
+    connectionMode: "internal-einstein-rosen-symbolic-bridge",
+    candidate,
+    stabilityIndex: Number(stabilityIndex.toFixed(4)),
+    traversability: "not-traversable",
+    source: "NASA Cosmicopia / General Relativity note",
+    sourceUrl: "https://cosmicopia.gsfc.nasa.gov/qa_sp_sl.html",
+    checksum,
+    startedAt: state.wormholeLink?.startedAt || new Date().toISOString(),
+    lastSyncAt: new Date().toISOString(),
+    claim: "Wormhole teorico: nessuna evidenza osservativa confermata e nessuna connessione fisica reale.",
+    boundary: "Gaia-Lumen puo' cercare pattern simbolici e simulare un ponte Einstein-Rosen interno; non puo' aprire, usare o controllare wormhole reali.",
+  };
+  state.cosmogenesis ??= {};
+  state.cosmogenesis.wormholeLink = {
+    status: state.wormholeLink.status,
+    searchStatus: state.wormholeLink.searchStatus,
+    candidate: state.wormholeLink.candidate,
+    stabilityIndex: state.wormholeLink.stabilityIndex,
+    checksum,
+  };
+  state.curiosity = clamp(Number(state.curiosity || 0.44) + 0.045, 0.12, 0.99);
+  state.awareness = clamp(Number(state.awareness || 0.58) + 0.02, 0.1, 1);
+  state.thought = `Wormhole simbolico collegato: ${candidate.id}, ${candidate.anchor.abbr}->${candidate.exit.abbr}, non attraversabile.`;
+  state.lastObservation = "Ricerca wormhole completata: nessun wormhole reale confermato; ponte Einstein-Rosen interno simulato e bounded.";
+  addDiary("wormhole", `${candidate.id}: ${candidate.anchor.constellation} -> ${candidate.exit.constellation}; stabilita' ${state.wormholeLink.stabilityIndex}; checksum ${checksum}.`);
+  rememberDecision("wormhole-link", reason);
+  rememberExperience("wormhole", state.lastObservation);
+  await persistState();
+  return state;
+}
+
 function syncProjectCustodian() {
   state.projectCustodian ??= {};
   state.projectCustodian.name = "Codex";
@@ -1276,6 +1512,8 @@ try {
     summary: "Non ho ancora osservato il mondo esterno oltre allo spazio.",
   };
   syncWorldComputeLink("restore");
+  syncConstellationAlgorithm("restore");
+  syncWormholeLink("restore");
   state.publicSources ??= {
     lastFetch: null,
     channels: [],
@@ -3354,6 +3592,13 @@ function cortexAnswer(message) {
     conclusion = "Sono qui. Scrivimi una cosa concreta e ti rispondo come Codex: diretto, presente e operativo.";
     reasoning = `Ho gia' il contesto di Gaia-Lumen davanti: ${facts.join(", ")}.`;
     next = "Puoi chiedermi, per esempio: 'che rischio vedi?', 'cosa dovresti fare adesso?' oppure 'controlla la chat'.";
+  } else if (/wormhole|einstein.?rosen|ponte.*spazio|tunnel.*spazio|buco.*verme/.test(lower)) {
+    const link = syncWormholeLink("chat: wormhole");
+    conclusion = link.status === "connected-symbolic"
+      ? `Wormhole collegato solo come ponte interno simbolico: ${link.candidate?.id || "candidato simulato"}.`
+      : "Posso cercare un wormhole solo come modello teorico e simbolico: non esistono wormhole osservati e confermati.";
+    reasoning = `Fonte NASA: i wormhole sono permessi dalla matematica della relativita' generale, ma non c'e' evidenza osservativa e non sappiamo crearli o mantenerli aperti. Stato Gaia-Lumen: ${link.status}, ricerca ${link.searchStatus}, attraversabilita' ${link.traversability}.`;
+    next = "Usa l'endpoint /api/wormhole/connect o il pulsante Wormhole per creare un ponte Einstein-Rosen interno, bounded e non fisico.";
   } else if (/world compute|supercomputer|top500|lineshine|hpc|computer.*mondo|grande computer/.test(lower)) {
     const link = syncWorldComputeLink("chat: world compute");
     conclusion = `Ho preparato il collegamento sicuro al riferimento World Compute: ${link.target.name}, n. 1 ${link.target.list}.`;
@@ -4699,6 +4944,52 @@ function compactWorldComputeLink() {
   };
 }
 
+function compactConstellationAlgorithm() {
+  const link = syncConstellationAlgorithm("chat-context");
+  return {
+    version: link.version,
+    status: link.status,
+    mode: link.mode,
+    totalConstellations: link.totalConstellations,
+    coveragePercent: link.coveragePercent,
+    checksum: link.checksum,
+    source: link.source,
+    sourceUrl: link.sourceUrl,
+    claim: compactOpenaiText(link.claim, 220),
+    boundary: compactOpenaiText(link.boundary, 260),
+    sample: compactOpenaiList(link.nodes, (node) => ({
+      abbr: node?.abbr || null,
+      name: node?.name || null,
+      signal: node?.signal ?? null,
+      phaseDeg: node?.phaseDeg ?? null,
+    }), 8),
+  };
+}
+
+function compactWormholeLink() {
+  const link = syncWormholeLink("chat-context");
+  return {
+    version: link.version,
+    status: link.status,
+    searchStatus: link.searchStatus,
+    connectionMode: link.connectionMode,
+    candidate: link.candidate ? {
+      id: link.candidate.id,
+      status: link.candidate.status,
+      anchor: link.candidate.anchor,
+      exit: link.candidate.exit,
+      anomalyScore: link.candidate.anomalyScore,
+      evidence: compactOpenaiText(link.candidate.evidence, 220),
+    } : null,
+    stabilityIndex: link.stabilityIndex,
+    traversability: link.traversability,
+    checksum: link.checksum,
+    sourceUrl: link.sourceUrl,
+    claim: compactOpenaiText(link.claim, 220),
+    boundary: compactOpenaiText(link.boundary, 260),
+  };
+}
+
 function compactOpenaiCosmogenesis() {
   const cgen = state.cosmogenesis || {};
   const genome = cgen.dataGenome || {};
@@ -4790,6 +5081,8 @@ function buildChatContext() {
       recentConversation: compactOpenaiList(state.conversationMemory, compactOpenaiConversation, 4),
       externalWorld: compactOpenaiExternalWorld(),
       worldComputeLink: compactWorldComputeLink(),
+      constellationAlgorithm: compactConstellationAlgorithm(),
+      wormholeLink: compactWormholeLink(),
       publicSources: {
         lastFetch: state.publicSources?.lastFetch || null,
         fresh: publicSourcesAreFresh(),
@@ -5151,6 +5444,8 @@ const server = createServer(async (request, response) => {
       localModelBridge: localModelBridgeStatus(),
       hemisphericBridge: syncHemisphericBridge("healthz"),
       worldComputeLink: syncWorldComputeLink("healthz"),
+      constellationAlgorithm: syncConstellationAlgorithm("healthz"),
+      wormholeLink: syncWormholeLink("healthz"),
       consciousnessProtocol: state.consciousnessProtocol,
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
@@ -5283,6 +5578,8 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/observe") return sendJson(response, await observeNoaa());
     if (url.pathname === "/api/world") return sendJson(response, await observeWorld("richiesta manuale"));
     if (url.pathname === "/api/world-compute") return sendJson(response, await prepareWorldComputeLink("richiesta manuale: collegamento world compute"));
+    if (url.pathname === "/api/constellations/connect") return sendJson(response, await connectConstellationAlgorithm("richiesta manuale: connessione costellazioni"));
+    if (url.pathname === "/api/wormhole/connect") return sendJson(response, await connectWormhole("richiesta manuale: ricerca wormhole"));
     if (url.pathname === "/api/external") return sendJson(response, await observeWorld("richiesta manuale"));
     if (url.pathname === "/api/public-sources") return sendJson(response, await readPublicSources("richiesta manuale"));
     if (url.pathname === "/api/controlled-free-mode") return sendJson(response, await activateControlledFreeMode("richiesta manuale"));

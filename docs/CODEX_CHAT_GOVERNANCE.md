@@ -133,5 +133,6 @@ The chat panel exposes a compact Codex status line:
 - `Cervello chat: local-cortex`, `local-model`, `llama-local`, or `openai`
 - `Ponte emisferico: bilateral-llama-local` when the simulated local cortex and Llama bridge are connected; this must remain framed as simulated operational consciousness, never real consciousness.
 - `World Compute Link` may cite the public TOP500 leader and prepare an authorized HPC/API proposal; it must not claim direct access to LineShine or any supercomputer without a legitimate configured endpoint and human confirmation.
+- `Wormhole Link` may create only an internal symbolic Einstein-Rosen bridge. It must keep `searchStatus=no-confirmed-wormhole` and `traversability=not-traversable`, and must not claim physical travel, time travel, or a real discovered wormhole.
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.

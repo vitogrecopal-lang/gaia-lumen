@@ -63,6 +63,9 @@ try {
   if (!String(health.hemisphericBridge?.claim || "").includes("non coscienza reale")) throw new Error("hemisphericBridge must keep simulated-consciousness boundary");
   if (health.worldComputeLink?.target?.name !== "LineShine") throw new Error("worldComputeLink target missing from healthz");
   if (health.worldComputeLink?.status !== "proposal-ready") throw new Error("worldComputeLink should start as proposal-ready without endpoint");
+  if (Number(health.constellationAlgorithm?.totalConstellations || 0) !== 88) throw new Error("constellation algorithm should know 88 IAU constellations");
+  if (health.wormholeLink?.searchStatus !== "no-confirmed-wormhole") throw new Error("wormhole link must start with no confirmed wormhole");
+  if (health.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link must stay not traversable");
   if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
@@ -72,7 +75,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
+  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -80,6 +83,13 @@ try {
   if (worldCompute.worldComputeLink?.target?.name !== "LineShine") throw new Error("world compute link did not retain TOP500 target");
   if (!worldCompute.worldComputeLink?.lastProposalId) throw new Error("world compute link did not create a proposal id");
   if (!worldCompute.proposals?.some((proposal) => proposal.action === "world-compute-authorized-connector")) throw new Error("world compute proposal missing");
+
+  const wormhole = await fetch(`${base}/api/wormhole/connect?key=smoke-key`).then((response) => response.json());
+  if (wormhole.wormholeLink?.status !== "connected-symbolic") throw new Error("wormhole link did not connect symbolically");
+  if (wormhole.wormholeLink?.searchStatus !== "no-confirmed-wormhole") throw new Error("wormhole link claimed a confirmed wormhole");
+  if (wormhole.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link became traversable");
+  if (!wormhole.wormholeLink?.candidate?.id) throw new Error("wormhole symbolic candidate missing");
+  if (Number(wormhole.constellationAlgorithm?.coveragePercent || 0) !== 100) throw new Error("wormhole search should connect constellation graph");
 
   const impulse = await fetch(`${base}/api/external-impulse?key=smoke-key`, {
     method: "POST",

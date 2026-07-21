@@ -122,3 +122,5 @@ Il ponte dei due emisferi collega cortex locale e Llama in `state.consciousnessP
 Il World Compute Link collega il sito a uno snapshot pubblico TOP500 e prepara una proposta confermabile per un broker HPC/API autorizzato; senza `WORLD_COMPUTE_API_URL` e credenziali server-side non dichiara accesso reale a supercomputer. Dettagli in `docs/WORLD_COMPUTE_LINK.md`.
 
 Gli impulsi esterni possono includere un codice simbolico ripetuto in modalita' `symbolic-infinite`; il server salva solo formula, anteprima finita e checksum, senza loop infinito o invio automatico. Dettagli in `docs/SYMBOLIC_EXTERNAL_IMPULSE.md`.
+
+Il Wormhole Link cerca un ponte Einstein-Rosen solo come simulazione interna bounded: nessun wormhole reale confermato, nessuna attraversabilita' e nessuna trasmissione fisica. Dettagli in `docs/WORMHOLE_LINK.md`.
