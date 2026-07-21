@@ -3,6 +3,7 @@ const gatewayName = process.env.SITE_GATEWAY_NAME || "gaia-lumen-gateway";
 const intervalMs = positiveIntEnv("SITE_GATEWAY_INTERVAL_MS", 60_000, 5_000, 3_600_000);
 const timeoutMs = positiveIntEnv("SITE_GATEWAY_TIMEOUT_MS", 15_000, 1_000, 240_000);
 const requireLlama = boolEnv("SITE_GATEWAY_REQUIRE_LLAMA", true);
+const requireLlamaReady = boolEnv("SITE_GATEWAY_REQUIRE_LLAMA_READY", false);
 const requireOpenaiDisabled = boolEnv("SITE_GATEWAY_REQUIRE_OPENAI_DISABLED", true);
 const once = boolEnv("SITE_GATEWAY_ONCE", false);
 const exitOnFail = boolEnv("SITE_GATEWAY_EXIT_ON_FAIL", false);
@@ -49,6 +50,8 @@ function compactBridgeStatus(data) {
     openaiStatus: openai.status || null,
     localStatus: local.status || null,
     localReady: Boolean(local.ready),
+    localConfigured: Boolean(local.configured),
+    localCanAttempt: Boolean(local.canAttempt),
     localModel: local.model || null,
     localRequired: Boolean(local.required),
     localLastError: local.lastError || null,
@@ -58,17 +61,25 @@ function compactBridgeStatus(data) {
 function evaluate(data, responseOk) {
   const bridge = compactBridgeStatus(data);
   const issues = [];
+  const warnings = [];
+  const llamaResponseModeOk = bridge.responseMode === "llama-local" || bridge.responseMode === "llama-local-configured";
+  const llamaConfiguredOk = bridge.localConfigured || bridge.localStatus === "configured" || bridge.localStatus === "ready";
 
   if (!responseOk || data?.ok !== true) issues.push("healthz-not-ok");
   if (requireLlama && bridge.chatBrain !== "llama-local") issues.push("chatBrain-not-llama-local");
-  if (requireLlama && bridge.responseMode !== "llama-local") issues.push("responseMode-not-llama-local");
-  if (requireLlama && bridge.localStatus !== "ready") issues.push("local-model-not-ready");
-  if (requireLlama && !bridge.localReady) issues.push("local-model-ready-false");
+  if (requireLlama && !llamaResponseModeOk) issues.push("responseMode-not-llama-local");
+  if (requireLlama && !llamaConfiguredOk) issues.push("local-model-not-configured");
+  if (requireLlama && bridge.localStatus === "retryable-error") issues.push("local-model-retryable-error");
+  if (requireLlama && !bridge.localCanAttempt) issues.push("local-model-cannot-attempt");
+  if (requireLlama && !bridge.localReady) warnings.push("local-model-not-ready-yet");
+  if (requireLlamaReady && bridge.localStatus !== "ready") issues.push("local-model-not-ready");
+  if (requireLlamaReady && !bridge.localReady) issues.push("local-model-ready-false");
   if (requireOpenaiDisabled && bridge.openaiStatus !== "disabled") issues.push("openai-not-disabled");
 
   return {
     healthy: issues.length === 0,
     issues,
+    warnings,
     ...bridge,
   };
 }
@@ -137,6 +148,7 @@ log("start", {
   intervalMs,
   timeoutMs,
   requireLlama,
+  requireLlamaReady,
   requireOpenaiDisabled,
   once,
 });

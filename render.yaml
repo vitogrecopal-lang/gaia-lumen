@@ -79,6 +79,8 @@ services:
         value: 15000
       - key: SITE_GATEWAY_REQUIRE_LLAMA
         value: true
+      - key: SITE_GATEWAY_REQUIRE_LLAMA_READY
+        value: false
       - key: SITE_GATEWAY_REQUIRE_OPENAI_DISABLED
         value: true
   - type: pserv

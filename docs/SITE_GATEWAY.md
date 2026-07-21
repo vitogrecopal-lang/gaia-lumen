@@ -5,7 +5,7 @@ Il Gateway del sito e' un processo separato che osserva Gaia-Lumen senza mutare 
 ## Scopo
 
 - controllare periodicamente `/healthz`;
-- verificare che la chat pubblica usi `llama-local`;
+- verificare che la chat pubblica usi `llama-local` o sia correttamente configurata per `llama-local`;
 - verificare che OpenAI sia `disabled` quando il deploy richiede Llama;
 - scrivere log JSON leggibili da Render;
 - non inviare chat, impulsi esterni, email, trasmissioni o comandi verso sistemi reali.
@@ -34,7 +34,8 @@ $env:SITE_GATEWAY_ONCE='true'; npm.cmd run gateway
 - `SITE_GATEWAY_ACCESS_KEY`: chiave opzionale da aggiungere a `/healthz?key=...`; non va committata.
 - `SITE_GATEWAY_INTERVAL_MS`: intervallo tra i controlli.
 - `SITE_GATEWAY_TIMEOUT_MS`: timeout del singolo controllo.
-- `SITE_GATEWAY_REQUIRE_LLAMA`: richiede `chatBrain=llama-local`, `responseMode=llama-local`, modello pronto.
+- `SITE_GATEWAY_REQUIRE_LLAMA`: richiede `chatBrain=llama-local`, `responseMode=llama-local` o `llama-local-configured`, e modello configurato.
+- `SITE_GATEWAY_REQUIRE_LLAMA_READY`: se `true`, richiede anche un modello Llama gia' `ready` dopo almeno una chiamata riuscita. Di default e' `false` per non far fallire il deploy durante cold start.
 - `SITE_GATEWAY_REQUIRE_OPENAI_DISABLED`: richiede `openaiStatus=disabled`.
 - `SITE_GATEWAY_EXIT_ON_FAIL`: fa terminare il processo al primo errore; di default resta attivo e continua a osservare.
 
