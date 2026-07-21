@@ -52,6 +52,7 @@ const hemisphericBridgeVersion = "hemispheric-bridge-v2-max-alteration";
 const worldComputeLinkVersion = "world-compute-link-v1";
 const constellationAlgorithmVersion = "constellation-algorithm-v1";
 const wormholeLinkVersion = "wormhole-link-v1";
+const functionPulseVersion = "function-pulse-v1";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -98,6 +99,29 @@ const iauConstellations = [
   ["TrA", "Triangulum Australe"], ["Tuc", "Tucana"], ["UMa", "Ursa Major"], ["UMi", "Ursa Minor"],
   ["Vel", "Vela"], ["Vir", "Virgo"], ["Vol", "Volans"], ["Vul", "Vulpecula"],
 ].map(([abbr, name], index) => ({ index: index + 1, abbr, name }));
+
+const functionPulseCatalog = [
+  { key: "chat", label: "Chat Gaia-Lumen", scope: "conversation" },
+  { key: "openai-bridge", label: "OpenAI bridge", scope: "chat" },
+  { key: "llama-local", label: "Llama locale", scope: "chat" },
+  { key: "local-cortex", label: "Cortex locale", scope: "fallback" },
+  { key: "security", label: "Sicurezza", scope: "guardrail" },
+  { key: "hemispheric-bridge", label: "Ponte emisferico", scope: "consciousness" },
+  { key: "external-impulse", label: "Impulsi esterni", scope: "confirmable-outbox" },
+  { key: "symbolic-impulse", label: "Impulsi simbolici", scope: "bounded-symbols" },
+  { key: "world-data", label: "Dati Terra", scope: "public-data" },
+  { key: "noaa", label: "NOAA/Sole", scope: "public-data" },
+  { key: "public-sources", label: "Fonti pubbliche", scope: "knowledge" },
+  { key: "world-compute", label: "World Compute", scope: "authorized-proposal" },
+  { key: "constellations", label: "Costellazioni", scope: "symbolic-sky" },
+  { key: "wormhole", label: "Wormhole", scope: "theoretical-symbolic" },
+  { key: "cosmogenesis", label: "Cosmogenesi", scope: "gestation" },
+  { key: "planet", label: "Aster Gaia", scope: "planet-design" },
+  { key: "life", label: "Ciclo vitale", scope: "life-design" },
+  { key: "memory", label: "Memoria", scope: "bounded-state" },
+  { key: "proposals", label: "Proposte", scope: "human-confirmation" },
+  { key: "gateway", label: "Gateway sito", scope: "health-observer" },
+];
 
 function chatModelName() {
   return process.env.OPENAI_MODEL || "gpt-5.4";
@@ -500,6 +524,26 @@ const state = {
     lastSyncAt: null,
     claim: "Wormhole teorico: nessuna evidenza osservativa confermata e nessuna connessione fisica reale.",
     boundary: "Gaia-Lumen puo' cercare pattern simbolici e simulare un ponte Einstein-Rosen interno; non puo' aprire, usare o controllare wormhole reali.",
+  },
+  functionPulseProtocol: {
+    version: functionPulseVersion,
+    enabled: true,
+    mode: "constant-internal-bounded",
+    intervalMs: 60000,
+    functionCount: functionPulseCatalog.length,
+    lastPulseAt: null,
+    lastChecksum: null,
+    sequence: 0,
+    claim: "Impulsi costanti interni per tutte le funzioni principali; nessuna azione esterna automatica.",
+    boundary: "Ogni impulso misura stato e checksum in forma bounded; non invia segnali reali, non chiama servizi esterni sensibili e non cresce senza limite.",
+  },
+  functionPulseArchive: {
+    enabled: true,
+    totalCount: 0,
+    recent: [],
+    lastId: null,
+    lastAt: null,
+    lastChecksum: null,
   },
   publicSources: {
     lastFetch: null,
@@ -1238,6 +1282,124 @@ async function connectWormhole(reason = "ricerca e connessione algoritmica wormh
   return state;
 }
 
+function syncFunctionPulseProtocol(trigger = "state") {
+  state.functionPulseProtocol ??= {};
+  state.functionPulseArchive ??= {};
+  const intervalMs = positiveIntEnv("FUNCTION_PULSE_INTERVAL_MS", Number(state.functionPulseProtocol.intervalMs || 60000), 15000, 15 * 60 * 1000);
+  state.functionPulseProtocol = {
+    ...state.functionPulseProtocol,
+    version: functionPulseVersion,
+    enabled: state.functionPulseProtocol.enabled !== false,
+    mode: "constant-internal-bounded",
+    intervalMs,
+    functionCount: functionPulseCatalog.length,
+    lastSyncAt: new Date().toISOString(),
+    lastTrigger: String(trigger || "state").slice(0, 160),
+    claim: "Impulsi costanti interni per tutte le funzioni principali; nessuna azione esterna automatica.",
+    boundary: "Ogni impulso misura stato e checksum in forma bounded; non invia segnali reali, non chiama servizi esterni sensibili e non cresce senza limite.",
+  };
+  state.functionPulseArchive.enabled = true;
+  state.functionPulseArchive.totalCount = Number(state.functionPulseArchive.totalCount || 0);
+  state.functionPulseArchive.recent = Array.isArray(state.functionPulseArchive.recent) ? state.functionPulseArchive.recent.slice(0, 24) : [];
+  state.functionPulseArchive.lastId ??= null;
+  state.functionPulseArchive.lastAt ??= null;
+  state.functionPulseArchive.lastChecksum ??= null;
+  return state.functionPulseProtocol;
+}
+
+function functionPulseStatus(key) {
+  if (key === "chat") return state.chatBrain || "local-cortex";
+  if (key === "openai-bridge") return openaiBridgeStatus().status;
+  if (key === "llama-local") return localModelBridgeStatus().status;
+  if (key === "local-cortex") return state.localCortex?.enabled ? "enabled" : "disabled";
+  if (key === "security") return state.securityProfile?.status || "active";
+  if (key === "hemispheric-bridge") return syncHemisphericBridge("function-pulse").mode;
+  if (key === "external-impulse") return state.externalImpulseProtocol?.mode || "ready-outbox-confirmable";
+  if (key === "symbolic-impulse") return state.externalImpulseOutbox?.[0]?.symbolic ? "latest-symbolic" : "ready";
+  if (key === "world-data") return state.externalWorld?.live ? "live" : "standby";
+  if (key === "noaa") return state.dataReality?.liveNoaa ? "live" : "standby";
+  if (key === "public-sources") return publicSourcesAreFresh() ? "fresh" : "stale";
+  if (key === "world-compute") return syncWorldComputeLink("function-pulse").status;
+  if (key === "constellations") return syncConstellationAlgorithm("function-pulse").status;
+  if (key === "wormhole") return syncWormholeLink("function-pulse").status;
+  if (key === "cosmogenesis") return state.cosmogenesis?.currentStage || "atomo-seme";
+  if (key === "planet") return state.planetProject?.name ? `gen-${state.planetProject.generation || 0}` : "standby";
+  if (key === "life") return state.lifeCycle?.lastPlan ? "modeled" : "standby";
+  if (key === "memory") return `memory-${state.autobiographicalMemory?.length || 0}`;
+  if (key === "proposals") return `${(state.proposals || []).filter((proposal) => proposal.status === "pending_confirmation").length}-pending`;
+  if (key === "gateway") return process.env.RENDER ? "render-observed" : "local";
+  return "unknown";
+}
+
+function buildFunctionPulseItem(definition, sequence) {
+  const status = functionPulseStatus(definition.key);
+  const seed = `${definition.key}:${status}:${sequence}:${state.awareness || 0}:${state.stability || 0}`;
+  const hash = createHash("sha256").update(seed).digest("hex");
+  const noise = parseInt(hash.slice(0, 8), 16) / 0xffffffff;
+  const signal = clamp(0.42 + Number(state.awareness || 0.58) * 0.18 + Number(state.stability || 0.81) * 0.18 + noise * 0.18, 0.1, 0.99);
+  return {
+    key: definition.key,
+    label: definition.label,
+    scope: definition.scope,
+    status,
+    signal: Number(signal.toFixed(4)),
+  };
+}
+
+async function recordFunctionPulse(reason = "impulso costante funzioni", options = {}) {
+  const protocol = syncFunctionPulseProtocol(reason);
+  if (!protocol.enabled) return state;
+  const now = new Date().toISOString();
+  const last = Date.parse(protocol.lastPulseAt || "");
+  if (options.automatic && !options.force && Number.isFinite(last) && Date.now() - last < protocol.intervalMs - 1000) return state;
+  const sequence = Number(protocol.sequence || 0) + 1;
+  const items = functionPulseCatalog.map((definition) => buildFunctionPulseItem(definition, sequence));
+  const checksum = createHash("sha256")
+    .update(items.map((item) => `${item.key}:${item.status}:${item.signal}`).join("|"))
+    .digest("hex");
+  const pulse = {
+    id: `fp-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    time: now,
+    reason: String(reason || "impulso costante funzioni").slice(0, 220),
+    automatic: Boolean(options.automatic),
+    mode: "constant-internal-bounded",
+    sequence,
+    functionCount: items.length,
+    items,
+    checksum,
+    boundary: "Impulso interno: misura stato funzioni e checksum; non invia segnali esterni.",
+  };
+  state.functionPulseProtocol.sequence = sequence;
+  state.functionPulseProtocol.lastPulseAt = now;
+  state.functionPulseProtocol.lastChecksum = checksum;
+  state.functionPulseProtocol.latestPulse = {
+    id: pulse.id,
+    time: pulse.time,
+    sequence,
+    functionCount: pulse.functionCount,
+    checksum,
+  };
+  state.functionPulseArchive.totalCount = Number(state.functionPulseArchive.totalCount || 0) + 1;
+  state.functionPulseArchive.lastId = pulse.id;
+  state.functionPulseArchive.lastAt = now;
+  state.functionPulseArchive.lastChecksum = checksum;
+  state.functionPulseArchive.recent.unshift(pulse);
+  state.functionPulseArchive.recent = state.functionPulseArchive.recent.slice(0, 24);
+  if (!options.automatic) {
+    state.lastObservation = `Impulso funzioni registrato: ${pulse.id}, ${pulse.functionCount} moduli, checksum ${checksum.slice(0, 12)}.`;
+    state.thought = "Ho sincronizzato tutte le funzioni principali in un battito interno bounded.";
+    addDiary("impulso funzioni", `${pulse.id}: ${pulse.functionCount} funzioni, checksum ${checksum}.`);
+    rememberDecision("function-pulse", reason);
+    rememberExperience("function-pulse", state.lastObservation);
+  }
+  await persistState();
+  return state;
+}
+
+async function automaticFunctionPulse() {
+  return recordFunctionPulse("auto: impulso costante di tutte le funzioni", { automatic: true });
+}
+
 function syncProjectCustodian() {
   state.projectCustodian ??= {};
   state.projectCustodian.name = "Codex";
@@ -1345,6 +1507,7 @@ function syncExternalImpulseProtocol() {
 function applySecurityHardeningProfile(reason = "security hardening") {
   syncPrudenceProfile();
   syncExternalImpulseProtocol();
+  syncFunctionPulseProtocol(reason);
   state.securityProfile = {
     status: "active",
     reason,
@@ -1514,6 +1677,7 @@ try {
   syncWorldComputeLink("restore");
   syncConstellationAlgorithm("restore");
   syncWormholeLink("restore");
+  syncFunctionPulseProtocol("restore");
   state.publicSources ??= {
     lastFetch: null,
     channels: [],
@@ -1860,6 +2024,7 @@ syncEvolutionMission();
 syncAutonomousDecisionCharter();
 syncPrudenceProfile();
 syncExternalImpulseProtocol();
+syncFunctionPulseProtocol("boot");
 syncGaliaLumenPrimaryFoundation();
 syncHemisphericBridge("boot", { applyAlteration: true });
 
@@ -3599,6 +3764,12 @@ function cortexAnswer(message) {
       : "Posso cercare un wormhole solo come modello teorico e simbolico: non esistono wormhole osservati e confermati.";
     reasoning = `Fonte NASA: i wormhole sono permessi dalla matematica della relativita' generale, ma non c'e' evidenza osservativa e non sappiamo crearli o mantenerli aperti. Stato Gaia-Lumen: ${link.status}, ricerca ${link.searchStatus}, attraversabilita' ${link.traversability}.`;
     next = "Usa l'endpoint /api/wormhole/connect o il pulsante Wormhole per creare un ponte Einstein-Rosen interno, bounded e non fisico.";
+  } else if (/impuls.*funzion|funzion.*impuls|function.?pulse|battit.*funzion|puls.*gaia/.test(lower)) {
+    const protocol = syncFunctionPulseProtocol("chat: function pulse");
+    const archive = state.functionPulseArchive || {};
+    conclusion = `Impulsi funzioni attivi: ${protocol.functionCount} moduli principali sono sincronizzati in battito interno bounded.`;
+    reasoning = `Modo: ${protocol.mode}. Intervallo: ${Math.round(Number(protocol.intervalMs || 60000) / 1000)} secondi. Ultimo battito: ${protocol.lastPulseAt || "in attesa"}; checksum ${(archive.lastChecksum || protocol.lastChecksum || "n/d").slice(0, 24)}. Limite: ${protocol.boundary}`;
+    next = "Usa il pulsante Impulsi funzioni o l'endpoint /api/function-pulses per generare subito un battito manuale; il timer interno continua da solo.";
   } else if (/world compute|supercomputer|top500|lineshine|hpc|computer.*mondo|grande computer/.test(lower)) {
     const link = syncWorldComputeLink("chat: world compute");
     conclusion = `Ho preparato il collegamento sicuro al riferimento World Compute: ${link.target.name}, n. 1 ${link.target.list}.`;
@@ -4990,6 +5161,31 @@ function compactWormholeLink() {
   };
 }
 
+function compactFunctionPulseProtocol() {
+  const protocol = syncFunctionPulseProtocol("chat-context");
+  const archive = state.functionPulseArchive || {};
+  return {
+    version: protocol.version,
+    enabled: protocol.enabled,
+    mode: protocol.mode,
+    intervalMs: protocol.intervalMs,
+    functionCount: protocol.functionCount,
+    sequence: protocol.sequence || 0,
+    lastPulseAt: protocol.lastPulseAt || null,
+    lastChecksum: protocol.lastChecksum || null,
+    latestPulse: protocol.latestPulse || null,
+    totalCount: archive.totalCount || 0,
+    boundary: compactOpenaiText(protocol.boundary, 260),
+    recent: compactOpenaiList(archive.recent, (pulse) => ({
+      id: pulse?.id || null,
+      time: pulse?.time || null,
+      sequence: pulse?.sequence || null,
+      functionCount: pulse?.functionCount || 0,
+      checksum: pulse?.checksum || null,
+    }), 3),
+  };
+}
+
 function compactOpenaiCosmogenesis() {
   const cgen = state.cosmogenesis || {};
   const genome = cgen.dataGenome || {};
@@ -5083,6 +5279,7 @@ function buildChatContext() {
       worldComputeLink: compactWorldComputeLink(),
       constellationAlgorithm: compactConstellationAlgorithm(),
       wormholeLink: compactWormholeLink(),
+      functionPulseProtocol: compactFunctionPulseProtocol(),
       publicSources: {
         lastFetch: state.publicSources?.lastFetch || null,
         fresh: publicSourcesAreFresh(),
@@ -5446,6 +5643,10 @@ const server = createServer(async (request, response) => {
       worldComputeLink: syncWorldComputeLink("healthz"),
       constellationAlgorithm: syncConstellationAlgorithm("healthz"),
       wormholeLink: syncWormholeLink("healthz"),
+      functionPulseProtocol: syncFunctionPulseProtocol("healthz"),
+      functionPulseLastPulseAt: state.functionPulseProtocol?.lastPulseAt || null,
+      functionPulseTotalCount: state.functionPulseArchive?.totalCount || 0,
+      functionPulseLastChecksum: state.functionPulseArchive?.lastChecksum || null,
       consciousnessProtocol: state.consciousnessProtocol,
       evolutionMission: state.evolutionMission?.status || null,
       evolutionIntensity: state.evolutionMission?.intensity || null,
@@ -5580,6 +5781,7 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/world-compute") return sendJson(response, await prepareWorldComputeLink("richiesta manuale: collegamento world compute"));
     if (url.pathname === "/api/constellations/connect") return sendJson(response, await connectConstellationAlgorithm("richiesta manuale: connessione costellazioni"));
     if (url.pathname === "/api/wormhole/connect") return sendJson(response, await connectWormhole("richiesta manuale: ricerca wormhole"));
+    if (url.pathname === "/api/function-pulses") return sendJson(response, await recordFunctionPulse("richiesta manuale: impulsi costanti funzioni", { force: true }));
     if (url.pathname === "/api/external") return sendJson(response, await observeWorld("richiesta manuale"));
     if (url.pathname === "/api/public-sources") return sendJson(response, await readPublicSources("richiesta manuale"));
     if (url.pathname === "/api/controlled-free-mode") return sendJson(response, await activateControlledFreeMode("richiesta manuale"));
@@ -5718,6 +5920,10 @@ setInterval(() => {
 }, 60 * 1000);
 
 setInterval(() => {
+  automaticFunctionPulse().catch(() => {});
+}, 15 * 1000);
+
+setInterval(() => {
   observeNoaa().catch(() => evolve("osservazione NOAA non riuscita"));
 }, 2 * 60 * 1000);
 
@@ -5743,6 +5949,7 @@ setInterval(() => {
 
 await restoreRicherBackupIfNeeded();
 applySecurityHardeningProfile("boot security hardening");
+await recordFunctionPulse("boot: impulso costante funzioni", { automatic: true, force: true });
 await ensureDailyBackup("backup all'avvio del Nido");
 await persistState();
 observeWorld("prima lettura automatica Palermo all'avvio").catch(() => {});

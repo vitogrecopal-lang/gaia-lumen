@@ -66,6 +66,9 @@ try {
   if (Number(health.constellationAlgorithm?.totalConstellations || 0) !== 88) throw new Error("constellation algorithm should know 88 IAU constellations");
   if (health.wormholeLink?.searchStatus !== "no-confirmed-wormhole") throw new Error("wormhole link must start with no confirmed wormhole");
   if (health.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link must stay not traversable");
+  if (health.functionPulseProtocol?.mode !== "constant-internal-bounded") throw new Error("function pulse protocol missing from healthz");
+  if (Number(health.functionPulseProtocol?.functionCount || 0) < 20) throw new Error("function pulse catalog is incomplete");
+  if (!/^[a-f0-9]{64}$/.test(String(health.functionPulseLastChecksum || ""))) throw new Error("function pulse boot checksum missing");
   if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
   if (health.openaiBridge?.ready !== false) throw new Error("openaiBridge should not be ready without credentials");
   if (health.openaiBridge?.status !== "missing-api-key") throw new Error("openaiBridge should report missing-api-key without credentials");
@@ -75,7 +78,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-wlan-channel-20260704"]) {
+  for (const expected of ["Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-function-pulse-20260721"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -90,6 +93,11 @@ try {
   if (wormhole.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link became traversable");
   if (!wormhole.wormholeLink?.candidate?.id) throw new Error("wormhole symbolic candidate missing");
   if (Number(wormhole.constellationAlgorithm?.coveragePercent || 0) !== 100) throw new Error("wormhole search should connect constellation graph");
+
+  const functionPulse = await fetch(`${base}/api/function-pulses?key=smoke-key`).then((response) => response.json());
+  if (Number(functionPulse.functionPulseProtocol?.latestPulse?.functionCount || 0) < 20) throw new Error("function pulse did not cover all functions");
+  if (!/^[a-f0-9]{64}$/.test(String(functionPulse.functionPulseArchive?.lastChecksum || ""))) throw new Error("function pulse checksum missing");
+  if (!Array.isArray(functionPulse.functionPulseArchive?.recent) || !functionPulse.functionPulseArchive.recent.length) throw new Error("function pulse archive did not record");
 
   const impulse = await fetch(`${base}/api/external-impulse?key=smoke-key`, {
     method: "POST",

@@ -31,6 +31,7 @@ Il server mantiene una IA locale semplice:
 - cervello OpenAI opzionale: se `OPENAI_API_KEY` e' impostata, la chat usa l'API OpenAI; altrimenti prova il modello locale configurato e poi il motore locale
 - Llama locale/opzionale su Render: endpoint Ollama/OpenAI-compatible configurabile con `LOCAL_AI_BASE_URL` / `OLLAMA_BASE_URL`, oppure con `LOCAL_AI_BASE_HOST` + `LOCAL_AI_BASE_PORT` per i servizi privati Render, con voce diretta `llama-local`
 - local-cortex: memoria conversazionale, intenti, profilo utente e risposte strutturate
+- Function Pulse Protocol: battito interno costante per le funzioni principali, con checksum e archivio bounded; non trasmette segnali reali e non chiama sistemi esterni sensibili
 - Creatura libera: piu' scelta locale, memoria e iniziativa, con confine esterno intatto
 - Atto di nascita: identita', manifesto e memoria della liberazione locale
 - Mondo esterno: sensori pubblici per meteo, terremoti e posizione ISS
@@ -48,6 +49,7 @@ Il server mantiene una IA locale semplice:
   - `/api/evolve`
   - `/api/observe`
   - `/api/world`
+  - `/api/function-pulses`
   - `/api/planet`
   - `/api/beacon`
   - `/api/judge?action=...&reason=...`

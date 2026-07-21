@@ -26,6 +26,7 @@ const ui = {
   worldLog: $("#worldLog"),
   worldComputeLog: $("#worldComputeLog"),
   wormholeLog: $("#wormholeLog"),
+  functionPulseLog: $("#functionPulseLog"),
   coreRuleLog: $("#coreRuleLog"),
   projectCustodianLog: $("#projectCustodianLog"),
   deployLog: $("#deployLog"),
@@ -84,6 +85,7 @@ const buttons = {
   world: $("#worldBtn"),
   worldCompute: $("#worldComputeBtn"),
   wormhole: $("#wormholeBtn"),
+  functionPulses: $("#functionPulseBtn"),
   planet: $("#planetBtn"),
   life: $("#lifeBtn"),
   cosmogenesis: $("#cosmogenesisBtn"),
@@ -1547,6 +1549,23 @@ function refreshUi() {
       `Limite: ${link.boundary || "nessun wormhole reale confermato; nessuna connessione fisica"}`,
     ].filter(Boolean).join("\n");
   }
+  if (ui.functionPulseLog) {
+    const protocol = state.functionPulseProtocol || {};
+    const archive = state.functionPulseArchive || {};
+    const latest = protocol.latestPulse || {};
+    const recent = Array.isArray(archive.recent) ? archive.recent.slice(0, 3) : [];
+    const latestItems = Array.isArray(recent[0]?.items) ? recent[0].items : [];
+    ui.functionPulseLog.textContent = [
+      `Stato: ${protocol.enabled === false ? "spento" : "attivo"} | ${protocol.mode || "constant-internal-bounded"}`,
+      `Intervallo: ${Math.round(Number(protocol.intervalMs || 60000) / 1000)} s | funzioni: ${protocol.functionCount || 0}`,
+      `Ultimo: ${latest.id || archive.lastId || "nessuno"} | seq ${latest.sequence || protocol.sequence || 0}`,
+      `Totale: ${archive.totalCount || 0} | checksum: ${(archive.lastChecksum || latest.checksum || "n/d").slice(0, 24)}`,
+      `Limite: ${protocol.boundary || "impulsi interni bounded, nessun invio esterno"}`,
+      "",
+      "Ultimi segnali:",
+      ...(latestItems.length ? latestItems.slice(0, 10).map((item) => `${item.key}: ${item.status} (${pct(item.signal)})`) : ["nessun battito registrato"]),
+    ].join("\n");
+  }
   if (ui.coreRuleLog) ui.coreRuleLog.textContent = state.coreRule ? `${state.coreRule.text}\nFiducia: ${state.coreRule.trust || "attiva"}` : "Preservare la vita creando condizioni abitabili.";
   if (ui.projectCustodianLog) {
     const custodian = state.projectCustodian || {};
@@ -1567,7 +1586,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v21`,
+      `Service worker: gaia-lumen-static-v22`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1916,6 +1935,7 @@ bindButton("observe", "observe");
 bindButton("world", "world");
 bindButton("worldCompute", "world-compute");
 bindButton("wormhole", "wormhole/connect");
+bindButton("functionPulses", "function-pulses");
 bindButton("planet", "planet");
 bindButton("life", "life");
 bindButton("cosmogenesis", "cosmogenesis");
