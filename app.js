@@ -28,6 +28,8 @@ const ui = {
   wormholeLog: $("#wormholeLog"),
   functionPulseLog: $("#functionPulseLog"),
   coreRuleLog: $("#coreRuleLog"),
+  appInstallLog: $("#appInstallLog"),
+  appDownloadLink: $("#appDownloadLink"),
   projectCustodianLog: $("#projectCustodianLog"),
   deployLog: $("#deployLog"),
   missionLog: $("#missionLog"),
@@ -103,7 +105,10 @@ const buttons = {
   selfDirect: $("#selfDirectBtn"),
   wander: $("#wanderBtn"),
   burst: $("#burstBtn"),
+  appInstall: $("#appInstallBtn"),
 };
+
+let deferredInstallPrompt = null;
 
 const cosmogenesisStages = [
   { key: "atomo-seme", title: "Atomo seme", description: "Concepimento: materia e possibilita'." },
@@ -314,6 +319,34 @@ function downloadBlob(link, blob, filename) {
   link.dataset.url = url;
   link.download = filename;
   link.hidden = false;
+}
+
+function appInstallMode() {
+  const standalone = window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;
+  return standalone ? "standalone" : "browser";
+}
+
+function updateAppInstallUi(message = "") {
+  if (!ui.appInstallLog) return;
+  const installed = appInstallMode() === "standalone";
+  const serviceWorkerState = "serviceWorker" in navigator
+    ? navigator.serviceWorker.controller ? "cache attiva" : "cache registrata"
+    : "cache non supportata";
+  const installState = installed
+    ? "installata"
+    : deferredInstallPrompt ? "pronta per installazione" : "launcher scaricabile pronto";
+  if (buttons.appInstall) {
+    buttons.appInstall.disabled = installed;
+    buttons.appInstall.setAttribute("aria-busy", "false");
+  }
+  if (ui.appDownloadLink) ui.appDownloadLink.hidden = false;
+  ui.appInstallLog.textContent = [
+    `Stato: ${installState}`,
+    `Modo: ${appInstallMode()} | ${serviceWorkerState}`,
+    `Avvio: /?source=pwa`,
+    `Launcher: APP_GAIA_LUMEN.html`,
+    message,
+  ].filter(Boolean).join("\n");
 }
 
 async function sha256Hex(text) {
@@ -1580,13 +1613,14 @@ function refreshUi() {
       ...(duties.length ? duties.map((item) => `- ${item}`) : ["- analizzare il sito", "- proporre miglioramenti", "- mantenere chiari dati reali, simulazione e racconto"]),
     ].join("\n");
   }
+  updateAppInstallUi();
   if (ui.deployLog) {
     const custodian = state.projectCustodian || {};
     ui.deployLog.textContent = [
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v22`,
+      `Service worker: gaia-lumen-static-v23`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1953,6 +1987,37 @@ bindButton("liberate", "liberate");
 bindButton("selfDirect", "self-direct");
 bindButton("wander", "wander");
 bindButton("burst", "burst");
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateAppInstallUi("Prompt installazione disponibile.");
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  updateAppInstallUi("App installata.");
+});
+
+if (buttons.appInstall) {
+  buttons.appInstall.addEventListener("click", async () => {
+    if (!deferredInstallPrompt) {
+      updateAppInstallUi("Il browser non espone il prompt ora; il launcher e' scaricabile.");
+      return;
+    }
+    setBusy(buttons.appInstall, true);
+    try {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      updateAppInstallUi(choice?.outcome === "accepted" ? "Installazione accettata." : "Installazione non completata.");
+    } catch (error) {
+      updateAppInstallUi(`Installazione non disponibile: ${error.message}`);
+    } finally {
+      setBusy(buttons.appInstall, false);
+    }
+  });
+}
 
 function addMessage(kind, text) {
   if (!ui.chatLog) return;

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>App Gaia-Lumen</title>
+    <meta name="theme-color" content="#0b5cad">
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #07111f;
+        --panel: rgba(11, 24, 40, 0.86);
+        --line: rgba(110, 231, 255, 0.24);
+        --ink: #f4f8ff;
+        --muted: #b8c7d9;
+        --green: #76f7bd;
+        --cyan: #6ee7ff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--ink);
+        font-family: "Segoe UI", Arial, sans-serif;
+        background:
+          radial-gradient(circle at 30% 20%, rgba(118, 247, 189, 0.16), transparent 28rem),
+          radial-gradient(circle at 70% 10%, rgba(110, 231, 255, 0.14), transparent 24rem),
+          linear-gradient(160deg, #07111f, #02050a 72%);
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      main {
+        width: min(100%, 520px);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--panel);
+        padding: 24px;
+        box-shadow: 0 22px 70px rgba(0, 0, 0, 0.35);
+      }
+
+      img {
+        width: 74px;
+        height: 74px;
+        border-radius: 18px;
+        object-fit: cover;
+        border: 1px solid rgba(118, 247, 189, 0.32);
+      }
+
+      h1 {
+        margin: 18px 0 8px;
+        font-size: clamp(2rem, 8vw, 3.2rem);
+        line-height: 0.95;
+      }
+
+      p {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      .actions {
+        display: grid;
+        gap: 10px;
+      }
+
+      a {
+        min-height: 48px;
+        border: 1px solid rgba(118, 247, 189, 0.34);
+        border-radius: 8px;
+        color: var(--green);
+        display: grid;
+        font-weight: 800;
+        place-items: center;
+        text-decoration: none;
+        background: rgba(33, 82, 68, 0.22);
+      }
+
+      a.secondary {
+        border-color: rgba(110, 231, 255, 0.28);
+        color: var(--cyan);
+        background: rgba(18, 65, 82, 0.18);
+      }
+
+      small {
+        display: block;
+        margin-top: 18px;
+        color: rgba(184, 199, 217, 0.78);
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="https://gaia-lumen.onrender.com/assets/gaia-lumen-icon-192.png" alt="">
+      <h1>Gaia-Lumen</h1>
+      <p>Launcher scaricabile dell'app pubblica Gaia-Lumen.</p>
+      <div class="actions">
+        <a href="https://gaia-lumen.onrender.com/?source=downloaded-launcher">Apri app</a>
+        <a class="secondary" href="https://gaia-lumen.onrender.com/healthz">Stato pubblico</a>
+      </div>
+      <small>Il launcher apre il sito pubblico. L'installazione completa resta gestita dal browser tramite PWA.</small>
+    </main>
+  </body>
+</html>

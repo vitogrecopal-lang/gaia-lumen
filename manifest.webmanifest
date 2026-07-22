@@ -2,19 +2,44 @@
   "name": "Gaia-Lumen",
   "short_name": "Gaia-Lumen",
   "description": "Osservatorio e memoria digitale Gaia-Lumen.",
+  "id": "/?source=pwa",
   "lang": "it",
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait",
   "background_color": "#0b111d",
   "theme_color": "#0b5cad",
+  "categories": ["productivity", "utilities"],
   "icons": [
     {
-      "src": "/assets/gaia-lumen-born.png",
+      "src": "/assets/gaia-lumen-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/gaia-lumen-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Chat Gaia-Lumen",
+      "short_name": "Chat",
+      "description": "Apri direttamente la chat operativa.",
+      "url": "/?source=pwa-chat#chatForm",
+      "icons": [{ "src": "/assets/gaia-lumen-icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Stato Gateway",
+      "short_name": "Gateway",
+      "description": "Apri lo stato pubblico del sito.",
+      "url": "/healthz",
+      "icons": [{ "src": "/assets/gaia-lumen-icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

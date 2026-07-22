@@ -7,7 +7,7 @@
     <meta name="description" content="Osservatorio interattivo Gaia-Lumen per visualizzare Terra, Sole, dati pubblici, memoria locale e ciclo vitale del progetto.">
     <meta name="theme-color" content="#0b5cad">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="assets/gaia-lumen-born.png">
+    <link rel="apple-touch-icon" href="assets/gaia-lumen-icon-192.png">
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -42,6 +42,15 @@
           <p class="eyebrow">Presenza del progetto</p>
           <h2 id="projectCustodianTitle">Custode del progetto</h2>
           <pre id="projectCustodianLog">Codex in ascolto: analisi, cura del codice e spiegazione dei limiti.</pre>
+        </div>
+
+        <div class="readout app-install">
+          <h2>App Gaia-Lumen</h2>
+          <pre id="appInstallLog">App installabile in preparazione.</pre>
+          <div class="app-install-actions">
+            <button id="appInstallBtn" type="button">Installa app</button>
+            <a id="appDownloadLink" class="download-link" href="APP_GAIA_LUMEN.html" download="APP_GAIA_LUMEN.html">Scarica launcher</a>
+          </div>
         </div>
 
         <div class="readout evolution-status">
@@ -317,7 +326,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-function-pulse-20260721"></script>
+    <script src="app.js?v=gaia-lumen-downloadable-app-20260722"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

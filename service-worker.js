@@ -1,13 +1,16 @@
-const CACHE_NAME = "gaia-lumen-static-v22";
+const CACHE_NAME = "gaia-lumen-static-v23";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
-  "/app.js?v=gaia-lumen-function-pulse-20260721",
+  "/app.js?v=gaia-lumen-downloadable-app-20260722",
   "/manifest.webmanifest",
+  "/APP_GAIA_LUMEN.html",
   "/assets/epsilon-eridani-map.svg",
   "/assets/gaia-lumen-born.png",
+  "/assets/gaia-lumen-icon-192.png",
+  "/assets/gaia-lumen-icon-512.png",
   "/GAIA_LUMEN_PUBLIC_BRIEF.html",
   "/GAIA_LUMEN_DOSSIER_SCIENTIFICO_BREVE.pdf"
 ];

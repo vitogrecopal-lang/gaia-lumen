@@ -42,6 +42,13 @@ const rateBuckets = new Map();
 const apiRateBuckets = new Map();
 const authBuckets = new Map();
 const allowedMethods = new Set(["GET", "HEAD", "POST"]);
+const publicAppAssetPaths = new Set([
+  "/manifest.webmanifest",
+  "/service-worker.js",
+  "/APP_GAIA_LUMEN.html",
+  "/assets/gaia-lumen-icon-192.png",
+  "/assets/gaia-lumen-icon-512.png",
+]);
 const publicAccessKey = process.env.PUBLIC_ACCESS_KEY || "";
 const publicAccessUser = process.env.PUBLIC_ACCESS_USER || "";
 const publicAccessPass = process.env.PUBLIC_ACCESS_PASS || "";
@@ -4882,7 +4889,12 @@ function crossSiteApiRequest(request, url) {
   return site === "cross-site";
 }
 
+function publicAppAssetRequest(request, url) {
+  return ["GET", "HEAD"].includes(request.method || "") && publicAppAssetPaths.has(url.pathname);
+}
+
 function hasAccess(request, url) {
+  if (publicAppAssetRequest(request, url)) return { allowed: true, fresh: false };
   if (!publicAccessKey) return { allowed: true, fresh: false };
   if (secureCompare(url.searchParams.get("key") || "", publicAccessKey)) return { allowed: true, fresh: true };
   const cookie = String(request.headers.cookie || "");
