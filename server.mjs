@@ -20,6 +20,7 @@ const types = {
   ".md": "text/markdown; charset=utf-8",
   ".pdf": "application/pdf",
   ".svg": "image/svg+xml; charset=utf-8",
+  ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
   ".webmanifest": "application/manifest+json; charset=utf-8",
