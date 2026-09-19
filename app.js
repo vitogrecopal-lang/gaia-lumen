@@ -23,6 +23,7 @@ const ui = {
   nodes: $("#nodeList"),
   log: $("#log"),
   realityLog: $("#realityLog"),
+  realityFusionLog: $("#realityFusionLog"),
   worldLog: $("#worldLog"),
   worldComputeLog: $("#worldComputeLog"),
   wormholeLog: $("#wormholeLog"),
@@ -85,6 +86,7 @@ const ui = {
 const buttons = {
   observe: $("#observeBtn"),
   world: $("#worldBtn"),
+  realityFusion: $("#realityFusionBtn"),
   worldCompute: $("#worldComputeBtn"),
   wormhole: $("#wormholeBtn"),
   functionPulses: $("#functionPulseBtn"),
@@ -1549,6 +1551,22 @@ function refreshUi() {
     ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
   }
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
+  if (ui.realityFusionLog) {
+    const fusion = state.realityFusion || {};
+    const effects = fusion.simulationEffects || {};
+    const signals = Array.isArray(fusion.signals) ? fusion.signals.slice(0, 6) : [];
+    ui.realityFusionLog.textContent = [
+      `Stato: ${fusion.status || "standby"} | indice: ${pct(fusion.index || 0)}`,
+      `Reali: ${fusion.realSignalCount || 0} | simulati: ${fusion.simulatedSignalCount || 0}`,
+      `Modo: ${fusion.mode || "real-data-guided-simulation"}`,
+      `Effetto: ${effects.simulationTempo || "in attesa"} | checksum: ${(fusion.checksum || "n/d").slice(0, 24)}`,
+      `Ultima integrazione: ${fusion.lastIntegratedAt || "n/d"}`,
+      `Limite: ${fusion.boundary || "dati reali e simulazioni restano separati"}`,
+      "",
+      "Segnali:",
+      ...(signals.length ? signals.map((item) => `${item.real ? "REALE" : "SIM"} ${item.source || "fonte"}: ${item.label || "n/d"}`) : ["nessun segnale integrato"]),
+    ].join("\n");
+  }
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";
   if (ui.worldComputeLog) {
     const link = state.worldComputeLink || {};
@@ -1967,6 +1985,7 @@ function bindButton(name, action) {
 
 bindButton("observe", "observe");
 bindButton("world", "world");
+bindButton("realityFusion", "reality-fusion");
 bindButton("worldCompute", "world-compute");
 bindButton("wormhole", "wormhole/connect");
 bindButton("functionPulses", "function-pulses");

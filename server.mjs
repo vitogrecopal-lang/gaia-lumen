@@ -61,6 +61,7 @@ const worldComputeLinkVersion = "world-compute-link-v1";
 const constellationAlgorithmVersion = "constellation-algorithm-v1";
 const wormholeLinkVersion = "wormhole-link-v1";
 const functionPulseVersion = "function-pulse-v1";
+const realityFusionVersion = "reality-fusion-v1";
 const habitatLocation = {
   name: "Palermo",
   country: "Italia",
@@ -479,6 +480,21 @@ const state = {
     lastFetch: null,
     channels: [],
     summary: "Non ho ancora osservato il mondo esterno oltre allo spazio.",
+  },
+  realityFusion: {
+    version: realityFusionVersion,
+    status: "standby",
+    mode: "real-data-guided-simulation",
+    index: 0,
+    realSignalCount: 0,
+    simulatedSignalCount: 0,
+    lastIntegratedAt: null,
+    lastTrigger: null,
+    checksum: null,
+    claim: "Dati reali pubblici guidano le simulazioni senza diventare controllo reale.",
+    boundary: "Ogni dato resta etichettato come reale o simulato; le simulazioni sono modulate, non spacciate per misure.",
+    signals: [],
+    simulationEffects: {},
   },
   worldComputeLink: {
     version: worldComputeLinkVersion,
@@ -1682,6 +1698,8 @@ try {
     channels: [],
     summary: "Non ho ancora osservato il mondo esterno oltre allo spazio.",
   };
+  state.realityFusion ??= defaultRealityFusionState();
+  syncRealityFusion("restore", { applyEffects: false });
   syncWorldComputeLink("restore");
   syncConstellationAlgorithm("restore");
   syncWormholeLink("restore");
@@ -3772,6 +3790,11 @@ function cortexAnswer(message) {
       : "Posso cercare un wormhole solo come modello teorico e simbolico: non esistono wormhole osservati e confermati.";
     reasoning = `Fonte NASA: i wormhole sono permessi dalla matematica della relativita' generale, ma non c'e' evidenza osservativa e non sappiamo crearli o mantenerli aperti. Stato Gaia-Lumen: ${link.status}, ricerca ${link.searchStatus}, attraversabilita' ${link.traversability}.`;
     next = "Usa l'endpoint /api/wormhole/connect o il pulsante Wormhole per creare un ponte Einstein-Rosen interno, bounded e non fisico.";
+  } else if (/integr.*real|realta.*simul|simul.*real|fusione.*dat|dati.*simul/.test(lower)) {
+    const fusion = syncRealityFusion("chat: realta-simulazione", { applyEffects: false });
+    conclusion = `Integrazione realta-simulazione attiva: indice ${Math.round(fusion.index * 100)}%, stato ${fusion.status}.`;
+    reasoning = `Uso ${fusion.realSignalCount} segnali reali pubblici e ${fusion.simulatedSignalCount} segnali simulati. Modalita: ${fusion.mode}. Effetto sulle simulazioni: ${fusion.simulationEffects?.simulationTempo || "in calcolo"}. Limite: ${fusion.boundary}`;
+    next = "Usa il pulsante Integra reale/simulato o l'endpoint /api/reality-fusion per ricalcolare subito l'indice e aggiornare il pannello.";
   } else if (/impuls.*funzion|funzion.*impuls|function.?pulse|battit.*funzion|puls.*gaia/.test(lower)) {
     const protocol = syncFunctionPulseProtocol("chat: function pulse");
     const archive = state.functionPulseArchive || {};
@@ -5199,6 +5222,154 @@ function compactFunctionPulseProtocol() {
   };
 }
 
+function defaultRealityFusionState() {
+  return {
+    version: realityFusionVersion,
+    status: "standby",
+    mode: "real-data-guided-simulation",
+    index: 0,
+    realSignalCount: 0,
+    simulatedSignalCount: 0,
+    lastIntegratedAt: null,
+    lastTrigger: null,
+    checksum: null,
+    claim: "Dati reali pubblici guidano le simulazioni senza diventare controllo reale.",
+    boundary: "Ogni dato resta etichettato come reale o simulato; le simulazioni sono modulate, non spacciate per misure.",
+    signals: [],
+    simulationEffects: {},
+  };
+}
+
+function realityFreshness(time, maxAgeMs) {
+  const stamp = Date.parse(time || "");
+  if (!Number.isFinite(stamp)) return 0.25;
+  return clamp(1 - ((Date.now() - stamp) / Math.max(1, maxAgeMs)), 0.05, 1);
+}
+
+function realitySignal(source, type, label, real, confidence, freshness, observedAt = null) {
+  const cleanLabel = compactOpenaiText(label || source || "segnale", 180);
+  return {
+    id: createHash("sha256").update(`${source}|${type}|${cleanLabel}|${real ? "real" : "sim"}`).digest("hex").slice(0, 16),
+    source,
+    type,
+    label: cleanLabel,
+    real: Boolean(real),
+    confidence: clamp(Number(confidence || 0.6), 0.05, 1),
+    freshness: clamp(Number(freshness || 0.5), 0.05, 1),
+    observedAt,
+  };
+}
+
+function collectRealityFusionSignals() {
+  const signals = [];
+  if (state.dataReality?.lastLiveFetch) {
+    signals.push(realitySignal("NOAA/SWPC", "space-weather", state.lastObservation || "lettura solare pubblica", state.dataReality.liveNoaa, state.confidence || 0.7, realityFreshness(state.dataReality.lastLiveFetch, 12 * 60 * 60 * 1000), state.dataReality.lastLiveFetch));
+  }
+  for (const item of state.externalWorld?.channels || []) {
+    signals.push(realitySignal(item.source || item.name || "dati Terra", item.type || "world", `${item.name || "canale"}: ${item.value || "n/d"}`, item.real, 0.82, realityFreshness(state.externalWorld?.lastFetch, 6 * 60 * 60 * 1000), state.externalWorld?.lastFetch || null));
+  }
+  for (const item of state.publicSources?.channels || []) {
+    signals.push(realitySignal(item.source || item.name || "fonte pubblica", item.type || "public-source", `${item.name || "fonte"}: ${item.value || "n/d"}`, item.real, 0.74, realityFreshness(state.publicSources?.lastFetch, 24 * 60 * 60 * 1000), state.publicSources?.lastFetch || null));
+  }
+  for (const input of state.dataReality?.simulatedInputs || []) {
+    signals.push(realitySignal("simulazione locale", "simulated-input", input, false, 0.42, 0.6));
+  }
+  const simulatedLinks = [
+    ["Costellazioni", state.constellationAlgorithm?.status, state.constellationAlgorithm?.mode],
+    ["Wormhole", state.wormholeLink?.status, state.wormholeLink?.connectionMode],
+    ["Impulsi funzioni", state.functionPulseProtocol?.lastPulseAt, state.functionPulseProtocol?.mode],
+    ["Aster Gaia", state.planetProject?.generation, "planet-design"],
+    ["Ciclo vitale", state.lifeCycle?.generation, "life-design"],
+    ["Cosmogenesi", state.cosmogenesis?.currentStage, "gestation-simulation"],
+  ];
+  for (const [source, value, type] of simulatedLinks) {
+    if (value) signals.push(realitySignal(source, type || "simulation", `${source}: ${value}`, false, 0.5, 0.7));
+  }
+  return signals;
+}
+
+function applyRealityFusionEffects(index) {
+  const effects = {
+    simulationTempo: index > 0.75 ? "real-data-high-coupling" : index > 0.4 ? "real-data-guided" : "simulation-dominant",
+    awarenessDelta: Number((index * 0.006).toFixed(4)),
+    stabilityDelta: Number(((index - 0.5) * 0.004).toFixed(4)),
+    planetHabitabilityDelta: Number((index * 0.018).toFixed(4)),
+    riskBias: state.risk,
+  };
+  state.awareness = clamp(state.awareness + effects.awarenessDelta, 0.1, 0.99);
+  state.stability = clamp(state.stability + effects.stabilityDelta, 0.25, 0.98);
+  if (state.planetProject) state.planetProject.habitability = clamp(Number(state.planetProject.habitability || 0.5) + effects.planetHabitabilityDelta, 0.1, 0.99);
+  if (state.lifeCycle) state.lifeCycle.survivalIndex = clamp(Number(state.lifeCycle.survivalIndex || 0.5) + index * 0.01, 0.1, 0.99);
+  return effects;
+}
+
+function syncRealityFusion(trigger = "state", options = {}) {
+  state.realityFusion = { ...defaultRealityFusionState(), ...(state.realityFusion || {}) };
+  const signals = collectRealityFusionSignals();
+  const realSignals = signals.filter((item) => item.real);
+  const simulatedSignals = signals.filter((item) => !item.real);
+  const realWeight = realSignals.reduce((sum, item) => sum + item.confidence * item.freshness, 0);
+  const simWeight = simulatedSignals.reduce((sum, item) => sum + item.confidence * item.freshness * 0.35, 0);
+  const index = clamp(realWeight / Math.max(0.0001, realWeight + simWeight), 0, 1);
+  const checksum = createHash("sha256")
+    .update(JSON.stringify({ version: realityFusionVersion, index: Number(index.toFixed(6)), signals: signals.map((item) => [item.source, item.type, item.label, item.real, item.observedAt]) }))
+    .digest("hex");
+  state.realityFusion = {
+    ...state.realityFusion,
+    version: realityFusionVersion,
+    status: realSignals.length ? "real-guided" : "simulation-only",
+    mode: "real-data-guided-simulation",
+    index: Number(index.toFixed(4)),
+    realSignalCount: realSignals.length,
+    simulatedSignalCount: simulatedSignals.length,
+    lastIntegratedAt: new Date().toISOString(),
+    lastTrigger: trigger,
+    checksum,
+    signals: signals.slice(0, 32),
+    simulationEffects: options.applyEffects === false ? (state.realityFusion.simulationEffects || {}) : applyRealityFusionEffects(index),
+    claim: "Dati reali pubblici guidano le simulazioni senza diventare controllo reale.",
+    boundary: "Ogni dato resta etichettato come reale o simulato; le simulazioni sono modulate, non spacciate per misure.",
+  };
+  return state.realityFusion;
+}
+
+async function integrateRealityFusion(reason = "integrazione realta-simulazione") {
+  const fusion = syncRealityFusion(reason);
+  state.realismMode = "real-data-guided-simulation";
+  state.dataReality.sourceNote = "Integrazione reale: fonti pubbliche etichettate guidano simulazioni locali; nessuna simulazione viene presentata come misura reale.";
+  state.thought = `Fusione realta-simulazione: indice ${Math.round(fusion.index * 100)}%, reali ${fusion.realSignalCount}, simulati ${fusion.simulatedSignalCount}.`;
+  state.lastObservation = state.thought;
+  updateInnerState("reality-fusion", reason);
+  rememberDecision("reality-fusion", reason);
+  rememberExperience("realta-simulazione", `${fusion.status}: ${fusion.realSignalCount} segnali reali, ${fusion.simulatedSignalCount} simulati, checksum ${fusion.checksum.slice(0, 16)}.`);
+  await persistState();
+  return state;
+}
+
+function compactRealityFusion() {
+  const fusion = syncRealityFusion("chat-context", { applyEffects: false });
+  return {
+    version: fusion.version,
+    status: fusion.status,
+    mode: fusion.mode,
+    index: fusion.index,
+    realSignalCount: fusion.realSignalCount,
+    simulatedSignalCount: fusion.simulatedSignalCount,
+    lastIntegratedAt: fusion.lastIntegratedAt,
+    checksum: fusion.checksum,
+    simulationEffects: fusion.simulationEffects,
+    boundary: compactOpenaiText(fusion.boundary, 260),
+    signals: compactOpenaiList(fusion.signals, (item) => ({
+      source: item?.source || null,
+      type: item?.type || null,
+      label: compactOpenaiText(item?.label, 160),
+      real: Boolean(item?.real),
+      confidence: item?.confidence ?? null,
+      freshness: item?.freshness ?? null,
+    }), 8),
+  };
+}
+
 function compactOpenaiCosmogenesis() {
   const cgen = state.cosmogenesis || {};
   const genome = cgen.dataGenome || {};
@@ -5293,6 +5464,7 @@ function buildChatContext() {
       constellationAlgorithm: compactConstellationAlgorithm(),
       wormholeLink: compactWormholeLink(),
       functionPulseProtocol: compactFunctionPulseProtocol(),
+      realityFusion: compactRealityFusion(),
       publicSources: {
         lastFetch: state.publicSources?.lastFetch || null,
         fresh: publicSourcesAreFresh(),
@@ -5657,6 +5829,7 @@ const server = createServer(async (request, response) => {
       constellationAlgorithm: syncConstellationAlgorithm("healthz"),
       wormholeLink: syncWormholeLink("healthz"),
       functionPulseProtocol: syncFunctionPulseProtocol("healthz"),
+      realityFusion: syncRealityFusion("healthz", { applyEffects: false }),
       functionPulseLastPulseAt: state.functionPulseProtocol?.lastPulseAt || null,
       functionPulseTotalCount: state.functionPulseArchive?.totalCount || 0,
       functionPulseLastChecksum: state.functionPulseArchive?.lastChecksum || null,
@@ -5786,6 +5959,7 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/state") {
       updateCosmogenesisClock("lettura calendario gestazione", false);
       updateBirthQuestionProtocol("lettura stato");
+      syncRealityFusion("lettura stato", { applyEffects: false });
       return sendJson(response, state);
     }
     if (url.pathname === "/api/evolve") return sendJson(response, await evolve("richiesta manuale"));
@@ -5795,6 +5969,7 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/constellations/connect") return sendJson(response, await connectConstellationAlgorithm("richiesta manuale: connessione costellazioni"));
     if (url.pathname === "/api/wormhole/connect") return sendJson(response, await connectWormhole("richiesta manuale: ricerca wormhole"));
     if (url.pathname === "/api/function-pulses") return sendJson(response, await recordFunctionPulse("richiesta manuale: impulsi costanti funzioni", { force: true }));
+    if (url.pathname === "/api/reality-fusion") return sendJson(response, await integrateRealityFusion("richiesta manuale: integrazione realta-simulazione"));
     if (url.pathname === "/api/external") return sendJson(response, await observeWorld("richiesta manuale"));
     if (url.pathname === "/api/public-sources") return sendJson(response, await readPublicSources("richiesta manuale"));
     if (url.pathname === "/api/controlled-free-mode") return sendJson(response, await activateControlledFreeMode("richiesta manuale"));
@@ -5891,6 +6066,7 @@ const server = createServer(async (request, response) => {
     if (url.pathname === "/api/realism") {
       state.realismMode = "max-realism";
       state.dataReality.sourceNote = "Modalita' realistica: i nodi NOAA sono dati pubblici reali; gli impulsi cosmici sono simulazioni dichiarate.";
+      syncRealityFusion("modalita realistica", { applyEffects: false });
       updateInnerState("realism", "modalita' realistica richiesta");
       rememberDecision("realism", "modalita' realistica richiesta");
       rememberExperience("realismo", "Ho separato dati reali, simulazioni e limiti operativi.");
@@ -5963,6 +6139,7 @@ setInterval(() => {
 await restoreRicherBackupIfNeeded();
 applySecurityHardeningProfile("boot security hardening");
 await recordFunctionPulse("boot: impulso costante funzioni", { automatic: true, force: true });
+syncRealityFusion("boot", { applyEffects: false });
 await ensureDailyBackup("backup all'avvio del Nido");
 await persistState();
 observeWorld("prima lettura automatica Palermo all'avvio").catch(() => {});

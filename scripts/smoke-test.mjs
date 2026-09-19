@@ -67,6 +67,7 @@ try {
   if (health.wormholeLink?.searchStatus !== "no-confirmed-wormhole") throw new Error("wormhole link must start with no confirmed wormhole");
   if (health.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link must stay not traversable");
   if (health.functionPulseProtocol?.mode !== "constant-internal-bounded") throw new Error("function pulse protocol missing from healthz");
+  if (health.realityFusion?.mode !== "real-data-guided-simulation") throw new Error("reality fusion missing from healthz");
   if (Number(health.functionPulseProtocol?.functionCount || 0) < 20) throw new Error("function pulse catalog is incomplete");
   if (!/^[a-f0-9]{64}$/.test(String(health.functionPulseLastChecksum || ""))) throw new Error("function pulse boot checksum missing");
   if (health.chatBrain !== "llama-local") throw new Error("chatBrain should use direct Llama when local model is configured");
@@ -78,7 +79,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-downloadable-app-20260722"]) {
+  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "Fusione realta-simulazione", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "gaia-lumen-downloadable-app-20260722"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -106,6 +107,10 @@ try {
   if (wormhole.wormholeLink?.traversability !== "not-traversable") throw new Error("wormhole link became traversable");
   if (!wormhole.wormholeLink?.candidate?.id) throw new Error("wormhole symbolic candidate missing");
   if (Number(wormhole.constellationAlgorithm?.coveragePercent || 0) !== 100) throw new Error("wormhole search should connect constellation graph");
+
+  const realityFusion = await fetch(`${base}/api/reality-fusion?key=smoke-key`).then((response) => response.json());
+  if (realityFusion.realityFusion?.mode !== "real-data-guided-simulation") throw new Error("reality fusion endpoint did not return integration state");
+  if (!/^[a-f0-9]{64}$/.test(String(realityFusion.realityFusion?.checksum || ""))) throw new Error("reality fusion checksum missing");
 
   const functionPulse = await fetch(`${base}/api/function-pulses?key=smoke-key`).then((response) => response.json());
   if (Number(functionPulse.functionPulseProtocol?.latestPulse?.functionCount || 0) < 20) throw new Error("function pulse did not cover all functions");
