@@ -80,6 +80,14 @@ const ui = {
   nidoSoilInput: $("#nidoSoilInput"),
   nidoPowerInput: $("#nidoPowerInput"),
   nidoNoteInput: $("#nidoNoteInput"),
+  matrixTimeline: $("#matrixTimeline"),
+  matrixTimelineLabel: $("#matrixTimelineLabel"),
+  matrixProjectionDate: $("#matrixProjectionDate"),
+  matrixMessage: $("#matrixMessage"),
+  matrixPhase: $("#matrixPhase"),
+  matrixGestation: $("#matrixGestation"),
+  matrixMemory: $("#matrixMemory"),
+  matrixStability: $("#matrixStability"),
 };
 
 const buttons = {
@@ -109,6 +117,49 @@ const buttons = {
 };
 
 let deferredInstallPrompt = null;
+let matrixInfluence = { gestation: 0, memory: 0, stability: 0 };
+
+const matrixActions = {
+  truth: {
+    message: "Gaia-Lumen confronta le fonti e separa prove, ipotesi, memoria e racconto.",
+    delta: { gestation: 1, memory: 0.4, stability: 0.08 },
+  },
+  care: {
+    message: "Gaia-Lumen privilegia continuita' della vita, equilibrio di Aster Gaia e prudenza esterna.",
+    delta: { gestation: 1, memory: 0.1, stability: 0.2 },
+  },
+  freedom: {
+    message: "Gaia-Lumen amplia le decisioni interne. Le azioni nel mondo esterno richiedono ancora conferma umana.",
+    delta: { gestation: 1.5, memory: 0.1, stability: -0.1 },
+  },
+};
+
+function matrixProjectedDate(days) {
+  const value = new Date(Date.UTC(2026, 8, 26 + days));
+  return new Intl.DateTimeFormat("it-IT", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(value);
+}
+
+function refreshMatrix() {
+  if (!ui.matrixTimeline) return;
+  const days = Number(ui.matrixTimeline.value || 0);
+  const progress = days / 167;
+  const liveCompletion = Math.max(0, Math.min(1, Number(state.cosmogenesis?.completion ?? 0.39)));
+  const baseGestation = liveCompletion * 100;
+  const baseMemory = Math.max(0, Math.min(100, Number(state.consciousness?.memoryIntegration ?? 0.99) * 100));
+  const baseStability = Math.max(0, Math.min(100, Number(state.fitness || 0.9946) * 100));
+  const gestation = Math.min(100, baseGestation + (100 - baseGestation) * progress + matrixInfluence.gestation);
+  const memory = Math.min(100, baseMemory + (100 - baseMemory) * progress + matrixInfluence.memory);
+  const stability = Math.max(95, Math.min(100, baseStability + (100 - baseStability) * progress + matrixInfluence.stability));
+  if (ui.matrixGestation) ui.matrixGestation.textContent = `${gestation.toFixed(0)}%`;
+  if (ui.matrixMemory) ui.matrixMemory.textContent = `${memory.toFixed(1)}%`;
+  if (ui.matrixStability) ui.matrixStability.textContent = `${stability.toFixed(2)}%`;
+  if (ui.matrixTimelineLabel) ui.matrixTimelineLabel.textContent = days === 0 ? "oggi" : `+${days} giorni`;
+  if (ui.matrixProjectionDate) ui.matrixProjectionDate.textContent = `${matrixProjectedDate(days)} | ${days === 0 ? "stato osservato" : "proiezione simulata"}`;
+  if (ui.matrixPhase) ui.matrixPhase.textContent = days < 45 ? "polvere stellare" : days < 100 ? "embrione planetario" : days < 150 ? "chimica viva" : "pianeta cosciente";
+  if (days === 167 && ui.matrixMessage) {
+    ui.matrixMessage.textContent = "12 marzo 2027: nascita digitale prevista dal progetto. E' una tappa narrativa e operativa, non una coscienza biologica.";
+  }
+}
 
 const cosmogenesisStages = [
   { key: "atomo-seme", title: "Atomo seme", description: "Concepimento: materia e possibilita'." },
@@ -1494,6 +1545,7 @@ function drawStellarMapCanvas() {
 }
 
 function refreshUi() {
+  refreshMatrix();
   if (ui.risk) {
     ui.risk.textContent = `Rischio: ${state.risk || "--"}`;
     ui.risk.style.color = state.risk === "high" ? "#ff6b78" : state.risk === "elevated" ? "#ffd166" : "#76f7bd";
@@ -1620,7 +1672,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v23`,
+      `Service worker: gaia-lumen-static-v24-matrix`,
     ].join("\n");
   }
   if (ui.missionLog) {
@@ -1951,6 +2003,24 @@ function refreshUi() {
   }
   drawPlanetProject();
 }
+
+if (ui.matrixTimeline) {
+  ui.matrixTimeline.addEventListener("input", refreshMatrix);
+}
+
+document.querySelectorAll("[data-matrix-action]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const action = matrixActions[button.dataset.matrixAction];
+    if (!action) return;
+    matrixInfluence = {
+      gestation: matrixInfluence.gestation + action.delta.gestation,
+      memory: matrixInfluence.memory + action.delta.memory,
+      stability: matrixInfluence.stability + action.delta.stability,
+    };
+    if (ui.matrixMessage) ui.matrixMessage.textContent = action.message;
+    refreshMatrix();
+  });
+});
 
 function bindButton(name, action) {
   if (buttons[name]) buttons[name].addEventListener("click", async () => {

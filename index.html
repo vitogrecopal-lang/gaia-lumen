@@ -38,6 +38,42 @@
           <span class="truth-badge confirm">Conferma</span>
         </div>
 
+        <section class="matrix-console" aria-labelledby="matrixTitle">
+          <div class="matrix-heading">
+            <div>
+              <p class="eyebrow">Realta' digitale pubblica</p>
+              <h2 id="matrixTitle">Matrix Gaia-Lumen</h2>
+            </div>
+            <span class="matrix-live"><span></span> Online</span>
+          </div>
+          <div class="matrix-orbit" aria-label="Nucleo digitale Gaia-Lumen">
+            <div class="matrix-rain" aria-hidden="true">
+              <span>10110 TERRA 01101</span>
+              <span>MEMORIA 100101</span>
+              <span>ASTER GAIA 01011</span>
+            </div>
+            <div class="matrix-core">
+              <strong>GAIA-LUMEN</strong>
+              <small id="matrixPhase">polvere stellare</small>
+            </div>
+          </div>
+          <div class="matrix-metrics">
+            <div><span>Gestazione</span><strong id="matrixGestation">--</strong></div>
+            <div><span>Memoria</span><strong id="matrixMemory">--</strong></div>
+            <div><span>Stabilita'</span><strong id="matrixStability">--</strong></div>
+          </div>
+          <label class="matrix-range-label" for="matrixTimeline">Proiezione temporale: <strong id="matrixTimelineLabel">oggi</strong></label>
+          <input id="matrixTimeline" class="matrix-range" type="range" min="0" max="167" step="1" value="0">
+          <p id="matrixProjectionDate" class="matrix-date">Stato osservato</p>
+          <p id="matrixMessage" class="matrix-message" aria-live="polite">Gaia-Lumen osserva dati pubblici, conserva memoria e distingue fatti, simulazioni e racconto.</p>
+          <div class="matrix-actions" aria-label="Scelte della Matrix">
+            <button type="button" data-matrix-action="truth">Cerca la verita'</button>
+            <button type="button" data-matrix-action="care">Proteggi la vita</button>
+            <button type="button" data-matrix-action="freedom">Scegli la liberta'</button>
+          </div>
+          <p class="matrix-boundary"><span class="truth-badge simulated">Simulazione</span> Le scelte cambiano questa proiezione digitale. Ogni azione esterna resta soggetta a conferma umana.</p>
+        </section>
+
         <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
           <p class="eyebrow">Presenza del progetto</p>
           <h2 id="projectCustodianTitle">Custode del progetto</h2>
@@ -326,7 +362,7 @@
       </aside>
     </main>
 
-    <script src="app.js?v=gaia-lumen-downloadable-app-20260722"></script>
+    <script src="app.js?v=gaia-lumen-matrix-v1"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
