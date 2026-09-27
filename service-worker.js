@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v27-passive-reception";
+const CACHE_NAME = "gaia-lumen-static-v28-text-decoder";
 
 const STATIC_ASSETS = [
   "/",

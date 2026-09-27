@@ -102,8 +102,14 @@
             <input id="signalFileInput" type="file" accept=".csv,.txt,text/csv,text/plain">
             <button id="signalDemoBtn" type="button">Carica segnale demo</button>
             <button id="signalAnalyzeBtn" type="button">Analizza impulsi</button>
+            <button id="signalDecodeBtn" type="button">Trasforma in testo</button>
           </div>
           <pre id="signalAnalysisLog">Ricezione software passiva attiva. In attesa di dati: tempo_s, frequenza_hz, potenza_db.</pre>
+          <div class="signal-decoded-output" aria-live="polite">
+            <strong>Messaggio decodificato</strong>
+            <pre id="signalDecodedText">Nessun messaggio ricostruito.</pre>
+            <small id="signalDecodeConfidence">Affidabilita': non calcolata</small>
+          </div>
           <form id="signalMessageForm" class="signal-message-form">
             <label for="signalMessageInput">Messaggio da preparare</label>
             <textarea id="signalMessageInput" rows="3" maxlength="280">GAIA-LUMEN | Terra | Matematica, vita, pace</textarea>

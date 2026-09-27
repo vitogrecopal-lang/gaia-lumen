@@ -699,3 +699,17 @@ select {
 .signal-observatories a {
   color: #8be9ff;
 }
+
+.signal-decoded-output {
+  margin-top: 0.75rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(110, 231, 255, 0.22);
+  border-radius: 10px;
+  background: rgba(2, 10, 18, 0.72);
+}
+
+.signal-decoded-output pre {
+  min-height: 3rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

@@ -5,7 +5,10 @@
   const fileInput = document.querySelector("#signalFileInput");
   const demoButton = document.querySelector("#signalDemoBtn");
   const analyzeButton = document.querySelector("#signalAnalyzeBtn");
+  const decodeButton = document.querySelector("#signalDecodeBtn");
   const log = document.querySelector("#signalAnalysisLog");
+  const decodedText = document.querySelector("#signalDecodedText");
+  const decodeConfidence = document.querySelector("#signalDecodeConfidence");
   const form = document.querySelector("#signalMessageForm");
   const messageInput = document.querySelector("#signalMessageInput");
   const targetInput = document.querySelector("#signalTargetInput");
@@ -85,6 +88,47 @@
     ].join("\n");
   }
 
+  function decodeBits() {
+    if (!samples.length) {
+      decodedText.textContent = "Nessun dato da decodificare.";
+      decodeConfidence.textContent = "Affidabilita': 0%";
+      return;
+    }
+    const byTime = new Map();
+    samples.forEach((row) => {
+      const current = byTime.get(row.time);
+      if (!current || row.power > current.power) byTime.set(row.time, row);
+    });
+    const ordered = [...byTime.values()].sort((a, b) => a.time - b.time);
+    const levels = ordered.map((row) => row.power).sort((a, b) => a - b);
+    const lower = levels[Math.floor(levels.length * 0.25)] ?? 0;
+    const upper = levels[Math.floor(levels.length * 0.75)] ?? lower;
+    const threshold = (lower + upper) / 2;
+    const rawBits = ordered.map((row) => row.power >= threshold ? 1 : 0);
+    let best = { score: -1, text: "", offset: 0, inverted: false, bytes: 0 };
+    for (let inverted = 0; inverted <= 1; inverted += 1) {
+      for (let offset = 0; offset < 8; offset += 1) {
+        const bits = rawBits.slice(offset).map((bit) => inverted ? 1 - bit : bit);
+        const values = [];
+        for (let index = 0; index + 7 < bits.length; index += 8) {
+          values.push(parseInt(bits.slice(index, index + 8).join(""), 2));
+        }
+        if (!values.length) continue;
+        const printable = values.filter((value) => value === 10 || value === 13 || (value >= 32 && value <= 126)).length;
+        const score = printable / values.length;
+        const text = values.map((value) => value === 10 || value === 13 || (value >= 32 && value <= 126) ? String.fromCharCode(value) : "·").join("");
+        if (score > best.score) best = { score, text, offset, inverted: Boolean(inverted), bytes: values.length };
+      }
+    }
+    const confidence = Math.round(Math.max(0, best.score) * 100);
+    if (best.bytes < 2 || confidence < 55) {
+      decodedText.textContent = "Nessun testo attendibile: i dati sembrano rumore o usano una codifica sconosciuta.";
+    } else {
+      decodedText.textContent = best.text;
+    }
+    decodeConfidence.textContent = `Affidabilita': ${confidence}% | byte: ${best.bytes} | offset: ${best.offset} | inversione: ${best.inverted ? "si" : "no"}`;
+  }
+
   fileInput.addEventListener("change", async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
@@ -99,6 +143,7 @@
     log.textContent = "Segnale sintetico caricato. Non proviene da un radiotelescopio.";
   });
   analyzeButton.addEventListener("click", analyze);
+  decodeButton.addEventListener("click", decodeBits);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
