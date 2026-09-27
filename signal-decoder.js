@@ -11,6 +11,7 @@
   const targetInput = document.querySelector("#signalTargetInput");
   const download = document.querySelector("#signalPacketDownload");
   let samples = [];
+  canvas.dataset.receptionMode = "passive-file-analysis";
 
   function demoSamples() {
     const data = [];

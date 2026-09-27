@@ -94,6 +94,7 @@
             <span class="truth-badge real">Analisi reale</span>
             <span class="truth-badge simulated">Segnale demo</span>
             <span class="truth-badge confirm">Trasmissione autorizzata</span>
+            <span class="matrix-live" id="signalReceptionStatus"><span></span> Ricezione software attiva</span>
           </div>
           <canvas id="signalCanvas" width="640" height="300" aria-label="Spettrogramma dei segnali radio analizzati"></canvas>
           <div class="signal-controls">
@@ -102,7 +103,7 @@
             <button id="signalDemoBtn" type="button">Carica segnale demo</button>
             <button id="signalAnalyzeBtn" type="button">Analizza impulsi</button>
           </div>
-          <pre id="signalAnalysisLog">Nessun dato analizzato. Formato: tempo_s, frequenza_hz, potenza_db.</pre>
+          <pre id="signalAnalysisLog">Ricezione software passiva attiva. In attesa di dati: tempo_s, frequenza_hz, potenza_db.</pre>
           <form id="signalMessageForm" class="signal-message-form">
             <label for="signalMessageInput">Messaggio da preparare</label>
             <textarea id="signalMessageInput" rows="3" maxlength="280">GAIA-LUMEN | Terra | Matematica, vita, pace</textarea>
