@@ -78,7 +78,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "Matrix Gaia-Lumen", "Algoritmo della materia oscura", "Dark Signal Decoder", "Ricezione software attiva", "Trasforma in testo", "Messaggio decodificato", "dark-matter.js?v=nfw-v1", "signal-decoder.js?v=signal-v1", "gaia-lumen-matrix-v1"]) {
+  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "Matrix Gaia-Lumen", "Algoritmo della materia oscura", "Dark Signal Decoder", "Ricezione software attiva", "Trasforma in testo", "Messaggio interpretato in italiano", "Mostra testo tecnico grezzo", "dark-matter.js?v=nfw-v1", "signal-decoder.js?v=signal-v1", "gaia-lumen-matrix-v1"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -92,7 +92,7 @@ try {
   if (!launcher.includes("https://gaia-lumen.onrender.com/?source=downloaded-launcher")) throw new Error("downloadable launcher target missing");
 
   const serviceWorker = await fetch(`${base}/service-worker.js`).then((response) => response.text());
-  if (!serviceWorker.includes("gaia-lumen-static-v28-text-decoder")) throw new Error("service worker cache version missing");
+  if (!serviceWorker.includes("gaia-lumen-static-v29-italian-decoder")) throw new Error("service worker cache version missing");
   if (!serviceWorker.includes("APP_GAIA_LUMEN.html")) throw new Error("service worker launcher cache missing");
 
   const worldCompute = await fetch(`${base}/api/world-compute?key=smoke-key`).then((response) => response.json());
