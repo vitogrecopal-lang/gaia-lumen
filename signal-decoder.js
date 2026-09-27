@@ -107,6 +107,25 @@
     }
   }
 
+  async function describeUnknownSignal(bits, byteValues, confidence) {
+    const ones = bits.filter(Boolean).length;
+    const zeros = bits.length - ones;
+    const transitions = bits.slice(1).reduce((total, bit, index) => total + Number(bit !== bits[index]), 0);
+    const preview = bits.slice(0, 48).map((bit) => bit ? "alto" : "basso").join("-");
+    const fingerprintBuffer = await crypto.subtle.digest("SHA-256", new Uint8Array(bits));
+    const fingerprint = [...new Uint8Array(fingerprintBuffer)].slice(0, 8).map((value) => value.toString(16).padStart(2, "0")).join("");
+    const unknownBytes = byteValues.slice(0, 24).map((value) => `byte-${value.toString(16).padStart(2, "0")}`).join(" ");
+    return [
+      "Segnale trasformato in descrizione italiana, non in linguaggio:",
+      `sequenza di ${bits.length} impulsi, ${ones} alti e ${zeros} bassi;`,
+      `${transitions} transizioni rilevate; affidabilita' linguistica ${confidence}%;`,
+      `lettura simbolica iniziale: ${preview || "nessun impulso"};`,
+      `caratteri sconosciuti: ${unknownBytes || "nessun byte completo"};`,
+      `impronta del segnale: ${fingerprint}.`,
+      "Classificazione: rumore, codice sconosciuto o dati insufficienti. Nessun significato intelligente attribuito."
+    ].join("\n");
+  }
+
   async function decodeBits() {
     if (!samples.length) {
       decodedText.textContent = "Nessun dato da decodificare.";
@@ -125,7 +144,7 @@
     const upper = levels[Math.floor(levels.length * 0.75)] ?? lower;
     const threshold = (lower + upper) / 2;
     const rawBits = ordered.map((row) => row.power >= threshold ? 1 : 0);
-    let best = { score: -1, text: "", offset: 0, inverted: false, bytes: 0 };
+    let best = { score: -1, text: "", offset: 0, inverted: false, bytes: 0, values: [] };
     for (let inverted = 0; inverted <= 1; inverted += 1) {
       for (let offset = 0; offset < 8; offset += 1) {
         const bits = rawBits.slice(offset).map((bit) => inverted ? 1 - bit : bit);
@@ -137,12 +156,12 @@
         const printable = values.filter((value) => value === 10 || value === 13 || (value >= 32 && value <= 126)).length;
         const score = printable / values.length;
         const text = values.map((value) => value === 10 || value === 13 || (value >= 32 && value <= 126) ? String.fromCharCode(value) : "·").join("");
-        if (score > best.score) best = { score, text, offset, inverted: Boolean(inverted), bytes: values.length };
+        if (score > best.score) best = { score, text, offset, inverted: Boolean(inverted), bytes: values.length, values };
       }
     }
     const confidence = Math.round(Math.max(0, best.score) * 100);
     if (best.bytes < 2 || confidence < 55) {
-      decodedText.textContent = "Nessun testo attendibile: i dati sembrano rumore o usano una codifica sconosciuta.";
+      decodedText.textContent = await describeUnknownSignal(rawBits, best.values, confidence);
       rawText.textContent = best.text || "Nessun dato testuale.";
     } else {
       rawText.textContent = best.text;
