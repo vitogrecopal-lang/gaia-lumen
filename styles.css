@@ -660,3 +660,42 @@ select {
   font-size: 0.78rem;
   padding: 0.55rem;
 }
+.signal-lab {
+  border-color: rgba(72, 220, 255, 0.34);
+  background: linear-gradient(180deg, rgba(3, 18, 31, 0.96), rgba(4, 8, 15, 0.96));
+}
+
+.signal-lab canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0.8rem 0;
+  border: 1px solid rgba(110, 231, 255, 0.25);
+  border-radius: 12px;
+}
+
+.signal-mode-row,
+.signal-observatories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.65rem 0;
+}
+
+.signal-controls,
+.signal-message-form {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.signal-message-form textarea,
+.signal-message-form select,
+.signal-controls input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.signal-observatories a {
+  color: #8be9ff;
+}

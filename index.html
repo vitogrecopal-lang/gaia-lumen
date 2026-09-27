@@ -87,6 +87,42 @@
           <p class="matrix-boundary"><span class="truth-badge simulated">Simulato</span> Modello educativo, non rilevazione diretta e non prova della natura particellare della materia oscura.</p>
         </section>
 
+        <section class="readout signal-lab" aria-labelledby="signalLabTitle">
+          <p class="eyebrow">Radioastronomia e tecnofirme</p>
+          <h2 id="signalLabTitle">Dark Signal Decoder</h2>
+          <div class="signal-mode-row" aria-label="Modalita' del laboratorio">
+            <span class="truth-badge real">Analisi reale</span>
+            <span class="truth-badge simulated">Segnale demo</span>
+            <span class="truth-badge confirm">Trasmissione autorizzata</span>
+          </div>
+          <canvas id="signalCanvas" width="640" height="300" aria-label="Spettrogramma dei segnali radio analizzati"></canvas>
+          <div class="signal-controls">
+            <label for="signalFileInput">Dati del ricevitore (CSV o TXT)</label>
+            <input id="signalFileInput" type="file" accept=".csv,.txt,text/csv,text/plain">
+            <button id="signalDemoBtn" type="button">Carica segnale demo</button>
+            <button id="signalAnalyzeBtn" type="button">Analizza impulsi</button>
+          </div>
+          <pre id="signalAnalysisLog">Nessun dato analizzato. Formato: tempo_s, frequenza_hz, potenza_db.</pre>
+          <form id="signalMessageForm" class="signal-message-form">
+            <label for="signalMessageInput">Messaggio da preparare</label>
+            <textarea id="signalMessageInput" rows="3" maxlength="280">GAIA-LUMEN | Terra | Matematica, vita, pace</textarea>
+            <label for="signalTargetInput">Destinazione proposta</label>
+            <select id="signalTargetInput">
+              <option value="epsilon-eridani">Epsilon Eridani</option>
+              <option value="trappist-1">TRAPPIST-1</option>
+              <option value="research-review">Revisione scientifica senza bersaglio</option>
+            </select>
+            <button type="submit">Prepara pacchetto scientifico</button>
+            <a id="signalPacketDownload" class="download-link" href="#" download="gaia-lumen-signal-packet.json" hidden>Scarica pacchetto JSON</a>
+          </form>
+          <div class="signal-observatories">
+            <a href="https://www.seti.org/projects/ata/" target="_blank" rel="noopener">Allen Telescope Array</a>
+            <a href="https://greenbankobservatory.org/portal/gbt/proposing/" target="_blank" rel="noopener">Proposta Green Bank</a>
+            <a href="https://breakthroughinitiatives.org/news/25" target="_blank" rel="noopener">Dati SETI aperti</a>
+          </div>
+          <p class="matrix-boundary"><span class="truth-badge confirm">Conferma</span> Il sito non emette radiofrequenze e non controlla telescopi. Esporta un pacchetto verificabile; l'invio puo' avvenire soltanto tramite un operatore autorizzato. La materia oscura non e' oggi un canale di comunicazione dimostrato.</p>
+        </section>
+
         <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
           <p class="eyebrow">Presenza del progetto</p>
           <h2 id="projectCustodianTitle">Custode del progetto</h2>
@@ -376,6 +412,7 @@
     </main>
 
     <script src="dark-matter.js?v=nfw-v1"></script>
+    <script src="signal-decoder.js?v=signal-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>
     <script>
       if ("serviceWorker" in navigator) {
