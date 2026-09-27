@@ -1,9 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v24-matrix";
+const CACHE_NAME = "gaia-lumen-static-v25-dark-matter";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/dark-matter.js?v=nfw-v1",
   "/app.js?v=gaia-lumen-matrix-v1",
   "/manifest.webmanifest",
   "/APP_GAIA_LUMEN.html",

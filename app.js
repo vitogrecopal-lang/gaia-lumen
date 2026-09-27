@@ -1672,7 +1672,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v24-matrix`,
+      `Service worker: gaia-lumen-static-v25-dark-matter`,
     ].join("\n");
   }
   if (ui.missionLog) {

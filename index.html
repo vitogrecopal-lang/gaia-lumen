@@ -74,6 +74,19 @@
           <p class="matrix-boundary"><span class="truth-badge simulated">Simulazione</span> Le scelte cambiano questa proiezione digitale. Ogni azione esterna resta soggetta a conferma umana.</p>
         </section>
 
+        <section class="readout dark-matter-lab" aria-labelledby="darkMatterTitle">
+          <p class="eyebrow">Simulazione astrofisica</p>
+          <h2 id="darkMatterTitle">Algoritmo della materia oscura</h2>
+          <canvas id="darkMatterCanvas" width="640" height="360" aria-label="Curve di rotazione della materia visibile e del modello con alone oscuro"></canvas>
+          <div class="dark-matter-controls">
+            <label>Massa alone <strong id="haloMassValue">1.0e12 M☉</strong><input id="haloMassInput" type="range" min="11" max="13" step="0.05" value="12"></label>
+            <label>Concentrazione NFW <strong id="haloConcentrationValue">10</strong><input id="haloConcentrationInput" type="range" min="4" max="20" step="1" value="10"></label>
+            <label>Massa visibile <strong id="baryonMassValue">6.0e10 M☉</strong><input id="baryonMassInput" type="range" min="9" max="11.3" step="0.05" value="10.778"></label>
+          </div>
+          <pre id="darkMatterLog">Calcolo del profilo NFW in preparazione.</pre>
+          <p class="matrix-boundary"><span class="truth-badge simulated">Simulato</span> Modello educativo, non rilevazione diretta e non prova della natura particellare della materia oscura.</p>
+        </section>
+
         <div class="readout custodian" id="project-custodian" aria-labelledby="projectCustodianTitle">
           <p class="eyebrow">Presenza del progetto</p>
           <h2 id="projectCustodianTitle">Custode del progetto</h2>
@@ -362,6 +375,7 @@
       </aside>
     </main>
 
+    <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>
     <script>
       if ("serviceWorker" in navigator) {

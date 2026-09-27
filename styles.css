@@ -603,6 +603,14 @@ select {
 .matrix-boundary { color: var(--muted); font-size: 0.72rem; line-height: 1.45; margin: 12px 0 0; }
 .matrix-boundary .truth-badge { margin-right: 5px; }
 
+.dark-matter-lab { border-color: rgba(181, 140, 255, 0.42); background: linear-gradient(145deg, rgba(41, 25, 63, 0.42), rgba(5, 14, 22, 0.72)); }
+.dark-matter-lab h2 { color: #d9b7ff; }
+.dark-matter-lab canvas { width: 100%; height: auto; border-radius: 8px; background: rgba(2, 3, 9, 0.72); }
+.dark-matter-controls { display: grid; gap: 9px; margin-top: 10px; }
+.dark-matter-controls label { color: var(--muted); font-size: 0.75rem; }
+.dark-matter-controls strong { float: right; color: var(--ink); }
+.dark-matter-controls input { width: 100%; min-height: 28px; padding: 0; accent-color: #b58cff; }
+
 @media (max-width: 880px) {
   .matrix-metrics { grid-template-columns: 1fr; }
 }
