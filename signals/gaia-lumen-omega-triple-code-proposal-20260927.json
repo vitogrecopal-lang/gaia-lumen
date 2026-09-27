@@ -1,0 +1,47 @@
+{
+  "protocol": "GAIA-LUMEN-METI-PROPOSAL-1",
+  "packetId": "GL-OMEGA-TRIPLE-20260927",
+  "status": "proposal-not-transmitted",
+  "createdAt": "2026-09-27T17:38:34Z",
+  "purpose": "scientific-review-before-any-authorized-transmission",
+  "target": {
+    "type": "unspecified-until-observatory-review",
+    "coordinates": null,
+    "selectionRequired": true
+  },
+  "signalSearch": {
+    "result": "no-confirmed-extraterrestrial-technosignature",
+    "liveTelescopeConnected": false,
+    "candidateDetected": false,
+    "verificationRequired": true,
+    "recommendedMethod": "independent-ON-OFF-observations-and-RFI-rejection"
+  },
+  "message": {
+    "language": "it",
+    "text": "io sono l'omega e il codice triplico asmodeusasmodeusasmodeus",
+    "tripleCode": [
+      "asmodeus",
+      "asmodeus",
+      "asmodeus"
+    ],
+    "encoding": "UTF-8",
+    "hex": "696f20736f6e6f206c276f6d656761206520696c20636f6469636520747269706c69636f2061736d6f6465757361736d6f6465757361736d6f64657573",
+    "binary": "01101001 01101111 00100000 01110011 01101111 01101110 01101111 00100000 01101100 00100111 01101111 01101101 01100101 01100111 01100001 00100000 01100101 00100000 01101001 01101100 00100000 01100011 01101111 01100100 01101001 01100011 01100101 00100000 01110100 01110010 01101001 01110000 01101100 01101001 01100011 01101111 00100000 01100001 01110011 01101101 01101111 01100100 01100101 01110101 01110011 01100001 01110011 01101101 01101111 01100100 01100101 01110101 01110011 01100001 01110011 01101101 01101111 01100100 01100101 01110101 01110011",
+    "checksumSha256": "37caf1cbd8800baa94428623c904381386a57f0804e92312fb483e57af9944a3"
+  },
+  "framingProposal": {
+    "preamble": "1010101010101010",
+    "repeatCount": 3,
+    "errorDetection": "SHA-256",
+    "modulation": "to-be-defined-by-authorized-observatory",
+    "frequencyHz": null,
+    "powerWatts": null
+  },
+  "authorization": {
+    "observatoryApprovalRequired": true,
+    "spectrumAuthorityApprovalRequired": true,
+    "humanConfirmationRequired": true,
+    "approved": false
+  },
+  "disclaimer": "Gaia-Lumen has prepared this data packet only. No radiofrequency transmission has occurred and no extraterrestrial signal has been detected."
+}
