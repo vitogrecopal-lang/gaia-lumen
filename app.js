@@ -8,6 +8,7 @@ const bornImage = new Image();
 bornImage.src = "assets/gaia-lumen-born.png";
 const gestationReferenceImage = new Image();
 gestationReferenceImage.src = "assets/galia-gestational-reference.jpg";
+const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true;
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -204,6 +205,8 @@ const state = {
   particles: Array.from({ length: 140 }, () => ({
     x: Math.random(),
     y: Math.random(),
+    z: Math.random() * 0.95 + 0.05,
+    speed: Math.random() * 0.004 + 0.0015,
     r: Math.random() * 1.4 + 0.2,
     a: Math.random() * Math.PI * 2,
   })),
@@ -417,29 +420,61 @@ async function getState(action = "state") {
 }
 
 function drawBackground(w, h) {
-  const bg = ctx.createRadialGradient(w * 0.45, h * 0.45, 20, w * 0.5, h * 0.5, Math.max(w, h));
+  const cameraX = w * (0.5 + Math.sin(state.t * 0.00012) * 0.035);
+  const cameraY = h * (0.5 + Math.cos(state.t * 0.00009) * 0.025);
+  const bg = ctx.createRadialGradient(cameraX, cameraY, 20, w * 0.5, h * 0.5, Math.max(w, h));
   bg.addColorStop(0, "#132742");
   bg.addColorStop(0.45, "#07111f");
   bg.addColorStop(1, "#020309");
   ctx.fillStyle = bg;
   ctx.fillRect(0, 0, w, h);
 
-  ctx.fillStyle = "rgba(230,244,255,.8)";
+  const focal = Math.min(w, h) * 0.86;
   for (const p of state.particles) {
-    ctx.globalAlpha = 0.35 + 0.65 * Math.abs(Math.sin(state.t * 0.001 + p.a));
+    if (!reducedMotion) p.z -= p.speed;
+    if (p.z <= 0.025) {
+      p.x = Math.random();
+      p.y = Math.random();
+      p.z = 1;
+    }
+    const sx = cameraX + (p.x - 0.5) * focal / p.z;
+    const sy = cameraY + (p.y - 0.5) * focal / p.z;
+    const radius = Math.min(4.5, p.r / p.z);
+    if (sx < -20 || sx > w + 20 || sy < -20 || sy > h + 20) {
+      p.z = 1;
+      continue;
+    }
+    ctx.globalAlpha = Math.min(0.95, 0.2 + (1 - p.z) * 0.85);
+    ctx.fillStyle = p.a > Math.PI ? "#dff7ff" : "#7feaff";
+    if (!reducedMotion && p.z < 0.35) {
+      ctx.strokeStyle = "rgba(126,234,255,.24)";
+      ctx.lineWidth = Math.max(0.5, radius * 0.4);
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx - (sx - cameraX) * 0.035, sy - (sy - cameraY) * 0.035);
+      ctx.stroke();
+    }
     ctx.beginPath();
-    ctx.arc(p.x * w, p.y * h, p.r, 0, Math.PI * 2);
+    ctx.arc(sx, sy, radius, 0, Math.PI * 2);
     ctx.fill();
   }
   ctx.globalAlpha = 1;
+
+  const vignette = ctx.createRadialGradient(w * 0.5, h * 0.48, Math.min(w, h) * 0.28, w * 0.5, h * 0.5, Math.max(w, h) * 0.72);
+  vignette.addColorStop(0, "rgba(0,0,0,0)");
+  vignette.addColorStop(1, "rgba(0,0,0,.72)");
+  ctx.fillStyle = vignette;
+  ctx.fillRect(0, 0, w, h);
 }
 
 function nodePosition(node, cx, cy) {
-  if (node.type === "core") return { x: cx, y: cy };
+  if (node.type === "core") return { x: cx, y: cy, depth: 1, scale: 1 };
   const wobble = Math.sin(state.t * 0.0012 + node.angle * 2) * 12;
   const radius = Number(node.orbit || 180) + wobble;
   const angle = Number(node.angle || 0) + state.t * 0.00004 * (node.type === "sat" ? 2.4 : 1);
-  return { x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius * 0.62 };
+  const depth = (Math.sin(angle) + 1) / 2;
+  const scale = 0.68 + depth * 0.52;
+  return { x: cx + Math.cos(angle) * radius * scale, y: cy + Math.sin(angle) * radius * 0.48, depth, scale };
 }
 
 function drawEarth(cx, cy) {
@@ -1326,11 +1361,11 @@ function drawEpsilonHabitatDashboard(w, h) {
 }
 
 function draw() {
-  state.t += 16;
+  state.t += reducedMotion ? 0 : 16;
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
-  const cx = w * 0.48;
-  const cy = h * 0.54;
+  const cx = w * (0.48 + Math.sin(state.t * 0.00015) * 0.018);
+  const cy = h * (0.54 + Math.cos(state.t * 0.00011) * 0.014);
   drawBackground(w, h);
 
   if (state.cosmogenesis?.epsilonEridaniHabitat) {
@@ -1361,9 +1396,9 @@ function draw() {
   }
 
   drawEarth(cx, cy);
-  for (const { node, x, y } of positions.slice(1)) {
+  for (const { node, x, y, scale = 1 } of positions.slice(1).sort((a, b) => a.depth - b.depth)) {
     const color = node.type === "star" ? "#ffd166" : node.type === "burst" ? "#ff6b78" : "#6ee7ff";
-    const radius = 7 + Number(node.level || 0) * 14 + Math.sin(state.t * 0.006 + Number(node.angle || 0)) * 1.5;
+    const radius = (7 + Number(node.level || 0) * 14 + Math.sin(state.t * 0.006 + Number(node.angle || 0)) * 1.5) * scale;
     ctx.fillStyle = color;
     ctx.shadowColor = color;
     ctx.shadowBlur = 18;
@@ -1672,7 +1707,7 @@ function refreshUi() {
       `Backend: ${custodian.connectionVersion || "non verificato"}`,
       `Chat: ${state.chatBrain || "local-cortex"}`,
       `Modello: ${state.chatModel || "locale"}`,
-      `Service worker: gaia-lumen-static-v30-universal-noise-text`,
+      `Service worker: gaia-lumen-static-v31-cinematic-3d`,
     ].join("\n");
   }
   if (ui.missionLog) {

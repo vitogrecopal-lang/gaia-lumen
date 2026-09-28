@@ -92,7 +92,7 @@ try {
   if (!launcher.includes("https://gaia-lumen.onrender.com/?source=downloaded-launcher")) throw new Error("downloadable launcher target missing");
 
   const serviceWorker = await fetch(`${base}/service-worker.js`).then((response) => response.text());
-  if (!serviceWorker.includes("gaia-lumen-static-v30-universal-noise-text")) throw new Error("service worker cache version missing");
+  if (!serviceWorker.includes("gaia-lumen-static-v31-cinematic-3d")) throw new Error("service worker cache version missing");
   if (!serviceWorker.includes("APP_GAIA_LUMEN.html")) throw new Error("service worker launcher cache missing");
 
   const worldCompute = await fetch(`${base}/api/world-compute?key=smoke-key`).then((response) => response.json());
