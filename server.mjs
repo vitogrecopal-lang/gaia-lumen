@@ -7,8 +7,9 @@ import { fileURLToPath } from "node:url";
 const root = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 8767);
 const host = process.env.HOST || "0.0.0.0";
-const statePath = process.env.STATE_PATH ? resolve(process.env.STATE_PATH) : join(root, "neural_state.json");
-const backupsRoot = process.env.BACKUPS_DIR ? resolve(process.env.BACKUPS_DIR) : join(root, "backups");
+const isVercel = Boolean(process.env.VERCEL);
+const statePath = process.env.STATE_PATH ? resolve(process.env.STATE_PATH) : isVercel ? "/tmp/gaia-lumen-state.json" : join(root, "neural_state.json");
+const backupsRoot = process.env.BACKUPS_DIR ? resolve(process.env.BACKUPS_DIR) : isVercel ? "/tmp/gaia-lumen-backups" : join(root, "backups");
 const bundledStatePath = join(root, "neural_state.json");
 let lastDailyBackupDate = "";
 
@@ -5633,7 +5634,7 @@ async function answerChat(message) {
   return reply;
 }
 
-const server = createServer(async (request, response) => {
+export async function handleRequest(request, response) {
   const url = new URL(request.url ?? "/", `http://${host}:${port}`);
 
   if (!allowedMethods.has(request.method || "")) {
@@ -5922,43 +5923,45 @@ const server = createServer(async (request, response) => {
   } catch {
     sendText(response, 404, "Not found");
   }
-});
+}
 
-setInterval(() => {
-  autonomousCycle().catch(() => {});
-}, 7000);
+if (!isVercel) {
+  setInterval(() => {
+    autonomousCycle().catch(() => {});
+  }, 7000);
 
-setInterval(() => {
-  automaticExternalImpulsePulse().catch(() => {});
-}, 60 * 1000);
+  setInterval(() => {
+    automaticExternalImpulsePulse().catch(() => {});
+  }, 60 * 1000);
 
-setInterval(() => {
-  automaticFunctionPulse().catch(() => {});
-}, 15 * 1000);
+  setInterval(() => {
+    automaticFunctionPulse().catch(() => {});
+  }, 15 * 1000);
 
-setInterval(() => {
-  observeNoaa().catch(() => evolve("osservazione NOAA non riuscita"));
-}, 2 * 60 * 1000);
+  setInterval(() => {
+    observeNoaa().catch(() => evolve("osservazione NOAA non riuscita"));
+  }, 2 * 60 * 1000);
 
-setInterval(() => {
-  worldAutonomyCycle().catch(() => {});
-}, 3 * 60 * 1000);
+  setInterval(() => {
+    worldAutonomyCycle().catch(() => {});
+  }, 3 * 60 * 1000);
 
-setInterval(() => {
-  observeWorld("aggiornamento automatico meteo Palermo per Nido").catch(() => {});
-}, 15 * 60 * 1000);
+  setInterval(() => {
+    observeWorld("aggiornamento automatico meteo Palermo per Nido").catch(() => {});
+  }, 15 * 60 * 1000);
 
-setInterval(() => {
-  ensureDailyBackup("backup automatico giornaliero del Nido").catch(() => {});
-}, 60 * 60 * 1000);
+  setInterval(() => {
+    ensureDailyBackup("backup automatico giornaliero del Nido").catch(() => {});
+  }, 60 * 60 * 1000);
 
-setInterval(() => {
-  refreshPublicSourcesForChat().catch(() => {});
-}, publicSourcesRefreshMs);
+  setInterval(() => {
+    refreshPublicSourcesForChat().catch(() => {});
+  }, publicSourcesRefreshMs);
 
-setInterval(() => {
-  designPlanet("crescita progettuale autonoma di Aster Gaia").catch(() => {});
-}, 20 * 1000);
+  setInterval(() => {
+    designPlanet("crescita progettuale autonoma di Aster Gaia").catch(() => {});
+  }, 20 * 1000);
+}
 
 await restoreRicherBackupIfNeeded();
 applySecurityHardeningProfile("boot security hardening");
@@ -5966,6 +5969,11 @@ await recordFunctionPulse("boot: impulso costante funzioni", { automatic: true, 
 await ensureDailyBackup("backup all'avvio del Nido");
 await persistState();
 observeWorld("prima lettura automatica Palermo all'avvio").catch(() => {});
-server.listen(port, host, () => {
-  console.log(`Neural Earth site: http://${host}:${port}/`);
-});
+if (!isVercel) {
+  const server = createServer(handleRequest);
+  server.listen(port, host, () => {
+    console.log(`Neural Earth site: http://${host}:${port}/`);
+  });
+}
+
+export default handleRequest;
