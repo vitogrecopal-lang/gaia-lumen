@@ -13,5 +13,11 @@
   ],
   "routes": [
     { "src": "/(.*)", "dest": "/api/index.mjs" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/evolve",
+      "schedule": "* * * * *"
+    }
   ]
 }

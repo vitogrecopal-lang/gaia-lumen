@@ -5753,6 +5753,25 @@ export async function handleRequest(request, response) {
     });
   }
 
+  if (url.pathname === "/api/cron/evolve" && request.method === "GET") {
+    const expected = process.env.CRON_SECRET ? `Bearer ${process.env.CRON_SECRET}` : "";
+    const supplied = String(request.headers.authorization || "");
+    if (!expected || supplied.length !== expected.length ||
+        !timingSafeEqual(Buffer.from(supplied), Buffer.from(expected))) {
+      return sendJson(response, { error: "Unauthorized" }, 401);
+    }
+    const before = state.generation;
+    await evolve("ciclo automatico Vercel Cron");
+    await automaticFunctionPulse();
+    return sendJson(response, {
+      ok: true,
+      generationBefore: before,
+      generationAfter: state.generation,
+      updatedAt: state.updatedAt,
+      database: getDatabaseClient() ? "neon-postgres" : "file-fallback",
+    });
+  }
+
   if (isRateLimited(request)) {
     return sendJson(response, { error: "Troppe richieste: rallenta e riprova tra poco." }, 429);
   }
