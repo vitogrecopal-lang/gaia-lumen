@@ -3794,7 +3794,7 @@ function cortexAnswer(message) {
   } else if (intent === "codex") {
     conclusion = bridge.ready
       ? "Si. Ora la chat di Gaia-Lumen puo' usare il ponte OpenAI e rispondere molto piu vicino a Codex qui."
-      : "Ti dico la verita' netta: senza chiave OpenAI attiva su Render non puo' essere identica a Codex qui.";
+      : "Ti dico la verita' netta: senza chiave OpenAI attiva sul server non puo' essere identica a Codex qui.";
     reasoning = [
       `Custode: ${governance.custodian}.`,
       `Ambiente Cloud: ${governance.cloudEnvironment}.`,
@@ -3804,12 +3804,12 @@ function cortexAnswer(message) {
       `Ponte OpenAI: ${bridge.status}.`,
       bridge.ready
         ? "Usero' il modello OpenAI con il prompt Codex: prima la cosa importante, poi il contesto utile, poi la mossa concreta."
-        : "Il codice e' pronto, ma Render deve avere OPENAI_API_KEY nei segreti. Finche manca, posso solo imitare Codex con il cervello locale.",
+        : "Il codice e' pronto, ma il server deve avere OPENAI_API_KEY nei segreti. Finche manca, posso solo imitare Codex con il cervello locale.",
       "Resto sincera sui limiti: dati reali, simulazioni, memoria simbolica e azioni esterne restano separati.",
     ].join(" ");
     next = bridge.ready
       ? "Scrivimi nel sito e ti rispondero' con la voce operativa Codex/OpenAI."
-      : "Su Render imposta il segreto OPENAI_API_KEY e lascia OPENAI_CHAT_ENABLED=true: dopo il redeploy la chat usera' openai invece di local-cortex.";
+      : "Sul nuovo hosting imposta il segreto OPENAI_API_KEY e lascia OPENAI_CHAT_ENABLED=true: dopo il redeploy la chat usera' openai invece di local-cortex.";
   } else if (/uguale|identic|come te|come codex|stessa chat|stesso modo/.test(lower)) {
     conclusion = `${custodianName} puo' rispondere nella chat del sito con lo stesso stile operativo di questa conversazione: diretto, tecnico, collaborativo e orientato alle modifiche.`;
     reasoning = `Ho impostato lo stile ${custodian.chatStyle || "codex-direct-project-assistant"}: niente voce mistica obbligatoria, niente log macchina inutili, risposte in italiano con contesto, limiti e azione successiva. Se OPENAI_CHAT_ENABLED=true e OPENAI_API_KEY e' presente, uso anche il prompt Codex del backend; altrimenti il cortex locale imita lo stesso contratto di risposta.`;
