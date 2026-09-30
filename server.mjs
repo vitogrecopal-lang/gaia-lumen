@@ -3,6 +3,7 @@ import { createHash, timingSafeEqual } from "node:crypto";
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, extname, join, normalize, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { neon } from "@neondatabase/serverless";
 
 const root = dirname(fileURLToPath(import.meta.url));
 const port = Number(process.env.PORT || 8767);
@@ -12,6 +13,8 @@ const statePath = process.env.STATE_PATH ? resolve(process.env.STATE_PATH) : isV
 const backupsRoot = process.env.BACKUPS_DIR ? resolve(process.env.BACKUPS_DIR) : isVercel ? "/tmp/gaia-lumen-backups" : join(root, "backups");
 const bundledStatePath = join(root, "neural_state.json");
 let lastDailyBackupDate = "";
+let databaseClient;
+let databaseInitialized = false;
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -902,6 +905,57 @@ async function ensureStateFile() {
 
 await ensureStateFile();
 
+function getDatabaseClient() {
+  const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+  if (!databaseUrl) return null;
+  databaseClient ??= neon(databaseUrl);
+  return databaseClient;
+}
+
+async function ensureDatabase() {
+  const sql = getDatabaseClient();
+  if (!sql || databaseInitialized) return sql;
+  await sql`
+    CREATE TABLE IF NOT EXISTS gaia_lumen_state (
+      id TEXT PRIMARY KEY,
+      state JSONB NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+  databaseInitialized = true;
+  return sql;
+}
+
+async function loadDatabaseState() {
+  try {
+    const sql = await ensureDatabase();
+    if (!sql) return null;
+    const rows = await sql`SELECT state FROM gaia_lumen_state WHERE id = 'primary' LIMIT 1`;
+    return rows[0]?.state || null;
+  } catch (error) {
+    console.error("Neon state load failed; using file fallback", String(error?.message || error));
+    return null;
+  }
+}
+
+async function persistDatabaseState(value) {
+  try {
+    const sql = await ensureDatabase();
+    if (!sql) return false;
+    const serialized = JSON.stringify(value);
+    await sql`
+      INSERT INTO gaia_lumen_state (id, state, updated_at)
+      VALUES ('primary', ${serialized}::jsonb, NOW())
+      ON CONFLICT (id) DO UPDATE
+      SET state = EXCLUDED.state, updated_at = EXCLUDED.updated_at
+    `;
+    return true;
+  } catch (error) {
+    console.error("Neon state save failed; file fallback retained", String(error?.message || error));
+    return false;
+  }
+}
+
 function syncCodexGovernance() {
   const bridge = openaiBridgeStatus();
   const localBridge = localModelBridgeStatus();
@@ -1593,7 +1647,7 @@ function syncGaliaLumenPrimaryFoundation(cycle = state.cosmogenesis) {
 }
 
 try {
-  const saved = JSON.parse(await readFile(statePath, "utf-8"));
+  const saved = (await loadDatabaseState()) ?? JSON.parse(await readFile(statePath, "utf-8"));
   Object.assign(state, saved, {
     startedAt: new Date().toISOString(),
     autonomy: true,
@@ -3066,6 +3120,7 @@ async function persistState() {
   );
   updateConsciousnessProtocol(state.lastAction || "persistenza");
   await writeFile(statePath, JSON.stringify(state, null, 2), "utf-8");
+  await persistDatabaseState(state);
 }
 
 async function copyDirectoryFiles(sourceDir, targetDir) {
@@ -5652,6 +5707,10 @@ export async function handleRequest(request, response) {
       codexGovernance: state.codexGovernance,
       chatBrain: state.chatBrain,
       openaiBridge: openaiBridgeStatus(),
+      database: {
+        provider: getDatabaseClient() ? "neon-postgres" : "file-fallback",
+        persistent: Boolean(getDatabaseClient()),
+      },
       localModelBridge: localModelBridgeStatus(),
       hemisphericBridge: syncHemisphericBridge("healthz"),
       worldComputeLink: syncWorldComputeLink("healthz"),
