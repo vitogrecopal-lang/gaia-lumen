@@ -1,9 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v31-cinematic-3d";
+const CACHE_NAME = "gaia-lumen-static-v32-starlink-news";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/starlink.js?v=starlink-v1",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
   "/app.js?v=gaia-lumen-matrix-v1",

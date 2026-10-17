@@ -1,3 +1,4 @@
+import { getStarlinkNews } from "./starlink-feed.mjs";
 import { createServer } from "node:http";
 import { createHash, timingSafeEqual } from "node:crypto";
 import { copyFile, mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -5811,6 +5812,9 @@ export async function handleRequest(request, response) {
   }
 
   try {
+    if (url.pathname === "/api/starlink-news" && request.method === "GET") {
+      return sendJson(response, await getStarlinkNews());
+    }
     if (url.pathname === "/api/evolution/boost" && request.method === "POST") {
       await activateCodexMaxEvolution("api/evolution/boost");
       await persistState();

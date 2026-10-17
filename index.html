@@ -38,6 +38,24 @@
           <span class="truth-badge confirm">Conferma</span>
         </div>
 
+        <section class="readout starlink-panel" id="starlink" aria-labelledby="starlinkTitle">
+          <p class="eyebrow">Osservatorio satellitare · Fonti pubbliche</p>
+          <h2 id="starlinkTitle">Starlink</h2>
+          <p>Notizie e decisioni pubbliche sugli impieghi di Starlink e Starshield nella difesa.</p>
+          <nav class="starlink-links" aria-label="Risorse ufficiali Starlink">
+            <a href="https://www.starlink.com/" target="_blank" rel="noopener noreferrer">Starlink ufficiale ↗</a>
+            <a href="https://www.spacex.com/starshield" target="_blank" rel="noopener noreferrer">Starshield ufficiale ↗</a>
+          </nav>
+          <div class="starlink-toolbar">
+            <h3>Notizie su difesa e impieghi militari</h3>
+            <button id="starlinkRefresh" type="button">Aggiorna notizie</button>
+          </div>
+          <p id="starlinkStatus" role="status">Caricamento delle fonti pubbliche...</p>
+          <ul id="starlinkNews" class="starlink-news" aria-label="Ultime notizie Starlink"></ul>
+          <p class="matrix-boundary">Rassegna Google News degli ultimi 30 giorni, con data e testata. I titoli riportano quanto pubblicato dalle fonti e non costituiscono conferme ufficiali. Copertura non esaustiva; consulta l'articolo originale e i comunicati ufficiali.</p>
+          <p class="matrix-boundary">Aggiornamento all'apertura e ogni 15 minuti con pagina aperta. Nessun collegamento operativo ai satelliti.</p>
+        </section>
+
         <section class="matrix-console" aria-labelledby="matrixTitle">
           <div class="matrix-heading">
             <div>
@@ -423,6 +441,7 @@
       </aside>
     </main>
 
+    <script src="starlink.js?v=starlink-v1" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>

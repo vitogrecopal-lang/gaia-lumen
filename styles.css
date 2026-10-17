@@ -733,3 +733,18 @@ select {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* Starlink public news observatory */
+.starlink-panel { border: 1px solid #339bbb; border-radius: 14px; padding: 18px; background: linear-gradient(145deg, #0a2435, #07121f); color: #e5f5ff; }
+.starlink-panel h2 { margin: 6px 0 12px; }
+.starlink-panel p { line-height: 1.55; }
+.starlink-links, .starlink-toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.starlink-toolbar { justify-content: space-between; margin-top: 18px; }
+.starlink-toolbar h3 { font-size: 1rem; margin: 0; }
+.starlink-panel a { color: #91e3ff; text-underline-offset: 3px; }
+.starlink-panel a:focus-visible, .starlink-panel button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.starlink-news { list-style: none; padding: 0; margin: 12px 0; }
+.starlink-news li { border-top: 1px solid #355164; padding: 12px 0; overflow-wrap: anywhere; }
+.starlink-news a { display: block; line-height: 1.5; }
+.starlink-news small { display: block; margin-top: 6px; color: #b5cad7; }
+#starlinkStatus { color: #b5cad7; font-size: .85rem; }
