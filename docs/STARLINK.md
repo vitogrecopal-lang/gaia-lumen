@@ -5,3 +5,7 @@ La homepage espone una rassegna pubblica su Starlink, Starshield e difesa. GET /
 Aggiornamento al caricamento, al ritorno online e ogni 15 minuti mentre la pagina e' visibile; nessuna esecuzione pianificata in background. Cache in memoria per istanza di 15 minuti, richieste concorrenti condivise, timeout di 8 secondi, nuovo tentativo dopo un minuto in caso di errore. I dati precedenti sono marcati obsoleti e conservano l'orario dell'ultima lettura riuscita. Nessuna notizia viene inventata come fallback.
 
 Nessuna credenziale aggiuntiva o modifica dello stato persistente. Nessuna telemetria, controllo satellitare o azione militare. Le notizie esterne sono renderizzate come testo; link solo HTTPS a Google News. La cache PWA e' aggiornata e non conserva le risposte API.
+
+## Simulazione geopolitica
+
+starlink-simulator.js esegue un modello didattico interamente nel browser. Attori selezionabili e tre politiche preimpostate, con tre parametri modificabili. Gli attori condividono le stesse formule, pubblicate nell'interfaccia. Gli indici non sono misure empiriche, probabilita' o previsioni. Nessun legame tra news e calcolo, nessuna richiesta API o persistenza della simulazione. Ripristino ai valori iniziali USA, 50/70/60.

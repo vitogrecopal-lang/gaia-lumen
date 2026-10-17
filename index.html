@@ -46,6 +46,42 @@
             <a href="https://www.starlink.com/" target="_blank" rel="noopener noreferrer">Starlink ufficiale ↗</a>
             <a href="https://www.spacex.com/starshield" target="_blank" rel="noopener noreferrer">Starshield ufficiale ↗</a>
           </nav>
+          <section id="starlink-simulator" class="starlink-simulator" aria-labelledby="starlinkSimTitle">
+            <span class="truth-badge simulated">Simulazione ipotetica</span>
+            <h3 id="starlinkSimTitle">Starlink e potenze militari</h3>
+            <p>Immagina chi decide l'accesso alla rete e confronta le conseguenze delle sue politiche. Gli scenari non descrivono il controllo reale di Starlink.</p>
+            <label for="starlinkPower">Attore nello scenario</label>
+            <select id="starlinkPower">
+              <option value="USA">Stati Uniti</option>
+              <option value="Europa">Coalizione europea</option>
+              <option value="Cina">Cina (scenario controfattuale)</option>
+              <option value="Russia">Russia (scenario controfattuale)</option>
+              <option value="Multilaterale">Consorzio multilaterale</option>
+            </select>
+            <label for="starlinkPolicy">Politica di accesso simulata</label>
+            <select id="starlinkPolicy">
+              <option value="balanced">Equilibrio civile e difesa</option>
+              <option value="restricted">Priorita' militare e accesso ristretto</option>
+              <option value="civil">Garanzie civili e cooperazione</option>
+            </select>
+            <label for="starlinkMilitary">Priorita' militare <output id="starlinkMilitaryValue">50</output>/100</label>
+            <input id="starlinkMilitary" type="range" min="0" max="100" value="50">
+            <label for="starlinkCivil">Garanzie di accesso civile <output id="starlinkCivilValue">70</output>/100</label>
+            <input id="starlinkCivil" type="range" min="0" max="100" value="70">
+            <label for="starlinkCooperation">Cooperazione internazionale <output id="starlinkCooperationValue">60</output>/100</label>
+            <input id="starlinkCooperation" type="range" min="0" max="100" value="60">
+            <div class="starlink-sim-actions">
+              <button id="starlinkSimReset" type="button">Ripristina scenario</button>
+            </div>
+            <div id="starlinkSimResult" role="status" aria-live="polite" aria-atomic="true"></div>
+            <details>
+              <summary>Come funziona il modello</summary>
+              <p>Indici didattici da 0 a 100 punti, non percentuali, probabilita' o previsioni. M = priorita' militare, G = garanzie civili, C = cooperazione.</p>
+              <p>Accesso civile = 0,7G + 0,3(100-M). Autonomia dell'attore = 0,7M + 0,3(100-C). Cooperazione = C. Rischio di esclusione = 0,5M + 0,3(100-G) + 0,2(100-C). Arrotondamento all'intero.</p>
+              <p>Pesi scelti per questa dimostrazione, senza calibrazione su dati reali. Tutti gli attori usano le stesse formule: cambia la politica selezionata, non un giudizio sul paese. Nessun dato della rassegna alimenta questi indici. Il modello non considera capacita' tecnica, contratti o vincoli giuridici.</p>
+            </details>
+            <noscript>Attiva JavaScript per usare la simulazione interattiva.</noscript>
+          </section>
           <div class="starlink-toolbar">
             <h3>Notizie su difesa e impieghi militari</h3>
             <button id="starlinkRefresh" type="button">Aggiorna notizie</button>
@@ -442,6 +478,7 @@
     </main>
 
     <script src="starlink.js?v=starlink-v1" defer></script>
+    <script src="starlink-simulator.js?v=sim-v1" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>

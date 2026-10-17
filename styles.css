@@ -748,3 +748,15 @@ select {
 .starlink-news a { display: block; line-height: 1.5; }
 .starlink-news small { display: block; margin-top: 6px; color: #b5cad7; }
 #starlinkStatus { color: #b5cad7; font-size: .85rem; }
+
+.starlink-simulator { margin: 20px 0; padding: 14px; border: 1px solid #598caa; border-radius: 12px; background: #102b3c; }
+.starlink-simulator label { display: block; margin-top: 14px; line-height: 1.5; }
+.starlink-simulator select { display: block; width: 100%; min-width: 0; margin: 6px 0; padding: 10px 5px; background: #071e2c; color: #e5f5ff; border: 1px solid #598caa; border-radius: 6px; font: inherit; }
+.starlink-simulator input[type=range] { display: block; width: 100%; margin: 8px 0 14px; accent-color: #91e3ff; }
+.starlink-simulator input:focus-visible, .starlink-simulator select:focus-visible, .starlink-simulator summary:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.starlink-sim-actions { margin-top: 16px; }
+.starlink-sim-metrics { margin: 12px 0; display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 10px; }
+.starlink-sim-metrics div { padding: 10px; background: #071e2c; border-radius: 6px; }
+.starlink-sim-metrics dt { font-size: .85rem; color: #b5cad7; }
+.starlink-sim-metrics dd { margin: 6px 0 0; font-weight: bold; color: #91e3ff; }
+.starlink-simulator summary { cursor: pointer; line-height: 1.5; }
