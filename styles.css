@@ -744,7 +744,7 @@ select {
 .starlink-panel a { color: #91e3ff; text-underline-offset: 3px; }
 .starlink-panel a:focus-visible, .starlink-panel button:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 .starlink-news { list-style: none; padding: 0; margin: 12px 0; }
-.starlink-news li { border-top: 1px solid #355164; padding: 12px 0; overflow-wrap: anywhere; }
+.starlink-news li { display: block; border-top: 1px solid #355164; padding: 12px 0; overflow-wrap: anywhere; }
 .starlink-news a { display: block; line-height: 1.5; }
 .starlink-news small { display: block; margin-top: 6px; color: #b5cad7; }
 #starlinkStatus { color: #b5cad7; font-size: .85rem; }
