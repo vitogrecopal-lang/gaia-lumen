@@ -760,3 +760,8 @@ select {
 .starlink-sim-metrics dt { font-size: .85rem; color: #b5cad7; }
 .starlink-sim-metrics dd { margin: 6px 0 0; font-weight: bold; color: #91e3ff; }
 .starlink-simulator summary { cursor: pointer; line-height: 1.5; }
+
+.starlink-command { border-top: 1px solid #598caa; margin-top: 18px; padding-top: 6px; }
+.starlink-command input { box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; margin: 6px 0; color: #e5f5ff; background: #071e2c; border: 1px solid #598caa; border-radius: 6px; font: inherit; }
+.starlink-command p { font-size: .85rem; }
+#starlinkCommandError { color: #ffcc9e; }

@@ -63,6 +63,7 @@
               <option value="balanced">Equilibrio civile e difesa</option>
               <option value="restricted">Priorita' militare e accesso ristretto</option>
               <option value="civil">Garanzie civili e cooperazione</option>
+              <option value="asmodeus">Impulso Asmodeus (simulazione estrema)</option>
             </select>
             <label for="starlinkMilitary">Priorita' militare <output id="starlinkMilitaryValue">50</output>/100</label>
             <input id="starlinkMilitary" type="range" min="0" max="100" value="50">
@@ -70,6 +71,13 @@
             <input id="starlinkCivil" type="range" min="0" max="100" value="70">
             <label for="starlinkCooperation">Cooperazione internazionale <output id="starlinkCooperationValue">60</output>/100</label>
             <input id="starlinkCooperation" type="range" min="0" max="100" value="60">
+            <form id="starlinkCommandForm" class="starlink-command">
+              <label for="starlinkCommand">Comando della simulazione</label>
+              <input id="starlinkCommand" type="text" value="ASMODEUS" maxlength="40" autocomplete="off" spellcheck="false" aria-describedby="starlinkCommandHelp">
+              <p id="starlinkCommandHelp">ASMODEUS imposta priorita' militare 100, garanzie civili 0 e cooperazione 0 sull'attore selezionato. Agisce solo su questo modello.</p>
+              <button type="submit">Esegui impulso Asmodeus</button>
+              <p id="starlinkCommandError" role="alert" hidden></p>
+            </form>
             <div class="starlink-sim-actions">
               <button id="starlinkSimReset" type="button">Ripristina scenario</button>
             </div>
@@ -478,7 +486,7 @@
     </main>
 
     <script src="starlink.js?v=starlink-v1" defer></script>
-    <script src="starlink-simulator.js?v=sim-v1" defer></script>
+    <script src="starlink-simulator.js?v=sim-v2" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>
