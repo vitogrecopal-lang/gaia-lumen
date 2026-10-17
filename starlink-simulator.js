@@ -51,6 +51,44 @@
   }
   const command = document.getElementById("starlinkCommand");
   const commandError = document.getElementById("starlinkCommandError");
+  const autoStart = document.getElementById("starlinkAutoStart");
+  const autoStop = document.getElementById("starlinkAutoStop");
+  const autoStatus = document.getElementById("starlinkAutoStatus");
+  let timer = null;
+  let pulseCount = 0;
+  let lastPulse = null;
+  function updateAutoStatus() {
+    const mode = timer === null ? "Automatico fermo" : document.hidden ? "Automatico sospeso: pagina nascosta" : "Automatico attivo: un impulso simulato ogni 10 secondi";
+    autoStatus.textContent = `${mode}. Impulsi simulati: ${pulseCount}. Ultimo impulso: ${lastPulse ? lastPulse.toLocaleTimeString("it-IT") : "nessuno"}.`;
+    autoStart.disabled = timer !== null;
+    autoStop.disabled = timer === null;
+  }
+  function stopAuto() {
+    if (timer !== null) clearInterval(timer);
+    timer = null;
+    updateAutoStatus();
+  }
+  function applyAsmodeus() {
+    commandError.hidden = true;
+    policy.value = "asmodeus";
+    applyPreset();
+  }
+  function automaticPulse() {
+    if (document.hidden) return;
+    applyAsmodeus();
+    pulseCount += 1;
+    lastPulse = new Date();
+    updateAutoStatus();
+  }
+  autoStart.addEventListener("click", () => {
+    if (timer !== null) return;
+    timer = setInterval(automaticPulse, 10000);
+    automaticPulse();
+    updateAutoStatus();
+  });
+  autoStop.addEventListener("click", stopAuto);
+  document.addEventListener("visibilitychange", updateAutoStatus);
+  window.addEventListener("pagehide", stopAuto);
   document.getElementById("starlinkCommandForm").addEventListener("submit", (event) => {
     event.preventDefault();
     if (command.value.trim().toUpperCase() !== "ASMODEUS") {
@@ -58,14 +96,14 @@
       commandError.hidden = false;
       return;
     }
-    commandError.hidden = true;
-    policy.value = "asmodeus";
-    applyPreset();
+    stopAuto();
+    applyAsmodeus();
   });
-  policy.addEventListener("change", applyPreset);
-  power.addEventListener("change", render);
-  controls.forEach(input => input.addEventListener("input", render));
+  policy.addEventListener("change", () => { stopAuto(); applyPreset(); });
+  power.addEventListener("change", () => { stopAuto(); render(); });
+  controls.forEach(input => input.addEventListener("input", () => { stopAuto(); render(); }));
   document.getElementById("starlinkSimReset").addEventListener("click", () => {
+    stopAuto(); pulseCount = 0; lastPulse = null; updateAutoStatus();
     power.value = "USA"; policy.value = "balanced"; command.value = "ASMODEUS"; commandError.hidden = true; applyPreset();
   });
   render();

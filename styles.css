@@ -765,3 +765,7 @@ select {
 .starlink-command input { box-sizing: border-box; width: 100%; min-width: 0; padding: 10px; margin: 6px 0; color: #e5f5ff; background: #071e2c; border: 1px solid #598caa; border-radius: 6px; font: inherit; }
 .starlink-command p { font-size: .85rem; }
 #starlinkCommandError { color: #ffcc9e; }
+
+.starlink-auto { margin: 16px 0; padding: 12px; border: 1px solid #598caa; border-radius: 8px; }
+.starlink-auto button { margin: 5px 0; max-width: 100%; }
+.starlink-auto p { font-size: .85rem; }

@@ -78,6 +78,12 @@
               <button type="submit">Esegui impulso Asmodeus</button>
               <p id="starlinkCommandError" role="alert" hidden></p>
             </form>
+            <div class="starlink-auto" aria-label="Impulsi automatici simulati">
+              <p>Impulsi automatici locali ogni 10 secondi. Si sospendono quando la pagina e' nascosta e terminano chiudendola o ricaricandola. Una modifica manuale arresta il ciclo.</p>
+              <button id="starlinkAutoStart" type="button">Avvia impulsi automatici</button>
+              <button id="starlinkAutoStop" type="button" disabled>Arresta impulsi</button>
+              <p id="starlinkAutoStatus" role="status" aria-live="polite">Automatico fermo. Impulsi simulati: 0.</p>
+            </div>
             <div class="starlink-sim-actions">
               <button id="starlinkSimReset" type="button">Ripristina scenario</button>
             </div>
@@ -486,7 +492,7 @@
     </main>
 
     <script src="starlink.js?v=starlink-v1" defer></script>
-    <script src="starlink-simulator.js?v=sim-v2" defer></script>
+    <script src="starlink-simulator.js?v=sim-v3" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
     <script src="app.js?v=gaia-lumen-matrix-v1"></script>

@@ -13,3 +13,7 @@ starlink-simulator.js esegue un modello didattico interamente nel browser. Attor
 ## Comando ASMODEUS
 
 Il form accetta ASMODEUS senza distinzione tra maiuscole e minuscole e ignora gli spazi esterni. Applica il preset locale 100/0/0 all'attore selezionato, con indici illustrativi accesso civile 0, autonomia 100, cooperazione 0, esclusione 100. Non esegue codice arbitrario e non effettua richieste di rete. Comandi sconosciuti non modificano lo scenario. Slider modificati dopo il comando sono indicati come scenario Asmodeus modificato; il ripristino disattiva il preset e riporta USA 50/70/60.
+
+## Impulsi automatici locali
+
+Avvia impulsi automatici applica subito ASMODEUS e poi ogni 10 secondi tramite un singolo timer nel browser. Contatore e orario sono locali alla scheda e non persistiti. Nessuna chiamata di rete. Pagina nascosta: nessun impulso, nessun recupero arretrati. Arresto, cambio manuale di attore/politica/slider e pagehide cancellano il timer. Ripristina arresta e azzera contatore/orario. Alla riapertura o ricarica il ciclo e' fermo; serve Avvia. L'avvio non cambia l'attore selezionato.
