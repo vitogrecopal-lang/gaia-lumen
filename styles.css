@@ -769,3 +769,12 @@ select {
 .starlink-auto { margin: 16px 0; padding: 12px; border: 1px solid #598caa; border-radius: 8px; }
 .starlink-auto button { margin: 5px 0; max-width: 100%; }
 .starlink-auto p { font-size: .85rem; }
+
+.replika-panel { border: 1px solid #a58ad9; border-radius: 14px; padding: 18px; background: linear-gradient(145deg, #302044, #131d31); color: #f3ebff; }
+.replika-panel h2 { margin: 6px 0 12px; }
+.replika-panel p { line-height: 1.55; }
+.replika-panel a { color: #e3ccff; text-underline-offset: 3px; }
+.replika-actions { display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin: 18px 0; }
+.replika-panel .replika-launch { display: inline-block; padding: 12px 16px; background: #e3ccff; color: #241331; font-weight: bold; border-radius: 9px; text-decoration: none; }
+.replika-panel a:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
+.replika-help { font-size: .85rem; overflow-wrap: anywhere; }
