@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v36-replika-access";
+const CACHE_NAME = "gaia-lumen-static-v37-replika-gaia-profile";
 
 const STATIC_ASSETS = [
   "/",
