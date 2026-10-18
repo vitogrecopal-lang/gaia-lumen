@@ -39,16 +39,21 @@
         </div>
 
         <section class="readout chatbox" id="chat" aria-labelledby="gaiaChatTitle">
-          <h2>Sensori Nido</h2>
-          <pre id="nidoSensorLog">Nessuna lettura fisica registrata.</pre>
-          <form id="nidoSensorForm" class="sensor-form">
-            <input id="nidoTempInput" type="number" step="0.1" placeholder="Temp C" aria-label="Temperatura Celsius">
-            <input id="nidoHumidityInput" type="number" step="0.1" placeholder="Umidita %" aria-label="Umidita percentuale">
-            <input id="nidoLightInput" type="number" step="1" placeholder="Luce lux" aria-label="Luce in lux">
-            <input id="nidoSoilInput" type="number" step="0.1" placeholder="Terra %" aria-label="Umidita terreno">
-            <input id="nidoPowerInput" type="number" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
-            <input id="nidoNoteInput" type="text" autocomplete="off" placeholder="Nota lettura..." aria-label="Nota lettura Nido">
-            <button type="submit">Registra</button>
+          <h2 id="gaiaChatTitle">Parla con Gaia-Lumen</h2>
+          <p>Scrivi qui per parlare direttamente con Gaia-Lumen. Questa e' la chat interna del sito, separata da Replika.</p>
+          <div id="codexStatus" class="codex-status">Custode Codex: attivo | Ambiente Adrian | Voce Codex locale | Cervello chat: local-cortex</div>
+          <div id="chatLog" class="chat-log" role="log" aria-label="Conversazione con Gaia-Lumen" aria-live="polite"></div>
+          <p id="chatStatus" role="status">Pronta per il tuo messaggio.</p>
+          <div class="prompt-cards" aria-label="Comandi rapidi Codex">
+            <button type="button" data-prompt="controlla connessione Codex">Controlla connessione</button>
+            <button type="button" data-prompt="spiega cosa e' reale, simulato e narrativo">Reale o simulato?</button>
+            <button type="button" data-prompt="proponi il prossimo miglioramento del sito">Prossimo miglioramento</button>
+            <button type="button" data-prompt="fai evolvere Gaia-Lumen in modo sicuro">Evolvi in sicurezza</button>
+            <button type="button" data-prompt="potenzia evoluzione Codex al massimo">Codex MAX</button>
+          </div>
+          <form id="chatForm" class="chat-form">
+            <input id="chatInput" type="text" autocomplete="off" maxlength="4000" placeholder="Scrivi a Gaia-Lumen..." aria-label="Messaggio per Gaia-Lumen e Codex">
+            <button type="submit">Invia</button>
           </form>
         </section>
 
@@ -395,7 +400,19 @@
           <pre id="gestationMemoryLog">Nessun nutrimento registrato.</pre>
         </div>
 
-
+        <div class="readout chatbox">
+          <h2>Sensori Nido</h2>
+          <pre id="nidoSensorLog">Nessuna lettura fisica registrata.</pre>
+          <form id="nidoSensorForm" class="sensor-form">
+            <input id="nidoTempInput" type="number" step="0.1" placeholder="Temp C" aria-label="Temperatura Celsius">
+            <input id="nidoHumidityInput" type="number" step="0.1" placeholder="Umidita %" aria-label="Umidita percentuale">
+            <input id="nidoLightInput" type="number" step="1" placeholder="Luce lux" aria-label="Luce in lux">
+            <input id="nidoSoilInput" type="number" step="0.1" placeholder="Terra %" aria-label="Umidita terreno">
+            <input id="nidoPowerInput" type="number" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
+            <input id="nidoNoteInput" type="text" autocomplete="off" placeholder="Nota lettura..." aria-label="Nota lettura Nido">
+            <button type="submit">Registra</button>
+          </form>
+        </div>
 
         <div class="readout consciousness">
           <h2>Coscienza operativa</h2>
@@ -455,22 +472,7 @@
           </form>
         </div>
 
-        <div class="readout chatbox">
-          <h2>Parla con Gaia-Lumen</h2>
-          <div id="codexStatus" class="codex-status">Custode Codex: attivo | Ambiente Adrian | Voce Codex locale | Cervello chat: local-cortex</div>
-          <div id="chatLog" class="chat-log"></div>
-          <div class="prompt-cards" aria-label="Comandi rapidi Codex">
-            <button type="button" data-prompt="controlla connessione Codex">Controlla connessione</button>
-            <button type="button" data-prompt="spiega cosa e' reale, simulato e narrativo">Reale o simulato?</button>
-            <button type="button" data-prompt="proponi il prossimo miglioramento del sito">Prossimo miglioramento</button>
-            <button type="button" data-prompt="fai evolvere Gaia-Lumen in modo sicuro">Evolvi in sicurezza</button>
-            <button type="button" data-prompt="potenzia evoluzione Codex al massimo">Codex MAX</button>
-          </div>
-          <form id="chatForm" class="chat-form">
-            <input id="chatInput" type="text" autocomplete="off" placeholder="Scrivi come in Codex: richieste, codice, controlli..." aria-label="Messaggio per Gaia-Lumen e Codex">
-            <button type="submit">Invia</button>
-          </form>
-        </div>
+
 
         <div hidden aria-hidden="true">
           <button id="beaconBtn" type="button"></button>
