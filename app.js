@@ -1634,6 +1634,10 @@ function refreshUi() {
         : bridgeStatusLabels[bridge.status] || "Codex locale";
     const brain = state.chatBrain || "local-cortex";
     ui.codexStatus.textContent = `Custode ${custodian}: ${status} | Ambiente ${cloudEnvironment} | Voce ${responseMode} | Cervello chat: ${brain}`;
+    if (state.aiGateway?.enabled) {
+      const gw = state.aiGateway;
+      ui.codexStatus.textContent = `AI Gateway Gaia-Lumen | ${gw.model} | ${gw.status === "ready" ? "Risposta AI verificata" : gw.status === "unavailable" ? "Temporaneamente non disponibile" : "Configurato: pronto alla prova"}`;
+    }
   }
   if (ui.realityLog) ui.realityLog.textContent = state.dataReality ? [`Fonti pubbliche: ${state.dataReality.liveNoaa ? "NOAA/SWPC attiva" : "in attesa"}`, `Ultimo aggiornamento: ${state.dataReality.lastLiveFetch || "n/d"}`].join("\n") : "In attesa.";
   if (ui.worldLog) ui.worldLog.textContent = state.externalWorld ? `Ultimo aggiornamento: ${state.externalWorld.lastFetch || "n/d"}\n${state.externalWorld.summary || ""}` : "Non ancora osservato.";

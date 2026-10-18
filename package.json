@@ -13,6 +13,7 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0"
+    "@neondatabase/serverless": "^1.1.0",
+    "@vercel/oidc": "^4.0.1"
   }
 }

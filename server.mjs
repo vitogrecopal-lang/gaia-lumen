@@ -1,3 +1,4 @@
+import { gatewayEnabled, gatewayModel, gatewayStatus, gatewayAnswer } from "./gaia-ai-gateway.mjs";
 import { getStarlinkNews } from "./starlink-feed.mjs";
 import { createServer } from "node:http";
 import { createHash, timingSafeEqual } from "node:crypto";
@@ -137,7 +138,7 @@ const functionPulseCatalog = [
 ];
 
 function chatModelName() {
-  return process.env.OPENAI_MODEL || "gpt-5.4";
+  return gatewayEnabled() ? gatewayModel() : process.env.OPENAI_MODEL || "gpt-5.4";
 }
 
 const openaiBridgeRuntime = {
@@ -958,6 +959,7 @@ async function persistDatabaseState(value) {
 }
 
 function syncCodexGovernance() {
+  state.aiGateway = gatewayStatus();
   const bridge = openaiBridgeStatus();
   const localBridge = localModelBridgeStatus();
   const hemisphericBridge = syncHemisphericBridge("governance");
@@ -970,7 +972,7 @@ function syncCodexGovernance() {
     repository: "vitogrecopal-lang/gaia-lumen",
     branch: "main",
     chatOwner: "Codex",
-    responseMode: bridge.ready ? "codex-openai" : localBridge.ready ? localBridge.brain : localBridge.canAttempt ? `${localBridge.brain}-configured` : "codex-local-fallback",
+    responseMode: gatewayEnabled() ? `gaia-gateway-${gatewayStatus().status}` : bridge.ready ? "codex-openai" : localBridge.ready ? localBridge.brain : localBridge.canAttempt ? `${localBridge.brain}-configured` : "codex-local-fallback",
     openaiBridge: bridge,
     localModelBridge: localBridge,
     hemisphericBridge,
@@ -1719,6 +1721,7 @@ try {
   state.realismMode ??= "max-realism";
   state.chatBrain = openaiBridgeReady() ? "openai" : localModelBridgeConfigured() ? localModelBrainName() : "local-cortex";
   state.chatModel = chatModelName();
+  state.aiGateway = gatewayStatus();
   syncCodexGovernance();
   syncProjectCustodian();
   syncEvolutionMission();
@@ -5642,8 +5645,22 @@ async function answerChat(message) {
   let brain = "local-cortex";
   const fallbackNotes = [];
   try {
-    reply = await openaiAnswerChat(message);
-    if (reply) brain = "openai";
+    if (gatewayEnabled()) {
+      reply = await gatewayAnswer(message, {
+        project: "Gaia-Lumen", date: new Date().toISOString(),
+        publicObservation: compactOpenaiText(state.lastObservation, 1200),
+        publicSources: {lastFetch: state.publicSources?.lastFetch || null, summary: compactOpenaiText(state.publicSources?.summary, 1800)},
+        features: ["chat interna", "rassegna Starlink", "simulatore geopolitico didattico", "preset Asmodeus locale", "collegamento esterno a Replika"]
+      });
+      if (reply) brain = "vercel-ai-gateway";
+    }
+  } catch (error) {
+    fallbackNotes.push(error.message);
+  }
+  state.aiGateway = gatewayStatus();
+  try {
+    if (!gatewayEnabled()) reply = await openaiAnswerChat(message);
+    if (reply && !gatewayEnabled()) brain = "openai";
   } catch (error) {
     fallbackNotes.push(`OpenAI: ${error.message}`);
   }
@@ -5662,7 +5679,7 @@ async function answerChat(message) {
       brain = localModelBrainName();
       reply = `${localModelVoiceName()} e' richiesto come cervello diretto, ma ora non ha restituito una risposta (${fallbackNotes.join("; ") || "nessun dettaglio"}). Non uso Codex/OpenAI; riprova con una domanda piu' breve o aumenta LOCAL_AI_TIMEOUT_MS.`;
     } else {
-      reply = localAnswerChat(message);
+      reply = gatewayEnabled() ? "La chat AI avanzata e' temporaneamente non disponibile. Riprova tra un minuto; puoi continuare a consultare i dati e le simulazioni del sito." : localAnswerChat(message);
       if (fallbackNotes.length) {
         reply = `${reply}\n\nNota: ${fallbackNotes.join("; ")}. Sto usando il cortex locale base.`;
       }
@@ -5707,6 +5724,7 @@ export async function handleRequest(request, response) {
       projectCustodian: state.projectCustodian?.name || null,
       codexGovernance: state.codexGovernance,
       chatBrain: state.chatBrain,
+      aiGateway: gatewayStatus(),
       openaiBridge: openaiBridgeStatus(),
       database: {
         provider: getDatabaseClient() ? "neon-postgres" : "file-fallback",
