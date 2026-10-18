@@ -2138,7 +2138,7 @@ function seedCustodianChatMessage() {
   ui.chatLog.dataset.custodianSeeded = "true";
   addMessage(
     "ai",
-    "Gaia-Lumen e' pronta. Se Llama locale e' attivo, questa chat risponde direttamente dal modello Ollama del PC; altrimenti usa il fallback locale del sito.",
+    "Ciao, sono la chat interna di Gaia-Lumen. Posso aiutarti a capire il progetto e i suoi dati. Il motore attivo e' indicato qui sopra; il motore locale ha risposte limitate.",
   );
 }
 
@@ -2154,26 +2154,42 @@ if (ui.chatLog) {
   });
 }
 
+let chatPending = false;
 if (ui.chatForm) {
   ui.chatForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const message = ui.chatInput.value.trim();
-    if (!message) return;
+    if (!message || chatPending) return;
+    chatPending = true;
+    const submit = ui.chatForm.querySelector("button[type=submit]");
+    const status = document.getElementById("chatStatus");
+    submit.disabled = true;
+    submit.textContent = "Attendi...";
+    status.textContent = "Gaia-Lumen sta preparando la risposta...";
     ui.chatInput.value = "";
     addMessage("user", message);
     try {
       const response = await fetch(apiUrl("/api/chat"), {
+        signal: AbortSignal.timeout(60000),
         method: "POST",
         credentials: "same-origin",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ message }),
       });
       const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "Servizio chat temporaneamente non disponibile.");
+      status.textContent = "Risposta ricevuta.";
       addMessage("ai", payload.reply || "Non ho generato una risposta.");
       if (payload.state) mergeState(payload.state);
       refreshUi();
     } catch (error) {
-      addMessage("ai", `Errore locale: ${error.message}`);
+      addMessage("ai", `Messaggio non completato: ${error.name === "TimeoutError" ? "tempo di attesa superato" : error.message}. Puoi riprovare.`);
+      if (!ui.chatInput.value) ui.chatInput.value = message;
+      status.textContent = "Invio non riuscito. Il messaggio e' disponibile per un nuovo tentativo.";
+    } finally {
+      chatPending = false;
+      submit.disabled = false;
+      submit.textContent = "Invia";
     }
   });
 }

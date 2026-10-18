@@ -137,3 +137,7 @@ The chat panel exposes a compact Codex status line:
 - `Function Pulse Protocol` may pulse the main internal functions continuously as diagnostics, checksum, and bounded archive. It must not transmit real signals, scan external computers, or mutate outside systems.
 
 It is wired from `state.chatBrain` and the stable `state.codexGovernance` object. Keep this visual addition compact so the panel stays usable on mobile.
+
+## Chat in primo piano (18 ottobre 2026)
+
+La chat esistente e' spostata all'inizio del pannello, con ancora #chat e registro accessibile. Conserva POST /api/chat e i motori configurati. Invio singolo durante la risposta, indicatore di attesa, controllo status HTTP e timeout di 60 secondi; in errore il testo e' ripristinato se l'utente non ha gia' scritto altro. Nessuna integrazione con Replika.

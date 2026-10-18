@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v37-replika-gaia-profile";
+const CACHE_NAME = "gaia-lumen-static-v38-internal-chat";
 
 const STATIC_ASSETS = [
   "/",
@@ -8,7 +8,7 @@ const STATIC_ASSETS = [
   "/starlink-simulator.js?v=sim-v3",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
-  "/app.js?v=gaia-lumen-matrix-v1",
+  "/app.js?v=gaia-lumen-chat-v2",
   "/manifest.webmanifest",
   "/APP_GAIA_LUMEN.html",
   "/assets/epsilon-eridani-map.svg",

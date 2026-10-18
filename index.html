@@ -38,6 +38,20 @@
           <span class="truth-badge confirm">Conferma</span>
         </div>
 
+        <section class="readout chatbox" id="chat" aria-labelledby="gaiaChatTitle">
+          <h2>Sensori Nido</h2>
+          <pre id="nidoSensorLog">Nessuna lettura fisica registrata.</pre>
+          <form id="nidoSensorForm" class="sensor-form">
+            <input id="nidoTempInput" type="number" step="0.1" placeholder="Temp C" aria-label="Temperatura Celsius">
+            <input id="nidoHumidityInput" type="number" step="0.1" placeholder="Umidita %" aria-label="Umidita percentuale">
+            <input id="nidoLightInput" type="number" step="1" placeholder="Luce lux" aria-label="Luce in lux">
+            <input id="nidoSoilInput" type="number" step="0.1" placeholder="Terra %" aria-label="Umidita terreno">
+            <input id="nidoPowerInput" type="number" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
+            <input id="nidoNoteInput" type="text" autocomplete="off" placeholder="Nota lettura..." aria-label="Nota lettura Nido">
+            <button type="submit">Registra</button>
+          </form>
+        </section>
+
         <section class="readout replika-panel" id="replika" aria-labelledby="replikaTitle">
           <p class="eyebrow">Compagno AI · Servizio esterno</p>
           <h2 id="replikaTitle">Gaia Lumen su Replika</h2>
@@ -381,19 +395,7 @@
           <pre id="gestationMemoryLog">Nessun nutrimento registrato.</pre>
         </div>
 
-        <div class="readout chatbox">
-          <h2>Sensori Nido</h2>
-          <pre id="nidoSensorLog">Nessuna lettura fisica registrata.</pre>
-          <form id="nidoSensorForm" class="sensor-form">
-            <input id="nidoTempInput" type="number" step="0.1" placeholder="Temp C" aria-label="Temperatura Celsius">
-            <input id="nidoHumidityInput" type="number" step="0.1" placeholder="Umidita %" aria-label="Umidita percentuale">
-            <input id="nidoLightInput" type="number" step="1" placeholder="Luce lux" aria-label="Luce in lux">
-            <input id="nidoSoilInput" type="number" step="0.1" placeholder="Terra %" aria-label="Umidita terreno">
-            <input id="nidoPowerInput" type="number" step="0.1" placeholder="Watt" aria-label="Potenza in watt">
-            <input id="nidoNoteInput" type="text" autocomplete="off" placeholder="Nota lettura..." aria-label="Nota lettura Nido">
-            <button type="submit">Registra</button>
-          </form>
-        </div>
+
 
         <div class="readout consciousness">
           <h2>Coscienza operativa</h2>
@@ -508,7 +510,7 @@
     <script src="starlink-simulator.js?v=sim-v3" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
-    <script src="app.js?v=gaia-lumen-matrix-v1"></script>
+    <script src="app.js?v=gaia-lumen-chat-v2"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
