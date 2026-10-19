@@ -1,3 +1,4 @@
+import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
 import { projectCharter } from "./project-charter.mjs";
 import { gatewayEnabled, gatewayModel, gatewayStatus, gatewayAnswer } from "./gaia-ai-gateway.mjs";
 import { getStarlinkNews } from "./starlink-feed.mjs";
@@ -961,6 +962,7 @@ async function persistDatabaseState(value) {
 
 function syncCodexGovernance() {
   state.aiGateway = gatewayStatus();
+  state.conversationAutonomy = conversationPhase();
   const bridge = openaiBridgeStatus();
   const localBridge = localModelBridgeStatus();
   const hemisphericBridge = syncHemisphericBridge("governance");
@@ -2944,8 +2946,7 @@ function updateBirthQuestionProtocol(reason = "calendario nascita") {
     return protocol;
   }
 
-  const askedKeys = new Set((protocol.asked || []).map((item) => item.key));
-  const next = protocol.questionBank.find((item) => !askedKeys.has(item.key)) || protocol.questionBank[protocol.questionBank.length - 1];
+  const next = nextProjectQuestion(protocol.questionBank, protocol.answers || [], protocol.currentQuestion);
   if (!protocol.currentQuestion || protocol.currentQuestion.key !== next.key) {
     protocol.currentQuestion = { ...next, createdAt: new Date().toISOString() };
     protocol.asked = [
@@ -5650,6 +5651,7 @@ async function answerChat(message) {
       reply = await gatewayAnswer(message, {
         project: "Gaia-Lumen", date: new Date().toISOString(),
         identityAndTeachings: projectCharter(state.cosmogenesis),
+        conversationPhase: conversationPhase(),
         publicObservation: compactOpenaiText(state.lastObservation, 1200),
         publicSources: {lastFetch: state.publicSources?.lastFetch || null, summary: compactOpenaiText(state.publicSources?.summary, 1800)},
         features: ["chat interna", "rassegna Starlink", "simulatore geopolitico didattico", "preset Asmodeus locale", "collegamento esterno a Replika"]

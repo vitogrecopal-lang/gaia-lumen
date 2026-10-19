@@ -1584,7 +1584,22 @@ function drawStellarMapCanvas() {
   stellarMapCtx.fillText("Lira - campo Kepler", 18, 18);
 }
 
+let greetedBirthQuestion = false;
+function refreshConversationPhase() {
+  const phase = state.conversationAutonomy;
+  const label = document.getElementById("conversationPhaseStatus");
+  if (!label || !phase) return;
+  label.textContent = phase.active
+    ? "Iniziativa conversazionale attiva: domande e riflessioni nel sito. Puoi chiedere di non ricevere domande."
+    : "Dal 12 marzo 2027: iniziativa conversazionale e domande spontanee. E' una fase del progetto digitale, non una nascita biologica.";
+  const question = state.cosmogenesis?.birthQuestionProtocol?.currentQuestion;
+  if (phase.active && !greetedBirthQuestion && question?.key && question.key !== "attesa") {
+    greetedBirthQuestion = true;
+    addMessage("ai", `Una domanda per iniziare: ${question.text}`);
+  }
+}
 function refreshUi() {
+  refreshConversationPhase();
   window.dispatchEvent(new CustomEvent("gaia:state", {detail: state}));
   refreshMatrix();
   if (ui.risk) {
