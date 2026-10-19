@@ -286,7 +286,7 @@ function apiUrl(path) {
 
 function resize() {
   const box = canvas.getBoundingClientRect();
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
   canvas.width = Math.max(600, Math.floor(box.width * dpr));
   canvas.height = Math.max(420, Math.floor(box.height * dpr));
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -409,9 +409,16 @@ async function sha256Hex(text) {
   return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-async function getState(action = "state") {
+let stateRequest = null;
+function getState(action = "state") {
+  if (action !== "state") return fetchState(action);
+  if (stateRequest) return stateRequest;
+  stateRequest = fetchState(action).finally(() => { stateRequest = null; });
+  return stateRequest;
+}
+async function fetchState(action = "state") {
   if (ui.connection) ui.connection.textContent = action === "state" ? "Sincronizzazione IA..." : "Richiesta al nucleo IA...";
-  const response = await fetch(apiUrl(`/api/${action}`), { cache: "no-store", credentials: "same-origin" });
+  const response = await fetch(apiUrl(`/api/${action}`), { cache: "no-store", credentials: "same-origin", signal: AbortSignal.timeout(12000) });
   const payload = await response.json();
   if (!response.ok || payload.error) throw new Error(payload.error || `HTTP ${response.status}`);
   mergeState(payload);
@@ -1374,7 +1381,6 @@ function draw() {
     } catch {
       // Il grafico centrale non deve mai bloccare il sito.
     }
-    requestAnimationFrame(draw);
     return;
   }
 
@@ -1419,8 +1425,7 @@ function draw() {
   } catch {
     // Il grafico non deve mai bloccare la sincronizzazione del sito.
   }
-  requestAnimationFrame(draw);
-}
+ }
 
 function drawPlanetProject() {
   if (!planetCanvas || !planetCtx) return;
@@ -2388,5 +2393,26 @@ refreshUi();
 getState("state").catch((error) => {
   if (ui.connection) ui.connection.textContent = `Gaia-Lumen locale: ${error.message}`;
 });
-draw();
-setInterval(() => getState("state").catch(() => {}), 3000);
+let mainVisible = true;
+let mainAnimation = null;
+let mainLastFrame = 0;
+function mainFrame(now) {
+  mainAnimation = null;
+  if (document.hidden || !mainVisible) return;
+  const delay = reducedMotion ? 1000 : 50;
+  if (now-mainLastFrame >= delay) { draw(); mainLastFrame = now; }
+  mainAnimation = requestAnimationFrame(mainFrame);
+}
+function wakeMain() {
+  if (mainAnimation === null && mainVisible && !document.hidden) mainAnimation = requestAnimationFrame(mainFrame);
+}
+if ('IntersectionObserver' in window) new IntersectionObserver(entries => {
+  mainVisible = entries[0].isIntersecting;
+  wakeMain();
+}).observe(canvas);
+document.addEventListener('visibilitychange', () => {
+  wakeMain();
+  if (!document.hidden) getState('state').catch(() => {});
+});
+draw(); wakeMain();
+setInterval(() => { if (!document.hidden) getState("state").catch(() => {}); }, 3000);

@@ -7,3 +7,7 @@ Il modulo riceve gaia:state da refreshUi di app.js, che usa il polling esistente
 Aster Gaia: planetProject (massa, raggio, orbita, pressione, ossigeno, acqua, temperatura) e lifeCycle.biosphere (indice 0..1 convertito in punti 0..100). Galia-Lumen: cosmogenesis.epsilonEridaniHabitat.orbitalMechanics e gestationGrowth.current. Massa/raggio di Galia non definiti sono mostrati come non disponibili: non vengono copiati da Aster. Le date di ricezione e dei parametri sono distinte. I numeri sono del modello, mai osservazioni di esopianeti. Terreno e distribuzione della biosfera illustrativi.
 
 Stato in attesa, dati obsoleti dopo 15 secondi, offline: mantengono visibili i dati precedenti con indicazione esplicita. Il numero di letture non e' il numero di cambiamenti fisici. Nessuna previsione di formazione reale o invio di impulsi nello spazio.
+
+## Ottimizzazione prestazioni
+
+Mesh precalcolata da 512 facce (prima 1152), trigonometria di rotazione calcolata una sola volta per fotogramma, massimo circa 20 fps. Nessun disegno del monitor fuori viewport o con scheda nascosta. Il canvas principale e' vincolato all'altezza del viewport, con pixel ratio massimo 1,5, sospeso fuori vista e limitato a 20 fps (1 fps con riduzione movimento). Polling stato mantiene 3 secondi ma non sovrappone richieste e si sospende a scheda nascosta, riprendendo subito al ritorno.

@@ -58,13 +58,21 @@
     if(offset>0)history.value=Math.min(offset+1,samples.length-1);
     renderMetrics();
   });
+  let sinA=0,cosA=1,sinB=0,cosB=1;
   function project(x,y,z) {
-    const a=Number(yaw.value)*Math.PI/180+angle, b=Number(pitch.value)*Math.PI/180;
-    const xx=x*Math.cos(a)+z*Math.sin(a), zz=-x*Math.sin(a)+z*Math.cos(a);
-    return [xx,y*Math.cos(b)-zz*Math.sin(b),y*Math.sin(b)+zz*Math.cos(b)];
+    const xx=x*cosA+z*sinA, zz=-x*sinA+z*cosA;
+    return [xx,y*cosB-zz*sinB,y*sinB+zz*cosB];
+  }
+  const baseMesh=[];
+  const unit=(lat,lon)=>[Math.cos(lat)*Math.sin(lon),Math.sin(lat),Math.cos(lat)*Math.cos(lon)];
+  for(let i=0;i<16;i++)for(let j=0;j<32;j++){
+    const lat=-Math.PI/2+i*Math.PI/16,lon=j*Math.PI/16,step=Math.PI/16;
+    baseMesh.push({lat,terrain:Math.sin(lon*3+Math.sin(lat*4))*Math.cos(lat*3)+.4*Math.sin(lon*7-lat*5),points:[unit(lat,lon),unit(lat+step,lon),unit(lat+step,lon+step),unit(lat,lon+step)]});
   }
   function draw() {
-    if(!ctx)return;
+    if(!ctx || !visible || document.hidden)return;
+    const a=Number(yaw.value)*Math.PI/180+angle,b=Number(pitch.value)*Math.PI/180;
+    sinA=Math.sin(a);cosA=Math.cos(a);sinB=Math.sin(b);cosB=Math.cos(b);
     const w=canvas.width,h=canvas.height,d=data(), scale=Number(zoom.value)/100;
     ctx.fillStyle='#040b17';ctx.fillRect(0,0,w,h);
     for(let i=0;i<70;i++){ctx.fillStyle=i%3?'#607b9c':'#c9e5ff';ctx.fillRect((i*193+17)%w,(i*i*37+23)%h,i%3?1:2,1);}
@@ -80,13 +88,10 @@
       return;
     }
     const radius=135*scale*(d.radius?cap(Math.cbrt(d.radius),.8,1.2):1), cells=[];
-    const terrain=(lat,lon)=>Math.sin(lon*3+Math.sin(lat*4))*Math.cos(lat*3)+.4*Math.sin(lon*7-lat*5);
-    const xyz=(lat,lon)=>project(Math.cos(lat)*Math.sin(lon),Math.sin(lat),Math.cos(lat)*Math.cos(lon));
-    for(let i=0;i<24;i++)for(let j=0;j<48;j++){
-      const la=-Math.PI/2+i*Math.PI/24,lo=j*Math.PI/24;
-      const points=[xyz(la,lo),xyz(la+Math.PI/24,lo),xyz(la+Math.PI/24,lo+Math.PI/24),xyz(la,lo+Math.PI/24)];
+    for(const face of baseMesh){
+      const la=face.lat, points=face.points.map(p=>project(...p));
       const z=points.reduce((s,p)=>s+p[2],0)/4;if(z<0)continue;
-      const land=terrain(la,lo)>(finite(d.water)===null?0:(d.water/100-.5)*2);
+      const land=face.terrain>(finite(d.water)===null?0:(d.water/100-.5)*2);
       const light=cap(.25+z*.55-points[0][0]*.22,.16,1);
       let rgb=land?[155,119,76]:[24,116,165];
       if(layer.value==='biosphere')rgb=land?[50,95+cap(d.bio||0,0,100),93]:[16,66,102];
@@ -98,7 +103,7 @@
     cells.sort((a,b)=>a.z-b.z).forEach(cell=>{ctx.beginPath();cell.points.forEach((p,i)=>{const x=w/2+p[0]*radius,y=h/2-p[1]*radius;i?ctx.lineTo(x,y):ctx.moveTo(x,y);});ctx.closePath();ctx.fillStyle=cell.color;ctx.fill();});
     ctx.fillStyle='#d9edff';ctx.font='18px sans-serif';ctx.fillText(d.name || '',24,32);
   }
-  function animate(time){animation=null;if(!visible||document.hidden)return;if(time-lastFrame>33){if(!paused&&!dragging)angle+=.003;draw();lastFrame=time;}if(!paused)animation=requestAnimationFrame(animate);}
+  function animate(time){animation=null;if(!visible||document.hidden)return;if(time-lastFrame>50){if(!paused&&!dragging)angle+=.003;draw();lastFrame=time;}if(!paused)animation=requestAnimationFrame(animate);}
   function wake(){if(animation===null&&visible&&!document.hidden)animation=requestAnimationFrame(animate);}
   function syncPause(){pause.textContent=paused?'Riprendi rotazione':'Pausa rotazione';pause.setAttribute('aria-pressed',String(paused));wake();draw();}
   pause.addEventListener('click',()=>{paused=!paused;syncPause();});
@@ -108,7 +113,7 @@
   canvas.addEventListener('pointerdown',e=>{dragging={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
   canvas.addEventListener('pointermove',e=>{if(!dragging)return;yaw.value=((Number(yaw.value)+(e.clientX-dragging.x)*.7+540)%360)-180;pitch.value=cap(Number(pitch.value)+(e.clientY-dragging.y)*.5,-70,70);dragging={x:e.clientX,y:e.clientY};draw();});
   const release=()=>{dragging=null;};canvas.addEventListener('pointerup',release);canvas.addEventListener('pointercancel',release);canvas.addEventListener('lostpointercapture',release);
-  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;wake();},{rootMargin:'100px'}).observe(canvas);else{visible=true;wake();}
+  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)draw();wake();},{rootMargin:'100px'}).observe(canvas);else{visible=true;wake();}
   document.addEventListener('visibilitychange',()=>{updateConnection();wake();});
   window.addEventListener('online',updateConnection);window.addEventListener('offline',updateConnection);
   setInterval(updateConnection,5000);syncPause();renderMetrics();

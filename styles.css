@@ -811,3 +811,7 @@ select {
 .cosmic-monitor:popover-open .cosmic-viewport { max-width:700px; margin:16px auto; }
 .cosmic-monitor:popover-open .cosmic-controls { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
 #cosmicExpand { margin-bottom:10px; }
+
+/* Keep the main canvas bounded instead of stretching to the entire long panel. */
+@media (min-width:881px) { .stage { position:sticky; top:0; align-self:start; height:100vh; min-height:0; } }
+@media (max-width:880px) { .stage { height:58vh; min-height:0; } }
