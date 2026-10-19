@@ -785,3 +785,23 @@ select {
 #chat .chat-form input { flex: 1 1 160px; min-width: 0; width: 100%; font-size: 16px; }
 #chat .chat-log { min-height: 180px; max-height: 360px; overflow-y: auto; overflow-wrap: anywhere; }
 #chatStatus { color: #b5cad7; font-size: .85rem; }
+
+.cosmic-monitor { border: 1px solid #6788cc; padding: 16px; border-radius: 14px; background: linear-gradient(150deg,#17243e,#0a1527); color:#eaf3ff; scroll-margin-top:12px; }
+.cosmic-monitor p { line-height:1.5; }
+.cosmic-monitor select { width:100%; min-width:0; color:#eaf3ff; background:#102239; border:1px solid #6788cc; border-radius:6px; padding:9px 4px; font:inherit; margin:6px 0; }
+.cosmic-monitor label { display:block; line-height:1.5; font-size:.85rem; }
+.cosmic-monitor input[type=range] { display:block; width:100%; accent-color:#9cdfff; margin:8px 0 14px; }
+.cosmic-viewport { position:relative; margin-top:12px; border:1px solid #34456b; border-radius:12px; overflow:hidden; background:#040b17; }
+#cosmicCanvas { display:block; width:100%; height:auto; aspect-ratio:4/3; touch-action:none; cursor:grab; }
+#cosmicCanvas:active { cursor:grabbing; }
+.cosmic-overlay { position:absolute; left:10px; bottom:8px; font-size:.72rem; color:#eaf3ff; pointer-events:none; background:#040b17c9; padding:4px 6px; border-radius:4px; }
+.cosmic-controls { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; }
+.cosmic-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.cosmic-metrics { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:8px; }
+.cosmic-metrics div { padding:10px; background:#0a1629; border:1px solid #34456b; border-radius:8px; }
+.cosmic-metrics dt { font-size:.8rem; color:#acc7e4; }
+.cosmic-metrics dd { margin:6px 0 0; font-weight:600; color:#b7f6eb; }
+.cosmic-hint,#cosmicConnection,#cosmicHistoryLabel { font-size:.8rem; color:#b9cde3; }
+.cosmic-history { border-top:1px solid #34456b; padding:10px 0; }
+.cosmic-monitor summary { cursor:pointer; line-height:1.5; }
+.cosmic-monitor :is(button,input,select,summary):focus-visible { outline:3px solid #b7f6eb; outline-offset:3px; }

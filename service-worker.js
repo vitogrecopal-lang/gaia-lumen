@@ -1,14 +1,15 @@
-const CACHE_NAME = "gaia-lumen-static-v39-gaia-ai-gateway";
+const CACHE_NAME = "gaia-lumen-static-v40-cosmic-monitor";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/cosmic-monitor.js?v=cosmic-v1",
   "/starlink.js?v=starlink-v1",
   "/starlink-simulator.js?v=sim-v3",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
-  "/app.js?v=gaia-lumen-chat-v3",
+  "/app.js?v=gaia-lumen-cosmic-v1",
   "/manifest.webmanifest",
   "/APP_GAIA_LUMEN.html",
   "/assets/epsilon-eridani-map.svg",

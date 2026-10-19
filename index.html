@@ -57,6 +57,39 @@
           </form>
         </section>
 
+        <section class="readout cosmic-monitor" id="monitoraggio-cosmico" aria-labelledby="cosmicTitle">
+          <p class="eyebrow">Laboratorio cosmico interattivo</p>
+          <h2 id="cosmicTitle">Embrione planetario 3D</h2>
+          <span class="truth-badge simulated">Modello digitale</span>
+          <p>Esplora i parametri del progetto mentre lo stato del sito si aggiorna. Questi pianeti sono simulazioni, non osservazioni di un pianeta in formazione.</p>
+          <label for="cosmicModel">Pianeta del modello</label>
+          <select id="cosmicModel"><option value="aster">Aster Gaia</option><option value="galia">Galia-Lumen / Epsilon Eridani</option></select>
+          <div class="cosmic-viewport">
+            <canvas id="cosmicCanvas" width="640" height="480" aria-label="Modello planetario tridimensionale ruotabile. Usa anche i controlli angolo, inclinazione e zoom sotto la vista."></canvas>
+            <span class="cosmic-overlay" id="cosmicViewLabel">Superficie · geometria illustrativa</span>
+          </div>
+          <p class="cosmic-hint">Trascina per ruotare. Da tastiera usa i cursori qui sotto. Dimensioni e velocita' visive non sono in scala fisica.</p>
+          <div class="cosmic-controls">
+            <label>Vista<select id="cosmicView"><option value="globe">Globo 3D</option><option value="orbit">Orbita 3D</option></select></label>
+            <label>Livello<select id="cosmicLayer"><option value="surface">Superficie</option><option value="atmosphere">Atmosfera</option><option value="biosphere">Biosfera</option></select></label>
+            <label>Rotazione <input id="cosmicYaw" type="range" min="-180" max="180" value="20"></label>
+            <label>Inclinazione <input id="cosmicPitch" type="range" min="-70" max="70" value="15"></label>
+            <label>Zoom <input id="cosmicZoom" type="range" min="70" max="145" value="100"></label>
+          </div>
+          <div class="cosmic-actions"><button id="cosmicPause" type="button" aria-pressed="false">Pausa rotazione</button><button id="cosmicReset" type="button">Ripristina vista</button></div>
+          <p id="cosmicConnection" role="status">In attesa dello stato del sito...</p>
+          <dl id="cosmicMetrics" class="cosmic-metrics"></dl>
+          <p id="cosmicSource" class="cosmic-hint"></p>
+          <div class="cosmic-history">
+            <h3>Storico della sessione</h3>
+            <label for="cosmicHistory">Letture precedenti (0 = ultima)</label>
+            <input id="cosmicHistory" type="range" min="0" max="0" value="0" disabled>
+            <p id="cosmicHistoryLabel">Nessuna lettura ricevuta.</p>
+            <button id="cosmicLive" type="button">Torna all'ultima lettura</button>
+          </div>
+          <details><summary>Dati e limiti del modello</summary><p>Massa in masse terrestri, orbita in unita' astronomiche, pressione in bar. La biosfera e' un indice interno del modello, non una rilevazione di vita. Lo stato e' richiesto ogni 3 secondi quando disponibile; i parametri possono restare invariati tra due letture. Lo storico conserva al massimo 60 letture in questa scheda e si azzera ricaricando.</p><p>Rilievi, continenti e nubi sono procedurali e illustrativi, non mappe rilevate. Il livello biosfera colora la superficie in base all'indice; non identifica luoghi abitati. La fascia orbitale di Galia-Lumen usa i limiti progettuali disponibili, non certifica abitabilita'.</p></details>
+        </section>
+
         <section class="readout replika-panel" id="replika" aria-labelledby="replikaTitle">
           <p class="eyebrow">Compagno AI · Servizio esterno</p>
           <h2 id="replikaTitle">Gaia Lumen su Replika</h2>
@@ -508,11 +541,12 @@
       </aside>
     </main>
 
+    <script src="cosmic-monitor.js?v=cosmic-v1" defer></script>
     <script src="starlink.js?v=starlink-v1" defer></script>
     <script src="starlink-simulator.js?v=sim-v3" defer></script>
     <script src="dark-matter.js?v=nfw-v1"></script>
     <script src="signal-decoder.js?v=signal-v1"></script>
-    <script src="app.js?v=gaia-lumen-chat-v3"></script>
+    <script src="app.js?v=gaia-lumen-cosmic-v1"></script>
     <script>
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {

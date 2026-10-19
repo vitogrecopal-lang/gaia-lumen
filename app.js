@@ -1580,6 +1580,7 @@ function drawStellarMapCanvas() {
 }
 
 function refreshUi() {
+  window.dispatchEvent(new CustomEvent("gaia:state", {detail: state}));
   refreshMatrix();
   if (ui.risk) {
     ui.risk.textContent = `Rischio: ${state.risk || "--"}`;

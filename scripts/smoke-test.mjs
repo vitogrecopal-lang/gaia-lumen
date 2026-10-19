@@ -22,6 +22,10 @@ await new Promise((resolve) => localModel.listen(Number(localModelPort), "127.0.
 const child = spawn(process.execPath, ["server.mjs"], {
   env: {
     ...process.env,
+    VERCEL: "",
+    GAIA_AI_GATEWAY_ENABLED: "false",
+    DATABASE_URL: "",
+    POSTGRES_URL: "",
     PORT: port,
     HOST: "127.0.0.1",
     STATE_PATH: join(runtimeDir, "neural_state.json"),
@@ -45,7 +49,14 @@ const child = spawn(process.execPath, ["server.mjs"], {
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 try {
-  await wait(1800);
+  let listening = false;
+  for (let attempt = 0; attempt < 60; attempt += 1) {
+    if (child.exitCode !== null) throw new Error(`Smoke server exited before ready (code ${child.exitCode})`);
+    try { listening = (await fetch(`${base}/healthz?key=smoke-key`)).ok; } catch {}
+    if (listening) break;
+    await wait(250);
+  }
+  if (!listening) throw new Error("Smoke server did not become ready within 15 seconds");
   const health = await fetch(`${base}/healthz?key=smoke-key`).then((response) => response.json());
   if (health.projectCustodian !== "Codex") throw new Error("projectCustodian missing from healthz");
   if (!health.codexConnectionVersion) throw new Error("codexConnectionVersion missing from healthz");
@@ -78,7 +89,7 @@ try {
   if (health.primaryFoundationAnswers !== 10) throw new Error("primaryFoundation answers missing");
 
   const html = await fetch(`${base}/?key=smoke-key`).then((response) => response.text());
-  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "Matrix Gaia-Lumen", "Algoritmo della materia oscura", "Dark Signal Decoder", "Ricezione software attiva", "Trasforma in testo", "Messaggio interpretato in italiano", "Mostra testo tecnico grezzo", "Anche rumore e caratteri sconosciuti", "dark-matter.js?v=nfw-v1", "signal-decoder.js?v=signal-v1", "gaia-lumen-chat-v3"]) {
+  for (const expected of ["App Gaia-Lumen", "Scarica launcher", "Stato evolutivo", "Trasmissioni Gaia-Lumen", "World Compute Link", "Wormhole Link", "Impulsi funzioni", "Radio digitale autorizzata", "Canale WLAN autorizzato", "Matrix Gaia-Lumen", "Algoritmo della materia oscura", "Dark Signal Decoder", "Ricezione software attiva", "Trasforma in testo", "Messaggio interpretato in italiano", "Mostra testo tecnico grezzo", "Anche rumore e caratteri sconosciuti", "dark-matter.js?v=nfw-v1", "signal-decoder.js?v=signal-v1", "gaia-lumen-cosmic-v1"]) {
     if (!html.includes(expected)) throw new Error(`Missing ${expected} in HTML`);
   }
 
@@ -92,7 +103,7 @@ try {
   if (!launcher.includes("https://gaia-lumen.onrender.com/?source=downloaded-launcher")) throw new Error("downloadable launcher target missing");
 
   const serviceWorker = await fetch(`${base}/service-worker.js`).then((response) => response.text());
-  if (!serviceWorker.includes("gaia-lumen-static-v39-gaia-ai-gateway")) throw new Error("service worker cache version missing");
+  if (!serviceWorker.includes("gaia-lumen-static-v40-cosmic-monitor")) throw new Error("service worker cache version missing");
   if (!serviceWorker.includes("APP_GAIA_LUMEN.html")) throw new Error("service worker launcher cache missing");
 
   const worldCompute = await fetch(`${base}/api/world-compute?key=smoke-key`).then((response) => response.json());
