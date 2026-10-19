@@ -2,6 +2,14 @@
   const byId = id => document.getElementById(id);
   const root = byId('monitoraggio-cosmico');
   if (!root) return;
+  const expand = byId('cosmicExpand');
+  function collapse() { if(root.matches(':popover-open')) root.hidePopover(); root.removeAttribute('popover'); expand.textContent='Espandi monitor'; expand.setAttribute('aria-expanded','false'); }
+  expand.addEventListener('click',()=>{
+    if(root.matches(':popover-open')) {collapse();return;}
+    if(typeof root.showPopover !== 'function') return;
+    root.setAttribute('popover','manual');root.showPopover();expand.textContent='Riduci monitor';expand.setAttribute('aria-expanded','true');
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&root.matches(':popover-open')){collapse();expand.focus();}});
   const canvas = byId('cosmicCanvas'), ctx = canvas.getContext('2d');
   const model = byId('cosmicModel'), view = byId('cosmicView'), layer = byId('cosmicLayer');
   const yaw = byId('cosmicYaw'), pitch = byId('cosmicPitch'), zoom = byId('cosmicZoom');

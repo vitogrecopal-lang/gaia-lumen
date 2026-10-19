@@ -805,3 +805,9 @@ select {
 .cosmic-history { border-top:1px solid #34456b; padding:10px 0; }
 .cosmic-monitor summary { cursor:pointer; line-height:1.5; }
 .cosmic-monitor :is(button,input,select,summary):focus-visible { outline:3px solid #b7f6eb; outline-offset:3px; }
+
+.cosmic-monitor:popover-open { position:fixed; inset:2vh 2vw; width:min(1100px,96vw); height:96vh; max-height:96vh; margin:auto; overflow:auto; padding:clamp(16px,3vw,32px); background:#0a1527; }
+.cosmic-monitor::backdrop { background:#020817dd; }
+.cosmic-monitor:popover-open .cosmic-viewport { max-width:700px; margin:16px auto; }
+.cosmic-monitor:popover-open .cosmic-controls { grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); }
+#cosmicExpand { margin-bottom:10px; }
