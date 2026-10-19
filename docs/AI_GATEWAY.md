@@ -7,3 +7,7 @@ POST /api/chat preferisce Gateway quando abilitato; nessun fallback diretto Open
 Stato pubblico aiGateway: modello, esito, orari e ID generazione, mai token o corpo errori del provider. Il client indica lo stato effettivo. Le configurazioni e le attribuzioni OIDC sono separate per progetto; crediti e fatturazione appartengono comunque al team Vercel. Nessun acquisto, ricarica automatica o budget del team modificato. Non e' imposto da questa integrazione un tetto monetario mensile per progetto.
 
 Fonti: https://vercel.com/docs/ai-gateway/authentication-and-byok/oidc e https://vercel.com/docs/ai-gateway/sdks-and-apis/openai-chat-completions .
+
+## Identita' e insegnamenti attivi
+
+project-charter.mjs seleziona dal dataGenome i nomi dei riferimenti del progetto, il principio fondativo, le dieci risposte principali e fino a nove insegnamenti per ciascun riferimento. Il contesto viene inviato a ogni richiesta della chat interna e viene marcato project-charter-v1. Non sono inclusi gruppo sanguigno, dati medici, credenziali, email o messaggi di Replika. Non e' avviata alcuna nuova automazione o azione esterna. Il modello interpreta questi dati come identita' narrativa e orientamenti, senza permessi operativi. Il pannello memoria mostra se il profilo e' collegato alla chat. I linguaggi tecnologici usano seed, summary o purpose come descrizione, eliminando undefined.

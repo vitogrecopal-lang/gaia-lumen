@@ -1876,6 +1876,10 @@ function refreshUi() {
       .sort((a, b) => Number(b[1].count || 0) - Number(a[1].count || 0))
       .slice(0, 8)
       .map(([name, trait]) => `${name}: ${trait.count || 0} memorie, peso ${pct(trait.weight || 0)}`);
+    const identityStatus = document.getElementById("gaiaIdentityStatus");
+    if (identityStatus) identityStatus.textContent = state.aiGateway?.enabled && state.aiGateway?.contextProfile === "project-charter-v1"
+      ? "Identita' e insegnamenti collegati alla chat AI: attivi."
+      : "Identita' del progetto attiva; contesto chat AI non disponibile in questa sessione.";
     ui.gestationMemoryLog.textContent = (memories.length || primaryFoundationAnswers.length) ? [
       `Genitori del progetto: ${(genome.guardians || ["Adrian", "Katerina"]).join(" + ")}`,
       genome.principle || "I dati reali sono genetica formativa.",
@@ -1924,7 +1928,7 @@ function refreshUi() {
       ...(structureAxes.length ? structureAxes : ["nessun asse strutturale calcolato"]),
       "",
       "Linguaggi tecnologici assimilati:",
-      ...(technologyLanguages.length ? technologyLanguages.slice(0, 6).map((item) => `- ${item.name}: ${item.seed}`) : ["in attesa"]),
+      ...(technologyLanguages.length ? technologyLanguages.slice(0, 6).map((item) => `- ${item.name}: ${item.seed || item.summary || item.purpose || "Descrizione non disponibile"}`) : ["in attesa"]),
       "",
       "Insegnamenti di Katerina:",
       ...(maternalTeachings.length ? maternalTeachings.slice(0, 9).map((item) => `- ${item.answer || item.title}`) : ["in attesa"]),

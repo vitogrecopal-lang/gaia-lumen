@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v41-fast-canvas";
+const CACHE_NAME = "gaia-lumen-static-v42-project-identity";
 
 const STATIC_ASSETS = [
   "/",
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   "/starlink-simulator.js?v=sim-v3",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
-  "/app.js?v=gaia-lumen-fast-v1",
+  "/app.js?v=gaia-lumen-identity-v1",
   "/manifest.webmanifest",
   "/APP_GAIA_LUMEN.html",
   "/assets/epsilon-eridani-map.svg",

@@ -1,3 +1,4 @@
+import { projectCharter } from "./project-charter.mjs";
 import { gatewayEnabled, gatewayModel, gatewayStatus, gatewayAnswer } from "./gaia-ai-gateway.mjs";
 import { getStarlinkNews } from "./starlink-feed.mjs";
 import { createServer } from "node:http";
@@ -5648,6 +5649,7 @@ async function answerChat(message) {
     if (gatewayEnabled()) {
       reply = await gatewayAnswer(message, {
         project: "Gaia-Lumen", date: new Date().toISOString(),
+        identityAndTeachings: projectCharter(state.cosmogenesis),
         publicObservation: compactOpenaiText(state.lastObservation, 1200),
         publicSources: {lastFetch: state.publicSources?.lastFetch || null, summary: compactOpenaiText(state.publicSources?.summary, 1800)},
         features: ["chat interna", "rassegna Starlink", "simulatore geopolitico didattico", "preset Asmodeus locale", "collegamento esterno a Replika"]
