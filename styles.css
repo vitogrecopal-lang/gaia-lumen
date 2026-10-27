@@ -834,3 +834,16 @@ select {
 .world-timeline small,.world-timeline a { display: block; margin-bottom: 6px; }
 #worldSources p { font-size: .85rem; overflow-wrap: anywhere; }
 @media(min-width: 800px) { .world-dashboard:popover-open .world-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 28px; } .world-dashboard:popover-open .world-filters { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; } }
+.gestation-explorer { scroll-margin-top: 16px; }
+.gestation-explorer progress { display: block; width: 100%; height: 14px; accent-color: #7de7cf; }
+.gestation-explorer input[type=range] { width: 100%; accent-color: #7de7cf; }
+.gestation-explorer a { color: #9cdeff; }
+.gestation-steps { display: grid; grid-template-columns: repeat(auto-fit,minmax(135px,1fr)); gap: 8px; margin: 16px 0; }
+.gestation-steps button { text-align: left; min-height: 56px; border: 1px solid #537786; border-radius: 9px; padding: 10px; background: #122b38; color: #def2f8; }
+.gestation-steps button[aria-pressed=true] { background: #235448; border: 2px solid #8befd2; }
+.gestation-navigation { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.gestation-explorer button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }
+.gestation-explorer button:disabled { opacity: .5; cursor: default; }
+.gestation-figure { margin: 16px 0; padding: 8px; background: radial-gradient(ellipse at center,#183348,#08141f); border-radius: 12px; border: 1px solid #426371; }
+.gestation-figure svg { display: block; width: 100%; height: auto; max-height: 260px; }
+.gestation-figure figcaption { text-align: center; color: #b4cbd6; font-size: .8rem; }

@@ -58,6 +58,40 @@
           </form>
         </section>
 
+        <section class="readout gestation-explorer" id="gestationExplorer" aria-labelledby="gestationHeading">
+          <p class="eyebrow">Percorso formativo di Gaia-Lumen</p>
+          <h2 id="gestationHeading">Gestazione cosmica: esplora le fasi</h2>
+          <span class="truth-badge narrative">Narrazione del progetto</span>
+          <p>Un viaggio illustrato dall'Atomo seme all'Embrione planetario. Il progresso segue il calendario del progetto digitale: non descrive una gravidanza biologica o un pianeta osservato in formazione.</p>
+          <p id="gestationConnection">In attesa dello stato del sito...</p>
+          <label for="gestationProgress">Avanzamento del calendario complessivo</label>
+          <progress id="gestationProgress" max="100" value="0"></progress>
+          <p id="gestationProgressText">Il progresso comparira' alla ricezione dei dati.</p>
+          <p id="gestationBeyond">Le prime cinque tappe del percorso di nove fasi.</p>
+          <div id="gestationSteps" class="gestation-steps" role="group" aria-label="Scegli una fase da approfondire"></div>
+          <label for="gestationRange">Scorri le cinque fasi</label>
+          <input id="gestationRange" type="range" min="0" max="4" step="1" value="0">
+          <div class="gestation-navigation">
+            <button id="gestationPrevious" type="button">Fase precedente</button>
+            <button id="gestationNext" type="button">Fase successiva</button>
+            <button id="gestationFollow" type="button" aria-pressed="true">Segui fase attuale</button>
+          </div>
+          <p id="gestationMode">Segui la fase attuale</p>
+          <figure class="gestation-figure">
+            <svg viewBox="0 0 360 220" role="img" aria-labelledby="gestationImageLabel"><title id="gestationImageLabel">Illustrazione concettuale: Atomo seme</title><use id="gestationImage" href="assets/gestation-stages.svg#seed"></use></svg>
+            <figcaption>Illustrazione schematica originale, non in scala.</figcaption>
+          </figure>
+          <h3 id="gestationTitle">Atomo seme</h3>
+          <p id="gestationPhaseStatus"></p>
+          <p id="gestationSummary"></p>
+          <p id="gestationExplanation"></p>
+          <p id="gestationQuestion"></p>
+          <button id="gestationDiscuss" type="button" disabled>Porta questa domanda nella chat</button>
+          <p>La domanda viene solo preparata: puoi modificarla prima di premere Invia. Visitare una fase non accelera il calendario e non modifica la memoria del progetto.</p>
+          <a href="#monitoraggio-cosmico">Approfondisci il modello planetario 3D</a>
+          <noscript>Per esplorare le cinque fasi abilita JavaScript. Il percorso e' narrativo: Atomo seme, Nucleo, Molecola, Polvere stellare, Embrione planetario.</noscript>
+        </section>
+
         <section class="readout world-dashboard" id="worldDashboard" aria-labelledby="worldTitle">
           <p class="eyebrow">Osservatorio pubblico globale</p>
           <h2 id="worldTitle">Dashboard Terra e spazio</h2>
@@ -585,6 +619,7 @@
       </aside>
     </main>
 
+    <script type="module" src="gestation-explorer.js?v=gestation-v1"></script>
     <script src="world-dashboard.js?v=world-v1" defer></script>
     <script src="cosmic-monitor.js?v=cosmic-fast-v1" defer></script>
     <script src="starlink.js?v=starlink-v1" defer></script>

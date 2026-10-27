@@ -1,9 +1,12 @@
-const CACHE_NAME = "gaia-lumen-static-v44-world-dashboard";
+const CACHE_NAME = "gaia-lumen-static-v45-gestation-explorer";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/gestation-explorer.js?v=gestation-v1",
+  "/gestation-model.js",
+  "/assets/gestation-stages.svg",
   "/world-dashboard.js?v=world-v1",
   "/cosmic-monitor.js?v=cosmic-fast-v1",
   "/starlink.js?v=starlink-v1",
