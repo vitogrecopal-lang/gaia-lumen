@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v45-gestation-explorer";
+const CACHE_NAME = "gaia-lumen-static-v46-geographic-map";
 
 const STATIC_ASSETS = [
   "/",
@@ -7,7 +7,10 @@ const STATIC_ASSETS = [
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",
-  "/world-dashboard.js?v=world-v1",
+  "/world-dashboard.js?v=world-map-v2",
+  "/world-event-map.js",
+  "/world-map-model.js",
+  "/assets/world-natural-earth.svg",
   "/cosmic-monitor.js?v=cosmic-fast-v1",
   "/starlink.js?v=starlink-v1",
   "/starlink-simulator.js?v=sim-v3",

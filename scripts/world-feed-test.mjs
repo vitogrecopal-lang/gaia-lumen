@@ -6,8 +6,10 @@ assert.equal(parseWorldFeed(rss,{id:"NASA",category:"spazio",format:"rss"})[0].t
 assert.throws(()=>parseWorldFeed('<html>error</html>',{format:"rss"}));
 const who=JSON.stringify({value:[{Id:"1",Title:"WHO update",PublicationDateAndTime:"2026-10-23T00:00:00Z",UrlName:"2026-DON622"}]});
 assert.equal(parseWorldFeed(who,{format:"who"})[0].lon,null);
-const geo=JSON.stringify({features:[{id:"1",properties:{time:1793050000000,mag:3,place:"Test",url:"https://earthquake.usgs.gov/example"},geometry:{coordinates:[13,38,10]}}]});
+const geo=JSON.stringify({features:[{id:"1",properties:{time:1793050000000,mag:3,place:"Test",url:"https://earthquake.usgs.gov/example"},geometry:{type:"Point",coordinates:[13,38,10]}}]});
 assert.equal(parseWorldFeed(geo,{format:"geojson"})[0].lat,38);
+assert.equal(parseWorldFeed(geo,{format:"geojson"})[0].depthKm,10);
+const invalid=JSON.parse(geo);invalid.features[0].geometry.coordinates=[190,91,0];assert.equal(parseWorldFeed(JSON.stringify(invalid),{format:"geojson"}).length,0);
 const realFetch=globalThis.fetch,realNow=Date.now;let time=realNow(),calls=0,fail=false;
 Date.now=()=>time;
 globalThis.fetch=async url=>{calls++;if(fail)throw new Error("offline");return new Response(url.includes("diseaseoutbreaknews")?who:url.includes("geojson")?geo:rss);};

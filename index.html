@@ -110,13 +110,26 @@
           <p id="worldCount"></p>
           <div class="world-grid">
             <div><h3>Mappa degli eventi localizzati</h3>
-              <svg class="world-map" viewBox="0 0 360 180" role="group" aria-label="Mappa schematica equirettangolare. Seleziona un punto per il dettaglio.">
-                <rect width="360" height="180" fill="#092d40"/>
-                <path d="M0 90H360 M180 0V180 M0 45H360 M0 135H360 M90 0V180 M270 0V180" fill="none" stroke="#315366" stroke-width=".5"/>
-                <path d="M12 30L50 15 91 25 110 48 92 67 78 70 64 88 50 72 35 65Z M72 88L99 96 111 115 97 145 84 163 79 130 65 103Z M145 35L165 24 192 30 209 18 260 20 310 31 335 52 301 70 275 67 260 90 243 77 230 55 203 60 191 48 178 57 160 52Z M165 59L190 58 210 80 199 110 183 126 168 96 158 74Z M283 119L314 115 333 136 307 145 285 137Z M135 7L155 9 148 26 132 21Z" fill="#2f5961" stroke="#73928e" stroke-width=".6"/>
+              <div class="world-map-toolbar" role="group" aria-label="Controlli cartina geografica">
+                <button id="worldMapZoomIn" type="button" aria-label="Ingrandisci mappa">Zoom +</button><button id="worldMapZoomOut" type="button" aria-label="Riduci zoom mappa">Zoom -</button>
+                <button id="worldMapFit" type="button">Inquadra eventi</button><button id="worldMapReset" type="button">Vista mondo</button>
+                <button id="worldMapWest" type="button" aria-label="Sposta vista a ovest">Ovest</button><button id="worldMapEast" type="button" aria-label="Sposta vista a est">Est</button><button id="worldMapNorth" type="button" aria-label="Sposta vista a nord">Nord</button><button id="worldMapSouth" type="button" aria-label="Sposta vista a sud">Sud</button>
+              </div>
+              <label><input id="worldMapTouch" type="checkbox"> Attiva trascinamento su schermo touch</label>
+              <svg id="worldMap" class="world-map" viewBox="0 0 360 180" tabindex="0" role="group" aria-label="Cartina geografica degli eventi. Frecce per spostare la vista, piu' e meno per lo zoom. Usa Tab per selezionare i punti.">
+                <defs><pattern id="worldGraticule" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#416377" stroke-width=".15"/></pattern></defs>
+                <rect x="-360" width="1080" height="180" fill="#092d40"/>
+                <g id="worldGeography" aria-hidden="true"><use data-layer="land" x="-360" width="360" height="180"/><use data-layer="land" width="360" height="180"/><use data-layer="land" x="360" width="360" height="180"/></g>
+                <rect x="-360" width="1080" height="180" fill="url(#worldGraticule)" pointer-events="none"/>
+                <g id="worldMapLabels" aria-hidden="true"><use data-layer="labels" x="-360" width="360" height="180"/><use data-layer="labels" width="360" height="180"/><use data-layer="labels" x="360" width="360" height="180"/></g>
                 <g id="worldDots"></g>
               </svg>
-              <p>Mappa schematica; coordinate solo quando pubblicate dalla fonte. Punti rosa: USGS. Nessuna posizione dedotta dai titoli.</p>
+              <p id="worldMapView">Vista mondiale</p>
+              <p id="worldMapEmpty">In attesa degli eventi geolocalizzati.</p>
+              <p class="world-map-legend"><span class="mag-low">M &lt; 4</span> <span class="mag-medium">4 &le; M &lt; 5</span> <span class="mag-high">M &ge; 5</span> | Terremoti USGS</p>
+              <label for="worldMapEvent">Eventi sulla cartina (anche sovrapposti)</label><select id="worldMapEvent" disabled><option value="">In attesa dei dati</option></select>
+              <p>Coordinate WGS84; proiezione equirettangolare, reticolo ogni 30 gradi. Coste e confini: <a href="https://www.naturalearthdata.com/" target="_blank" rel="noopener noreferrer">Natural Earth</a>, scala 1:50 milioni, pubblico dominio. I confini non esprimono posizioni politiche. La scala non consente dettaglio stradale; le aree vicino ai poli appaiono dilatate.</p>
+              <p>Trascina col mouse o usa i controlli; su touch abilita prima il trascinamento. Le notizie senza coordinate restano nella timeline, senza posizioni dedotte dai titoli.</p>
               <p id="worldSelection" aria-live="polite">Seleziona un punto sulla mappa o una notizia nella timeline.</p>
             </div>
             <div><h3>Elementi per fonte</h3><div id="worldChart" class="world-chart" aria-label="Conteggi del campione filtrato"></div></div>
@@ -620,7 +633,7 @@
     </main>
 
     <script type="module" src="gestation-explorer.js?v=gestation-v1"></script>
-    <script src="world-dashboard.js?v=world-v1" defer></script>
+    <script type="module" src="world-dashboard.js?v=world-map-v2"></script>
     <script src="cosmic-monitor.js?v=cosmic-fast-v1" defer></script>
     <script src="starlink.js?v=starlink-v1" defer></script>
     <script src="starlink-simulator.js?v=sim-v3" defer></script>

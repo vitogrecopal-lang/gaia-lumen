@@ -26,8 +26,8 @@ export function parseWorldFeed(text, source) {
     if(!Array.isArray(data.features)) throw new Error("Formato non valido");
     return data.features.slice(0,100).flatMap(f=>{
       const p=f.properties||{}, c=f.geometry?.coordinates, time=Number(p.time), url=safeUrl(p.url);
-      if(!url||!Number.isFinite(time)||!Array.isArray(c)||!Number.isFinite(c[0])||!Number.isFinite(c[1]))return [];
-      return [{id:`USGS:${f.id}`,source:"USGS",category:"terra",title:`M ${p.mag ?? "?"} - ${String(p.place||"Localita' non indicata").slice(0,250)}`,url,publishedAt:new Date(time).toISOString(),lon:c[0],lat:c[1],magnitude:p.mag}];
+      if(!url||!Number.isFinite(time)||f.geometry?.type!=="Point"||!Array.isArray(c)||!Number.isFinite(c[0])||!Number.isFinite(c[1])||Math.abs(c[0])>180||Math.abs(c[1])>90)return [];
+      return [{id:`USGS:${f.id}`,source:"USGS",category:"terra",title:`M ${p.mag ?? "?"} - ${String(p.place||"Localita' non indicata").slice(0,250)}`,url,publishedAt:new Date(time).toISOString(),lon:c[0],lat:c[1],magnitude:Number.isFinite(p.mag)?p.mag:null,depthKm:Number.isFinite(c[2])?c[2]:null}];
     });
   }
   if(!/<rss[\s>]/i.test(text))throw new Error("Formato RSS non valido");

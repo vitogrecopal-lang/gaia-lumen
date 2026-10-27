@@ -824,9 +824,19 @@ select {
 .world-dashboard input[type=range] { display: block; width: 100%; }
 .world-dashboard a { color: #9cdeff; overflow-wrap: anywhere; }
 .world-dashboard button { margin: 4px 4px 8px 0; }
-.world-map { width: 100%; height: auto; border: 1px solid #446875; border-radius: 8px; }
-.world-map circle { cursor: pointer; stroke: #fff; stroke-width: .4; }
-.world-map circle:focus { stroke: #ffed00; stroke-width: 2; outline: none; }
+.world-map { display: block; width: 100%; height: auto; aspect-ratio: 2 / 1; border: 1px solid #668b9b; border-radius: 8px; background: #092d40; cursor: grab; touch-action: pan-y; user-select: none; }
+.world-map:active { cursor: grabbing; }
+.world-map-drag { touch-action: none; }
+.world-map [data-event] { cursor: pointer; outline: none; }
+.world-map [data-event]:focus .world-map-dot { stroke: #fff5a8; stroke-width: 3; }
+.world-map-ring { pointer-events: none; }
+#worldGeography,#worldMapLabels { pointer-events: none; }
+.world-map-toolbar { display: flex; flex-wrap: wrap; gap: 4px; }
+.world-map-toolbar button { min-height: 40px; }
+.world-map-legend span { display: inline-block; border-bottom: 3px solid; margin-right: 8px; }
+.mag-low { color: #ffe080; }.mag-medium { color: #ffad61; }.mag-high { color: #ff687b; }
+#worldMap:focus-visible,.world-map-toolbar button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }
+#worldMapView { font-variant-numeric: tabular-nums; font-size: .85rem; }
 .world-chart>div { margin: 12px 0; }
 .world-bar { display: block; height: 12px; min-width: 0; margin-top: 4px; border-radius: 3px; }
 .world-timeline { max-height: 440px; overflow: auto; padding-left: 24px; }
