@@ -58,6 +58,46 @@
           </form>
         </section>
 
+        <section class="readout world-dashboard" id="worldDashboard" aria-labelledby="worldTitle">
+          <p class="eyebrow">Osservatorio pubblico globale</p>
+          <h2 id="worldTitle">Dashboard Terra e spazio</h2>
+          <p>NASA, ESA, WHO, UN e USGS: bollettini pubblici con aggiornamento periodico. Non e' un sistema di allerta e non copre tutti gli eventi. I conteggi rappresentano il campione ricevuto, non la gravita' degli eventi.</p>
+          <button id="worldExpand" type="button" aria-expanded="false">Espandi dashboard</button>
+          <button id="worldRefresh" type="button">Aggiorna fonti</button>
+          <label><input id="worldAuto" type="checkbox" checked> Aggiornamento automatico ogni 5 minuti</label>
+          <p id="worldStatus" role="status">Le fonti si caricano quando apri questa sezione.</p>
+          <div class="world-filters">
+            <label>Fonte<select id="worldSource"><option value="">Tutte</option><option>NASA</option><option>ESA</option><option>WHO</option><option>UN</option><option>USGS</option></select></label>
+            <label>Ambito<select id="worldCategory"><option value="">Tutti</option><option value="spazio">Spazio</option><option value="salute">Salute</option><option value="geopolitica">Relazioni internazionali</option><option value="terra">Terremoti</option></select></label>
+            <label>Periodo<select id="worldDays"><option value="1">24 ore</option><option value="7" selected>7 giorni</option><option value="30">30 giorni</option><option value="365">1 anno</option></select></label>
+            <label>Cerca nei titoli<input id="worldSearch" type="search" maxlength="100" placeholder="Es. Moon, climate..."></label>
+          </div>
+          <p>Il periodo filtra i bollettini ricevuti, non scarica un archivio storico. USGS: magnitudo 2.5+ nelle ultime 24 ore, fino a 100 eventi; altre fonti: fino a 24 titoli ciascuna.</p>
+          <p id="worldCount"></p>
+          <div class="world-grid">
+            <div><h3>Mappa degli eventi localizzati</h3>
+              <svg class="world-map" viewBox="0 0 360 180" role="group" aria-label="Mappa schematica equirettangolare. Seleziona un punto per il dettaglio.">
+                <rect width="360" height="180" fill="#092d40"/>
+                <path d="M0 90H360 M180 0V180 M0 45H360 M0 135H360 M90 0V180 M270 0V180" fill="none" stroke="#315366" stroke-width=".5"/>
+                <path d="M12 30L50 15 91 25 110 48 92 67 78 70 64 88 50 72 35 65Z M72 88L99 96 111 115 97 145 84 163 79 130 65 103Z M145 35L165 24 192 30 209 18 260 20 310 31 335 52 301 70 275 67 260 90 243 77 230 55 203 60 191 48 178 57 160 52Z M165 59L190 58 210 80 199 110 183 126 168 96 158 74Z M283 119L314 115 333 136 307 145 285 137Z M135 7L155 9 148 26 132 21Z" fill="#2f5961" stroke="#73928e" stroke-width=".6"/>
+                <g id="worldDots"></g>
+              </svg>
+              <p>Mappa schematica; coordinate solo quando pubblicate dalla fonte. Punti rosa: USGS. Nessuna posizione dedotta dai titoli.</p>
+              <p id="worldSelection" aria-live="polite">Seleziona un punto sulla mappa o una notizia nella timeline.</p>
+            </div>
+            <div><h3>Elementi per fonte</h3><div id="worldChart" class="world-chart" aria-label="Conteggi del campione filtrato"></div></div>
+          </div>
+          <details><summary>Stato e collegamenti delle cinque fonti</summary><div id="worldSources"></div></details>
+          <h3>Laboratorio geostrategico didattico</h3>
+          <span class="truth-badge simulated">Simulazione locale</span>
+          <p>Esplora un'ipotesi di cooperazione internazionale e distribuzione delle risorse. I parametri sono scelti da te; non comandano sistemi reali.</p>
+          <p id="worldScenario">Scenario: campione di bollettini attualmente filtrato. Seleziona una notizia per contestualizzare la discussione.</p>
+          <label>Cooperazione ipotizzata: <output id="worldCoopValue">50</output>/100<input id="worldCoop" type="range" min="0" max="100" value="50"></label>
+          <label>Resilienza ipotizzata: <output id="worldResilienceValue">50</output>/100<input id="worldResilience" type="range" min="0" max="100" value="50"></label>
+          <p id="worldSimulation" aria-live="polite"></p>
+          <h3>Timeline degli aggiornamenti</h3><ol id="worldTimeline" class="world-timeline"></ol>
+        </section>
+
         <section class="readout cosmic-monitor" id="monitoraggio-cosmico" aria-labelledby="cosmicTitle">
           <p class="eyebrow">Laboratorio cosmico interattivo</p>
           <h2 id="cosmicTitle">Embrione planetario 3D</h2>
@@ -545,6 +585,7 @@
       </aside>
     </main>
 
+    <script src="world-dashboard.js?v=world-v1" defer></script>
     <script src="cosmic-monitor.js?v=cosmic-fast-v1" defer></script>
     <script src="starlink.js?v=starlink-v1" defer></script>
     <script src="starlink-simulator.js?v=sim-v3" defer></script>

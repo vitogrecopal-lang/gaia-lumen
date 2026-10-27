@@ -1,3 +1,4 @@
+import { getWorldDashboard } from "./world-feed.mjs";
 import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
 import { projectCharter } from "./project-charter.mjs";
 import { gatewayEnabled, gatewayModel, gatewayStatus, gatewayAnswer } from "./gaia-ai-gateway.mjs";
@@ -5834,6 +5835,9 @@ export async function handleRequest(request, response) {
   }
 
   try {
+    if (url.pathname === "/api/world-dashboard" && request.method === "GET") {
+      return sendJson(response, await getWorldDashboard());
+    }
     if (url.pathname === "/api/starlink-news" && request.method === "GET") {
       return sendJson(response, await getStarlinkNews());
     }

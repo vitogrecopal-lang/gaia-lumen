@@ -815,3 +815,22 @@ select {
 /* Keep the main canvas bounded instead of stretching to the entire long panel. */
 @media (min-width:881px) { .stage { position:sticky; top:0; align-self:start; height:100vh; min-height:0; } }
 @media (max-width:880px) { .stage { height:58vh; min-height:0; } }
+:root { --world-accent: #7fcaff; }
+.world-dashboard { scroll-margin-top: 16px; }
+.world-dashboard:popover-open { position: fixed; inset: 3vh 3vw; width: auto; height: 94vh; max-width: none; max-height: none; margin: 0; padding: 24px; overflow: auto; background: #102e39; color: #e3f4f6; border: 1px solid #6bb8c9; z-index: 100; }
+.world-dashboard::backdrop { background: #000b; }
+.world-dashboard label { display: block; margin: 10px 0; }
+.world-dashboard select,.world-dashboard input[type=search] { display: block; width: 100%; max-width: 100%; padding: 8px; background: #123441; color: #fff; border: 1px solid #7198a5; border-radius: 6px; }
+.world-dashboard input[type=range] { display: block; width: 100%; }
+.world-dashboard a { color: #9cdeff; overflow-wrap: anywhere; }
+.world-dashboard button { margin: 4px 4px 8px 0; }
+.world-map { width: 100%; height: auto; border: 1px solid #446875; border-radius: 8px; }
+.world-map circle { cursor: pointer; stroke: #fff; stroke-width: .4; }
+.world-map circle:focus { stroke: #ffed00; stroke-width: 2; outline: none; }
+.world-chart>div { margin: 12px 0; }
+.world-bar { display: block; height: 12px; min-width: 0; margin-top: 4px; border-radius: 3px; }
+.world-timeline { max-height: 440px; overflow: auto; padding-left: 24px; }
+.world-timeline li { padding: 12px 0; border-bottom: 1px solid #41616d; }
+.world-timeline small,.world-timeline a { display: block; margin-bottom: 6px; }
+#worldSources p { font-size: .85rem; overflow-wrap: anywhere; }
+@media(min-width: 800px) { .world-dashboard:popover-open .world-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 28px; } .world-dashboard:popover-open .world-filters { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; } }
