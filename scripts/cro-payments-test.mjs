@@ -33,3 +33,8 @@ await assert.rejects(()=>cold.resume({...auth,accessToken:auth.accessToken.slice
 await assert.rejects(()=>cold.resume({...auth,id:other.id}),e=>e.statusCode===403);
 await assert.rejects(()=>createCroService({getData:async()=>data,rpc,env:{...env,GAIA_CRO_ORDER_KEY:"b2".repeat(32)}}).resume(auth),e=>e.statusCode===403);
 console.log("CRO: chain, amount, payer, receiver, reference, confirmation depth, reorg, encryption, tamper rejection, cold-start recovery, replay and fail-closed tests passed");
+const paused=createCroService({getData:async()=>data,rpc,env:{...env,GAIA_CRO_SECURITY_REVIEW:"true"}});
+assert.equal((await paused.config()).available,false);assert((await paused.config()).reason.includes("MetaMask"));
+await assert.rejects(()=>paused.order({payer,topic:"spazio"}),e=>e.statusCode===503);
+assert((await paused.report({...auth,txHash})).report.includes("Space bulletin"),"pause must preserve fulfillment of paid invoices");
+console.log("Security review: new orders blocked, paid invoice recovery preserved");

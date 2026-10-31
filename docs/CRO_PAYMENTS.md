@@ -1,5 +1,14 @@
 # Native CRO checkout
 
+2026-10-31: MetaMask Mobile displayed a phishing warning for the exact production
+URL. New payments are paused with GAIA_CRO_ENABLED=false and
+GAIA_CRO_SECURITY_REVIEW=true, production only. The client receives a specific
+maintenance message; order creation is blocked server-side. Paid invoice
+verification, recovery and download remain supported. Do not disable wallet
+protections, switch domains to evade the warning, or call it a false positive
+without evidence. Re-enable only after the warning has been investigated and
+the owner authorizes reopening. A review request is prepared, not submitted.
+
 Production configuration is scoped only to gaia-lumen-originale:
 GAIA_CRO_ENABLED=true, GAIA_CRO_RECEIVER (the owner's confirmed public
 Crypto.com Cronos EVM deposit address), GAIA_CRO_ORDER_KEY (32 random bytes,
