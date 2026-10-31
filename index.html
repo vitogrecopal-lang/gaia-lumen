@@ -113,14 +113,14 @@
           <button id="croConnect" type="button" disabled>1. Collega portafoglio</button>
           <button id="croCreate" type="button" disabled>2. Prepara ordine - 5 CRO</button>
           <p id="croOrderSummary"></p>
-          <button id="croBackup" type="button" disabled>Salva riferimento ordine</button>
+          <button id="croBackup" type="button" disabled>Salva riferimento ordine (necessario prima di pagare)</button>
           <button id="croPay" type="button" disabled>3. Autorizza 5 CRO nel portafoglio</button>
           <label for="croTxHash">Hash transazione (compilato dopo l'invio; recuperabile anche dal portafoglio)</label>
           <input id="croTxHash" type="text" maxlength="66" autocomplete="off" spellcheck="false" placeholder="0x...">
           <button id="croVerify" type="button" disabled>4. Verifica pagamento</button>
           <button id="croDownload" type="button" disabled>5. Scarica report pagato</button>
           <p>Il report si sblocca dopo 15 conferme verificate dal server. Se la verifica e' in attesa, riprova senza pagare di nuovo. La ricevuta attesta il trasferimento sulla blockchain, non l'accredito interno di un exchange.</p>
-          <details><summary>Recupera un ordine precedente</summary><p>Conserva privatamente il file di riferimento: permette di recuperare il report e non contiene chiavi private. Il sito ricorda l'ordine anche nella sessione di questa scheda.</p><label for="croRestore">Carica il riferimento ordine JSON</label><input id="croRestore" type="file" accept="application/json,.json"></details>
+          <details><summary>Recupera un ordine precedente</summary><p>Conserva privatamente il file di riferimento e l'hash della transazione: sono necessari per recuperare il report. Il report e' cifrato nel riferimento; la blockchain conserva la prova del pagamento. Il sito ricorda l'ordine anche nella sessione di questa scheda. Il riferimento non contiene chiavi private del portafoglio.</p><label for="croRestore">Carica il riferimento ordine JSON</label><input id="croRestore" type="file" accept="application/json,.json"></details>
           <p>Usa un portafoglio web compatibile Cronos EVM. Non inserire qui password, chiavi private o frasi di recupero.</p>
         </section>
 

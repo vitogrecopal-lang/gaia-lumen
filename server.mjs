@@ -1,4 +1,4 @@
-import { createCroService, croStore } from "./cro-payments.mjs";
+import { createCroService } from "./cro-payments.mjs";
 import { getCryptoPrices } from "./crypto-prices.mjs";
 import { getWorldDashboard } from "./world-feed.mjs";
 import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
@@ -22,7 +22,7 @@ const bundledStatePath = join(root, "neural_state.json");
 let lastDailyBackupDate = "";
 let databaseClient;
 let databaseInitialized = false;
-const croService = createCroService({store:croStore(getDatabaseClient),getData:getWorldDashboard});
+const croService = createCroService({getData:getWorldDashboard});
 
 const types = {
   ".html": "text/html; charset=utf-8",

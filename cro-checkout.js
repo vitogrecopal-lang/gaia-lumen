@@ -11,7 +11,7 @@
   $("croConnect").disabled=busy||!config?.available;
   $("croCreate").disabled=busy||!config?.available||!account||Boolean(order);
   $("croTopic").disabled=busy||Boolean(order);
-  $("croPay").disabled=busy||!order||!account||order.status==="paid"||Boolean($("croTxHash").value)||uncertain||!config?.available;
+  $("croPay").disabled=busy||!order||!account||order.status==="paid"||Boolean($("croTxHash").value)||uncertain||!config?.available||!order.backedUp;
   $("croVerify").disabled=busy||!order||!$("croTxHash").value.trim();
   $("croDownload").disabled=busy||order?.status!=="paid";
   $("croBackup").disabled=busy||!order;
@@ -27,14 +27,14 @@
   if(await wallet.request({method:"eth_chainId"})!=="0x19")await wallet.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x19"}]});
   const accounts=await wallet.request({method:"eth_accounts"});if(await wallet.request({method:"eth_chainId"})!=="0x19"||accounts?.[0]?.toLowerCase()!==order.payer.toLowerCase())throw new Error("Seleziona Cronos EVM e il portafoglio con cui hai creato l'ordine.");
   uncertain=true;save();status("Conferma nel portafoglio: 5 CRO al destinatario visualizzato, piu' commissioni della rete.");
-  try{const txHash=await wallet.request({method:"eth_sendTransaction",params:[{from:order.payer,to:order.receiver,value:order.value,data:order.data,chainId:"0x19"}]});if(!/^0x[0-9a-f]{64}$/i.test(txHash||""))throw new Error("Invio da controllare nel portafoglio. Inserisci l'hash e verifica; non pagare di nuovo.");$("croTxHash").value=txHash;uncertain=false;save();status("Transazione inviata. Premi Verifica pagamento: occorrono 15 conferme della rete.");}
+  try{const txHash=await wallet.request({method:"eth_sendTransaction",params:[{from:order.payer,to:order.receiver,value:order.value,data:order.data,chainId:"0x19"}]});if(!/^0x[0-9a-f]{64}$/i.test(txHash||""))throw new Error("Invio da controllare nel portafoglio. Inserisci l'hash e verifica; non pagare di nuovo.");$("croTxHash").value=txHash;uncertain=false;save();status("Transazione inviata. Salva di nuovo il riferimento per includere l'hash, poi premi Verifica pagamento: occorrono 15 conferme della rete.");}
   catch(e){if(e.code===4001){uncertain=false;save();}throw e;}
  }));
  $("croTxHash").addEventListener("input",()=>{if(order)save();render();});
  $("croVerify").addEventListener("click",()=>action(async()=>{const d=await api("verify",{...credentials(),txHash:$("croTxHash").value.trim()});order.status=d.status;save();status(d.status==="paid"?"Pagamento verificato sulla blockchain. Il tuo report e' pronto da scaricare.":`Pagamento in attesa: ${d.confirmations}/15 conferme. Riprova tra qualche secondo, senza pagare di nuovo.`);}));
- $("croDownload").addEventListener("click",()=>action(async()=>{const d=await api("report",credentials());download(`gaia-lumen-report-${order.id}.txt`,d.report,"text/plain;charset=utf-8");status("Report scaricato. Conserva il riferimento ordine per recuperarlo.");}));
- $("croBackup").addEventListener("click",()=>{download(`gaia-lumen-ordine-${order.id}.json`,JSON.stringify({...credentials(),txHash:$("croTxHash").value,uncertain}),"application/json");status("Riferimento salvato: conservalo privatamente, permette di accedere al report. Non contiene chiavi del portafoglio.");});
- $("croRestore").addEventListener("change",e=>action(async()=>{const file=e.target.files?.[0];if(!file||file.size>4096)throw new Error("Scegli il piccolo file JSON del riferimento ordine.");const saved=JSON.parse(await file.text());const restored=await api("resume",saved);order=restored;$("croTxHash").value=saved.txHash||restored.txHash||"";uncertain=Boolean(saved.uncertain);save();status("Ordine recuperato. Verifica la transazione o scarica il report gia' pagato.");}));
+ $("croDownload").addEventListener("click",()=>action(async()=>{const d=await api("report",{...credentials(),txHash:$("croTxHash").value.trim()});download(`gaia-lumen-report-${order.id}.txt`,d.report,"text/plain;charset=utf-8");status("Report scaricato. Conserva il riferimento ordine per recuperarlo.");}));
+ $("croBackup").addEventListener("click",()=>{download(`gaia-lumen-ordine-${order.id}.json`,JSON.stringify({...credentials(),txHash:$("croTxHash").value,uncertain}),"application/json");order.backedUp=true;save();render();status("Riferimento salvato: conservalo privatamente insieme all'hash del pagamento. E' necessario per recuperare il report e non contiene chiavi del portafoglio.");});
+ $("croRestore").addEventListener("change",e=>action(async()=>{const file=e.target.files?.[0];if(!file||file.size>16000)throw new Error("Scegli il file JSON del riferimento ordine.");const saved=JSON.parse(await file.text());const restored=await api("resume",saved);order={...restored,backedUp:true};$("croTxHash").value=saved.txHash||restored.txHash||"";uncertain=Boolean(saved.uncertain);save();status("Ordine recuperato. Verifica la transazione o scarica il report gia' pagato.");}));
  wallet=window.ethereum;if(wallet?.on)wallet.on("accountsChanged",accounts=>{account=accounts?.[0]||null;render();});
  const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){observer.disconnect();load();}},{rootMargin:"100px"});observer.observe($("croCheckout"));render();
 })();
