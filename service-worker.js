@@ -1,9 +1,13 @@
-const CACHE_NAME = "gaia-lumen-static-v46-geographic-map";
+const CACHE_NAME = "gaia-lumen-static-v47-crypto-laboratory";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/simulatore-crypto.html",
+  "/crypto-simulator.css",
+  "/crypto-simulator.js",
+  "/crypto-model.js",
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",

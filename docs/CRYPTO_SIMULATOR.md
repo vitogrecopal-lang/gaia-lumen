@@ -1,0 +1,12 @@
+# Laboratorio crypto
+
+Pagina: `/simulatore-crypto.html`, collegata dalla home Gaia-Lumen.
+Endpoint: `GET /api/crypto-prices`, protetto dagli stessi controlli del sito.
+
+SOL, CRO e BTC: prezzi pubblici CoinGecko in EUR, cache server di 60 secondi e timeout di 8 secondi. La risposta conserva timestamp della fonte e di ricezione. Nessun prezzo di esempio viene usato come reale. Dati scaduti o fonte non disponibile sospendono le operazioni virtuali; una precedente quotazione puo restare visibile come non aggiornata.
+
+Portafoglio virtuale salvato nel localStorage del singolo browser. Capitale iniziale generico: 4 EUR, nessuna quantita reale precaricata. Operazioni e registro non vengono inviati al server. Nessun conto, chiave Crypto.com o strumento di trading reale collegato.
+
+Costo ipotetico configurabile 0-10%, inizialmente 1%; non rappresenta tariffe dell'exchange. Liquidita, minimi, spread e fiscalita reali non sono riprodotti. Scenari: variazioni separate -100%/+100% per moneta, non previsioni. CSV delle ultime 200 operazioni virtuali.
+
+Verifica: `node scripts/crypto-test.mjs`, controlli sintattici, GET `/healthz`, GET `/api/crypto-prices` e prova browser di acquisto/vendita virtuale.

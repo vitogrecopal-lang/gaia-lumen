@@ -1,3 +1,4 @@
+import { getCryptoPrices } from "./crypto-prices.mjs";
 import { getWorldDashboard } from "./world-feed.mjs";
 import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
 import { projectCharter } from "./project-charter.mjs";
@@ -5835,6 +5836,9 @@ export async function handleRequest(request, response) {
   }
 
   try {
+    if (url.pathname === "/api/crypto-prices" && request.method === "GET") {
+      return sendJson(response, await getCryptoPrices());
+    }
     if (url.pathname === "/api/world-dashboard" && request.method === "GET") {
       return sendJson(response, await getWorldDashboard());
     }
