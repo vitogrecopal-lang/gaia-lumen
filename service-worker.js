@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v47-crypto-laboratory";
+const CACHE_NAME = "gaia-lumen-static-v48-crypto-csv-import";
 
 const STATIC_ASSETS = [
   "/",

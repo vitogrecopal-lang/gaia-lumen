@@ -1,4 +1,4 @@
-import { SYMBOLS, newWallet, trade, valuation, freshPrice } from './crypto-model.js';
+import { SYMBOLS, newWallet, trade, valuation, freshPrice, importWalletCsv } from './crypto-model.js';
 const $ = id => document.getElementById(id);
 const euro = value => value === null ? '--' : new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 4 }).format(value);
 const qty = value => new Intl.NumberFormat('it-IT', { maximumFractionDigits: 10 }).format(value);
@@ -11,6 +11,7 @@ try {
 } catch { /* A blocked or damaged local store does not prevent simulation. */ }
 let market = { stale: true, prices: {} };
 let busy = false;
+let pendingImport = null;
 const changes = Object.fromEntries(SYMBOLS.map(s => [s, 0]));
 function save() { try { localStorage.setItem(key, JSON.stringify(wallet)); } catch { $('tradeStatus').textContent += ' Salvataggio locale non disponibile: mantieni aperta la pagina.'; } }
 function cell(row, text) { const td=document.createElement('td'); td.textContent=text; row.append(td); }
@@ -96,6 +97,25 @@ $('resetForm').addEventListener('submit',event=>{
 });
 for (const id of ['symbol','side']) $(id).addEventListener('change',render);
 $('refresh').addEventListener('click',refresh);
+$('csvFile').addEventListener('change',async()=>{
+  pendingImport=null; $('confirmImport').disabled=true;
+  try {
+    const file=$('csvFile').files[0];
+    if (!file) { $('importStatus').textContent='Nessun file selezionato.'; return; }
+    if (file.size>100000) throw new Error('File troppo grande: massimo 100 KB');
+    pendingImport=importWalletCsv(await file.text(),$('capital').value);
+    $('importStatus').className='';
+    $('importStatus').textContent=`Anteprima: ${pendingImport.trades.length} operazioni; capitale iniziale ${euro(pendingImport.initial)}; euro virtuali residui ${euro(pendingImport.cash)}; ${SYMBOLS.map(s=>`${qty(pendingImport.holdings[s])} ${s}`).join(', ')}. Premi Carica registro per sostituire il solo esperimento virtuale.`;
+    $('confirmImport').disabled=false;
+  } catch(error) { $('importStatus').className='error'; $('importStatus').textContent=error.message; }
+});
+$('capital').addEventListener('input',()=>{pendingImport=null;$('confirmImport').disabled=true;$('importStatus').textContent='Capitale modificato: seleziona di nuovo il CSV per verificarlo.';});
+$('confirmImport').addEventListener('click',()=>{
+  if (!pendingImport) return;
+  wallet=pendingImport;pendingImport=null;$('confirmImport').disabled=true;
+  $('tradeStatus').textContent='';save();render();
+  $('importStatus').textContent='CSV caricato nel simulatore e salvato in questo browser. Nessun file pubblicato o ordine reale inviato.';
+});
 $('export').addEventListener('click',()=>{
   const rows=[['data','operazione_virtuale','moneta','quantita','prezzo_eur','costo_eur'],...wallet.trades.map(t=>[t.at,t.side,t.symbol,t.quantity,t.price,t.fee])];
   const blob=new Blob(['\uFEFF'+rows.map(r=>r.join(';')).join('\r\n')],{type:'text/csv;charset=utf-8'});

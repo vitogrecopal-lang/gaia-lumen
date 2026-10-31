@@ -10,3 +10,5 @@ Portafoglio virtuale salvato nel localStorage del singolo browser. Capitale iniz
 Costo ipotetico configurabile 0-10%, inizialmente 1%; non rappresenta tariffe dell'exchange. Liquidita, minimi, spread e fiscalita reali non sono riprodotti. Scenari: variazioni separate -100%/+100% per moneta, non previsioni. CSV delle ultime 200 operazioni virtuali.
 
 Verifica: `node scripts/crypto-test.mjs`, controlli sintattici, GET `/healthz`, GET `/api/crypto-prices` e prova browser di acquisto/vendita virtuale.
+
+Import CSV: file completo esportato dal simulatore, massimo 100 KB e 200 operazioni. Prima imposta il capitale iniziale e seleziona il CSV; l'anteprima verifica date, monete, importi e disponibilita durante il replay cronologico. Carica registro sostituisce l'esperimento locale senza sommare o duplicare le operazioni. Nessun caricamento del file al server. Un CSV troncato alle ultime 200 operazioni potrebbe essere incompleto e non e una copia di sicurezza completa del portafoglio.
