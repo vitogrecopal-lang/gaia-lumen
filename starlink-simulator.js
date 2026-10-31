@@ -1,3 +1,4 @@
+import { createAsmodeusPulse, pulseChannel } from './asmodeus-pulse.js';
 (() => {
   const root = document.getElementById("starlink-simulator");
   if (!root) return;
@@ -57,6 +58,12 @@
   let timer = null;
   let pulseCount = 0;
   let lastPulse = null;
+  const cryptoChannel = pulseChannel();
+  let publishedCount = 0;
+  function publishCryptoPulse() {
+    publishedCount += 1;
+    cryptoChannel?.postMessage(createAsmodeusPulse(publishedCount, 'homepage'));
+  }
   function updateAutoStatus() {
     const mode = timer === null ? "Automatico fermo" : document.hidden ? "Automatico sospeso: pagina nascosta" : "Automatico attivo: un impulso simulato ogni 10 secondi";
     autoStatus.textContent = `${mode}. Impulsi simulati: ${pulseCount}. Ultimo impulso: ${lastPulse ? lastPulse.toLocaleTimeString("it-IT") : "nessuno"}.`;
@@ -77,6 +84,7 @@
     if (document.hidden) return;
     applyAsmodeus();
     pulseCount += 1;
+    publishCryptoPulse();
     lastPulse = new Date();
     updateAutoStatus();
   }
@@ -98,6 +106,7 @@
     }
     stopAuto();
     applyAsmodeus();
+    publishCryptoPulse();
   });
   policy.addEventListener("change", () => { stopAuto(); applyPreset(); });
   power.addEventListener("change", () => { stopAuto(); render(); });

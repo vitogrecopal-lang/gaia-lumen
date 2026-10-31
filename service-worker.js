@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v48-crypto-csv-import";
+const CACHE_NAME = "gaia-lumen-static-v49-crypto-asmodeus";
 
 const STATIC_ASSETS = [
   "/",
@@ -8,6 +8,7 @@ const STATIC_ASSETS = [
   "/crypto-simulator.css",
   "/crypto-simulator.js",
   "/crypto-model.js",
+  "/asmodeus-pulse.js",
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",
@@ -17,7 +18,7 @@ const STATIC_ASSETS = [
   "/assets/world-natural-earth.svg",
   "/cosmic-monitor.js?v=cosmic-fast-v1",
   "/starlink.js?v=starlink-v1",
-  "/starlink-simulator.js?v=sim-v3",
+  "/starlink-simulator.js?v=sim-v4",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
   "/app.js?v=gaia-lumen-postbirth-v1",

@@ -1,4 +1,5 @@
 import { SYMBOLS, newWallet, trade, valuation, freshPrice, importWalletCsv } from './crypto-model.js';
+import { createAsmodeusPulse, validAsmodeusPulse, pulseChannel } from './asmodeus-pulse.js';
 const $ = id => document.getElementById(id);
 const euro = value => value === null ? '--' : new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 4 }).format(value);
 const qty = value => new Intl.NumberFormat('it-IT', { maximumFractionDigits: 10 }).format(value);
@@ -13,6 +14,38 @@ let market = { stale: true, prices: {} };
 let busy = false;
 let pendingImport = null;
 const changes = Object.fromEntries(SYMBOLS.map(s => [s, 0]));
+const asmodeusChannel = pulseChannel();
+let impulseTimer = null, impulseActive = false, impulseSequence = 0, receivedCount = 0;
+let pulseLog = [], seenPulses = new Set();
+function pulseStatus(message) {
+  $('asmodeusStatus').textContent = message;
+  $('asmodeusStart').disabled = impulseActive;
+  $('asmodeusStop').disabled = !impulseActive;
+}
+function stopImpulses(reason = 'Impulsi arrestati. Lo scenario corrente resta visibile.') {
+  if (impulseTimer !== null) clearInterval(impulseTimer);
+  impulseTimer = null; impulseActive = false; pulseStatus(reason);
+}
+function applyCryptoPulse(pulse) {
+  if (!impulseActive || !validAsmodeusPulse(pulse) || seenPulses.has(pulse.id)) return;
+  seenPulses.add(pulse.id); if (seenPulses.size > 100) seenPulses.delete(seenPulses.values().next().value);
+  receivedCount += 1;
+  changes.SOL = pulse.solChange;
+  const input = $('change-SOL'); input.value = changes.SOL;
+  input.previousElementSibling.querySelector('output').textContent = `${changes.SOL}%`;
+  const entry = `${date(pulse.at)} / ${pulse.source === 'homepage' ? 'Home Gaia-Lumen' : 'Ciclo locale'} / SOL ${changes.SOL > 0 ? '+' : ''}${changes.SOL}% ipotetico`;
+  pulseLog.unshift(entry); pulseLog = pulseLog.slice(0, 8);
+  $('asmodeusLog').replaceChildren(...pulseLog.map(text => { const li=document.createElement('li'); li.textContent=text; return li; }));
+  pulseStatus(`${receivedCount} impulsi applicati. Ultimo scenario SOL: ${changes.SOL}%. Solo ipotesi, nessun ordine.`);
+  render();
+}
+function localPulse() {
+  if (document.hidden) return;
+  impulseSequence += 1; applyCryptoPulse(createAsmodeusPulse(impulseSequence));
+}
+asmodeusChannel?.addEventListener('message', event => {
+  if ($('asmodeusSource').value === 'homepage' && event.data?.source === 'homepage') applyCryptoPulse(event.data);
+});
 function save() { try { localStorage.setItem(key, JSON.stringify(wallet)); } catch { $('tradeStatus').textContent += ' Salvataggio locale non disponibile: mantieni aperta la pagina.'; } }
 function cell(row, text) { const td=document.createElement('td'); td.textContent=text; row.append(td); }
 function render() {
@@ -77,7 +110,7 @@ for (const symbol of SYMBOLS) {
   const output=document.createElement('output'); output.textContent='0%'; output.htmlFor=`change-${symbol}`;
   label.append(title,output);
   const input=document.createElement('input'); input.type='range'; input.id=`change-${symbol}`; input.min='-100'; input.max='100'; input.value='0';
-  input.addEventListener('input',()=>{changes[symbol]=Number(input.value);output.textContent=`${input.value}%`;render();});
+  input.addEventListener('input',()=>{stopImpulses('Modifica manuale: impulsi arrestati.');changes[symbol]=Number(input.value);output.textContent=`${input.value}%`;render();});
   wrap.append(label,input); $('sliders').append(wrap);
 }
 $('tradeForm').addEventListener('submit',event=>{
@@ -92,10 +125,23 @@ $('resetForm').addEventListener('submit',event=>{
   event.preventDefault();
   try {
     if (wallet.trades.length && !confirm('Azzerare soltanto il portafoglio e il registro virtuali di questo browser?')) return;
-    wallet=newWallet($('capital').value); $('tradeStatus').textContent='Nuovo esperimento virtuale avviato.';save();render();
+    stopImpulses(); wallet=newWallet($('capital').value); $('tradeStatus').textContent='Nuovo esperimento virtuale avviato.';save();render();
   } catch(error) { $('tradeStatus').textContent=error.message; }
 });
 for (const id of ['symbol','side']) $(id).addEventListener('change',render);
+$('asmodeusStart').addEventListener('click',()=>{
+  if (impulseActive) return;
+  if ($('asmodeusSource').value==='homepage' && !asmodeusChannel) { pulseStatus('Collegamento tra schede non disponibile. Scegli il ciclo locale.');return; }
+  impulseActive=true;
+  if ($('asmodeusSource').value==='local') { impulseTimer=setInterval(localPulse,10000); localPulse(); }
+  else pulseStatus('In ascolto della home Gaia-Lumen nello stesso browser. Avvia li gli impulsi; il ricevitore aggiorna solo questo scenario virtuale.');
+});
+$('asmodeusStop').addEventListener('click',()=>stopImpulses());
+$('asmodeusSource').addEventListener('change',()=>stopImpulses('Sorgente modificata: premi Avvia per collegarla.'));
+document.addEventListener('visibilitychange',()=>{
+  if (impulseActive && $('asmodeusSource').value==='local') pulseStatus(document.hidden?'Ciclo locale sospeso: pagina nascosta.':'Ciclo locale attivo: un impulso ogni 10 secondi, senza recupero arretrati.');
+});
+window.addEventListener('pagehide',()=>{stopImpulses();asmodeusChannel?.close();});
 $('refresh').addEventListener('click',refresh);
 $('csvFile').addEventListener('change',async()=>{
   pendingImport=null; $('confirmImport').disabled=true;
