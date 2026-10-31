@@ -857,3 +857,9 @@ select {
 .gestation-figure { margin: 16px 0; padding: 8px; background: radial-gradient(ellipse at center,#183348,#08141f); border-radius: 12px; border: 1px solid #426371; }
 .gestation-figure svg { display: block; width: 100%; height: auto; max-height: 260px; }
 .gestation-figure figcaption { text-align: center; color: #b4cbd6; font-size: .8rem; }
+.cro-checkout { scroll-margin-top: 16px; }
+.cro-checkout code { display: block; overflow-wrap: anywhere; color: #b7f0df; }
+.cro-checkout select,.cro-checkout input[type=text] { display: block; box-sizing: border-box; width: 100%; padding: 10px; background: #123441; color: #fff; border: 1px solid #7198a5; border-radius: 6px; margin: 8px 0; }
+.cro-checkout button { margin: 6px 4px 6px 0; min-height: 44px; }
+.cro-checkout button:disabled { opacity: .5; cursor: default; }
+.cro-checkout button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }

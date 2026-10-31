@@ -1,0 +1,33 @@
+import assert from "node:assert/strict";
+import {createCroService,verifyCroTransaction,paymentReference,CRO_PRICE_WEI} from "../cro-payments.mjs";
+const receiver="0x"+"1".repeat(40),payer="0x"+"2".repeat(40),txHash="0x"+"a".repeat(64),blockHash="0x"+"b".repeat(64);
+const baseOrder={id:"a0b540c9-b165-4796-8509-05beb1851bd0",payer,receiver,amount_wei:CRO_PRICE_WEI};baseOrder.tx_data=paymentReference(baseOrder.id);
+function mockRpc(overrides={}){return async (method)=>{
+ const values={eth_chainId:"0x19",eth_getCode:"0x",eth_getTransactionByHash:{hash:txHash,from:payer,to:receiver,value:"0x"+BigInt(CRO_PRICE_WEI).toString(16),input:baseOrder.tx_data,blockNumber:"0x64",blockHash},eth_getTransactionReceipt:{transactionHash:txHash,to:receiver,status:"0x1",blockNumber:"0x64",blockHash},eth_getBlockByNumber:{hash:blockHash},eth_blockNumber:"0x72",...overrides};return values[method];
+};}
+assert.equal((await verifyCroTransaction(baseOrder,txHash,mockRpc())).status,"paid");
+assert.equal((await verifyCroTransaction(baseOrder,txHash,mockRpc({eth_blockNumber:"0x71"}))).confirmations,14);
+assert.equal((await verifyCroTransaction(baseOrder,txHash,mockRpc({eth_getTransactionReceipt:null}))).status,"pending");
+assert.equal((await verifyCroTransaction(baseOrder,txHash,mockRpc({eth_getBlockByNumber:{hash:"0x"+"c".repeat(64)}}))).status,"pending");
+await assert.rejects(()=>verifyCroTransaction(baseOrder,txHash,mockRpc({eth_chainId:"0x1"})));
+for(const changed of [{payer:receiver},{receiver:payer},{amount_wei:"1"},{tx_data:"0x"}])await assert.rejects(()=>verifyCroTransaction({...baseOrder,...changed},txHash,mockRpc()));
+const failed={transactionHash:txHash,to:receiver,status:"0x0",blockNumber:"0x64",blockHash};await assert.rejects(()=>verifyCroTransaction(baseOrder,txHash,mockRpc({eth_getTransactionReceipt:failed})));
+await assert.rejects(()=>verifyCroTransaction(baseOrder,"invalid",mockRpc()));
+const rows=new Map(),used=new Set();
+const store={check:async()=>{},create:async o=>rows.set(o.id,{...o,status:"pending",created_at:new Date().toISOString()}),get:async id=>rows.get(id),paid:async(id,h)=>{assert(!used.has(h));used.add(h);rows.get(id).status="paid";rows.get(id).tx_hash=h;}};
+const data={generatedAt:new Date().toISOString(),sources:[{id:"NASA",stale:false,fetchedAt:new Date().toISOString()}],items:[{source:"NASA",category:"spazio",title:"Space bulletin",url:"https://www.nasa.gov/",publishedAt:new Date().toISOString()}]};
+const env={GAIA_CRO_ENABLED:"true",GAIA_CRO_RECEIVER:receiver};let activeOrder=baseOrder;
+const rpc=async (m,p)=>m==="eth_getTransactionByHash"?{hash:txHash,from:payer,to:receiver,value:"0x"+BigInt(CRO_PRICE_WEI).toString(16),input:activeOrder.tx_data,blockNumber:"0x64",blockHash}:mockRpc()(m,p);
+const service=createCroService({store,getData:async()=>data,rpc,env});
+assert.equal((await service.config()).available,true);
+const o=await service.order({payer,topic:"spazio"});activeOrder=rows.get(o.id);assert.equal(o.priceCro,"5");assert.equal(o.report,undefined);assert.equal(o.value,"0x4563918244f40000");
+const auth={id:o.id,accessToken:o.accessToken};await assert.rejects(()=>service.report(auth),e=>e.statusCode===402);
+await assert.rejects(()=>service.resume({...auth,accessToken:"0".repeat(64)}),e=>e.statusCode===403);
+assert.equal((await service.resume(auth)).receiver,receiver);
+assert.equal((await service.verify({...auth,txHash})).status,"paid");assert((await service.report(auth)).report.includes("Space bulletin"));
+assert.equal((await service.verify({...auth,txHash})).status,"paid","paid verification is idempotent");
+const other=await service.order({payer,topic:"spazio"});await assert.rejects(()=>service.verify({id:other.id,accessToken:other.accessToken,txHash}),"same payment cannot unlock another order");
+const outage=createCroService({store:{check:async()=>{throw new Error("database offline");}},getData:async()=>data,rpc,env});assert.equal((await outage.config()).available,false);await assert.rejects(()=>outage.order({payer,topic:"spazio"}));
+const noData=createCroService({store,getData:async()=>({...data,sources:[{id:"NASA",stale:true}]}),rpc,env});await assert.rejects(()=>noData.order({payer,topic:"spazio"}),e=>e.statusCode===503);
+assert.equal((await createCroService({store,getData:async()=>data,rpc,env:{}}).config()).available,false);
+console.log("CRO: exact amount, chain, payer, receiver, reference, confirmation depth, reorg, access control, replay, idempotency and fail-closed tests passed");

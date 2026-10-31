@@ -1,3 +1,4 @@
+import { createCroService, croStore } from "./cro-payments.mjs";
 import { getWorldDashboard } from "./world-feed.mjs";
 import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
 import { projectCharter } from "./project-charter.mjs";
@@ -20,6 +21,7 @@ const bundledStatePath = join(root, "neural_state.json");
 let lastDailyBackupDate = "";
 let databaseClient;
 let databaseInitialized = false;
+const croService = createCroService({store:croStore(getDatabaseClient),getData:getWorldDashboard});
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -5835,6 +5837,16 @@ export async function handleRequest(request, response) {
   }
 
   try {
+    if (url.pathname.startsWith("/api/cro/")) {
+      try {
+        const action=url.pathname.slice("/api/cro/".length);
+        if(action==="config"&&request.method==="GET")return sendJson(response,await croService.config());
+        if(["order","verify","report","resume"].includes(action)&&request.method==="POST")return sendJson(response,await croService[action](await readBody(request)));
+        return sendJson(response,{error:"Operazione CRO non disponibile."},404);
+      } catch(error) {
+        return sendJson(response,{error:error.statusCode?error.message:"Servizio CRO temporaneamente non disponibile. Conserva il riferimento ordine e riprova senza pagare di nuovo."},error.statusCode||503);
+      }
+    }
     if (url.pathname === "/api/world-dashboard" && request.method === "GET") {
       return sendJson(response, await getWorldDashboard());
     }

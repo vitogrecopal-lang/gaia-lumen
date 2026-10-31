@@ -1,9 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v46-geographic-map";
+const CACHE_NAME = "gaia-lumen-static-v47-cro-checkout";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
+  "/cro-checkout.js?v=cro-v1",
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",
