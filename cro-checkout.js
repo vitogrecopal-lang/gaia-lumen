@@ -27,7 +27,7 @@
   if(await wallet.request({method:"eth_chainId"})!=="0x19")await wallet.request({method:"wallet_switchEthereumChain",params:[{chainId:"0x19"}]});
   const accounts=await wallet.request({method:"eth_accounts"});if(await wallet.request({method:"eth_chainId"})!=="0x19"||accounts?.[0]?.toLowerCase()!==order.payer.toLowerCase())throw new Error("Seleziona Cronos EVM e il portafoglio con cui hai creato l'ordine.");
   uncertain=true;save();status("Conferma nel portafoglio: 5 CRO al destinatario visualizzato, piu' commissioni della rete.");
-  try{const txHash=await wallet.request({method:"eth_sendTransaction",params:[{from:order.payer,to:order.receiver,value:order.value,data:order.data,chainId:"0x19"}]});if(!/^0x[0-9a-f]{64}$/i.test(txHash||""))throw new Error("Invio da controllare nel portafoglio. Inserisci l'hash e verifica; non pagare di nuovo.");$("croTxHash").value=txHash;uncertain=false;save();status("Transazione inviata. Salva di nuovo il riferimento per includere l'hash, poi premi Verifica pagamento: occorrono 15 conferme della rete.");}
+  try{const txHash=await wallet.request({method:"eth_sendTransaction",params:[{from:order.payer,to:order.receiver,value:order.value,data:order.data,chainId:"0x19"}]});if(!/^0x[0-9a-f]{64}$/i.test(txHash||""))throw new Error("Invio da controllare nel portafoglio. Inserisci l'hash e verifica; non pagare di nuovo.");$("croTxHash").value=txHash;save();status("Transazione inviata. Salva di nuovo il riferimento per includere l'hash, poi premi Verifica pagamento: occorrono 15 conferme della rete.");}
   catch(e){if(e.code===4001){uncertain=false;save();}throw e;}
  }));
  $("croTxHash").addEventListener("input",()=>{if(order)save();render();});
