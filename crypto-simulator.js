@@ -110,6 +110,16 @@ $('csvFile').addEventListener('change',async()=>{
   } catch(error) { $('importStatus').className='error'; $('importStatus').textContent=error.message; }
 });
 $('capital').addEventListener('input',()=>{pendingImport=null;$('confirmImport').disabled=true;$('importStatus').textContent='Capitale modificato: seleziona di nuovo il CSV per verificarlo.';});
+$('csvText').addEventListener('input',()=>{pendingImport=null;$('confirmImport').disabled=true;});
+$('previewCsvText').addEventListener('click',()=>{
+  pendingImport=null; $('confirmImport').disabled=true;
+  try {
+    pendingImport=importWalletCsv($('csvText').value,$('capital').value);
+    $('importStatus').className='';
+    $('importStatus').textContent=`Anteprima CSV: ${pendingImport.trades.length} operazioni; capitale ${euro(pendingImport.initial)}; euro residui ${euro(pendingImport.cash)}; ${SYMBOLS.map(s=>`${qty(pendingImport.holdings[s])} ${s}`).join(', ')}. Premi Carica registro per applicare.`;
+    $('confirmImport').disabled=false;
+  } catch(error) { $('importStatus').className='error'; $('importStatus').textContent=error.message; }
+});
 $('confirmImport').addEventListener('click',()=>{
   if (!pendingImport) return;
   wallet=pendingImport;pendingImport=null;$('confirmImport').disabled=true;
