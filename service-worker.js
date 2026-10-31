@@ -1,10 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v56-cro-checkout";
+const CACHE_NAME = "gaia-lumen-static-v57-cro-invoices";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
-  "/cro-checkout.js?v=cro-v1",
+  "/cro-checkout.js?v=cro-v2",
   "/simulatore-crypto.html",
   "/crypto-simulator.css",
   "/crypto-simulator.js",
