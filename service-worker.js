@@ -1,10 +1,15 @@
-const CACHE_NAME = "gaia-lumen-static-v47-cro-checkout";
+const CACHE_NAME = "gaia-lumen-static-v56-cro-checkout";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
   "/styles.css",
   "/cro-checkout.js?v=cro-v1",
+  "/simulatore-crypto.html",
+  "/crypto-simulator.css",
+  "/crypto-simulator.js",
+  "/crypto-model.js",
+  "/asmodeus-pulse.js",
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",
@@ -14,7 +19,7 @@ const STATIC_ASSETS = [
   "/assets/world-natural-earth.svg",
   "/cosmic-monitor.js?v=cosmic-fast-v1",
   "/starlink.js?v=starlink-v1",
-  "/starlink-simulator.js?v=sim-v3",
+  "/starlink-simulator.js?v=sim-v4",
   "/dark-matter.js?v=nfw-v1",
   "/signal-decoder.js?v=signal-v1",
   "/app.js?v=gaia-lumen-postbirth-v1",

@@ -1,4 +1,5 @@
 import { createCroService, croStore } from "./cro-payments.mjs";
+import { getCryptoPrices } from "./crypto-prices.mjs";
 import { getWorldDashboard } from "./world-feed.mjs";
 import { conversationPhase, nextProjectQuestion } from "./post-gestation.mjs";
 import { projectCharter } from "./project-charter.mjs";
@@ -5846,6 +5847,9 @@ export async function handleRequest(request, response) {
       } catch(error) {
         return sendJson(response,{error:error.statusCode?error.message:"Servizio CRO temporaneamente non disponibile. Conserva il riferimento ordine e riprova senza pagare di nuovo."},error.statusCode||503);
       }
+    }
+    if (url.pathname === "/api/crypto-prices" && request.method === "GET") {
+      return sendJson(response, await getCryptoPrices());
     }
     if (url.pathname === "/api/world-dashboard" && request.method === "GET") {
       return sendJson(response, await getWorldDashboard());
