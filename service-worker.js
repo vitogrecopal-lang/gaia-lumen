@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v54-crypto-external-link";
+const CACHE_NAME = "gaia-lumen-static-v55-account-snapshot";
 
 const STATIC_ASSETS = [
   "/",
