@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v49-crypto-asmodeus";
+const CACHE_NAME = "gaia-lumen-static-v50-crypto-asmodeus-100";
 
 const STATIC_ASSETS = [
   "/",

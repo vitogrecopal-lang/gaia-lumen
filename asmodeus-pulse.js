@@ -1,5 +1,5 @@
 // Symbolic pulse contract. No network, credentials, trading or predictions.
-const STEPS = [5, -5, 10, -10, 15, -15, 0];
+const STEPS = [25, -25, 50, -50, 100, -100, 0];
 export function createAsmodeusPulse(sequence, source = 'crypto') {
   if (!Number.isSafeInteger(sequence) || sequence < 1 || !['crypto','homepage'].includes(source)) throw new Error('Impulso non valido');
   return { type:'gaia-asmodeus-simulation-v1', id:`${source}-${Date.now()}-${sequence}`, source, sequence, at:Date.now(), solChange:STEPS[(sequence-1)%STEPS.length] };

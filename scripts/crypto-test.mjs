@@ -32,11 +32,13 @@ console.log('CSV: importazione, capitale, replay e righe non valide verificati.'
 const originalWallet=JSON.stringify(imported);
 const shocks=Array.from({length:14},(_,i)=>createAsmodeusPulse(i+1));
 assert.ok(shocks.every(p=>validAsmodeusPulse(p)));
-assert.deepEqual(shocks.slice(0,7).map(p=>p.solChange),[5,-5,10,-10,15,-15,0]);
+assert.deepEqual(shocks.slice(0,7).map(p=>p.solChange),[25,-25,50,-50,100,-100,0]);
 assert.deepEqual(shocks.slice(0,7).map(p=>p.solChange),shocks.slice(7).map(p=>p.solChange));
 assert.ok(!validAsmodeusPulse({...shocks[0],solChange:1000000}));
 assert.ok(!validAsmodeusPulse(shocks[0],shocks[0].at+30001));
 assert.throws(()=>createAsmodeusPulse(-1));
 for(const pulse of shocks) valuation(imported,market,{SOL:pulse.solChange});
 assert.equal(JSON.stringify(imported),originalWallet);
+assert.equal(valuation(w,market,{SOL:-100}),w.cash);
+assert.equal(valuation(w,market,{SOL:100}),w.cash+2*w.holdings.SOL*market.prices.SOL.eur);
 console.log('Asmodeus: impulsi limitati, entrambi i segni, messaggi scaduti e invariabilita del portafoglio verificati.');
