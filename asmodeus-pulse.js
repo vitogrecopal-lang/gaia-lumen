@@ -1,5 +1,12 @@
 // Symbolic pulse contract. No network, credentials, trading or predictions.
 const STEPS = [100];
+export function cumulativeSolChange(count) {
+  if ((typeof count !== 'bigint' && !Number.isSafeInteger(count)) || count < 1) throw new Error('Conteggio non valido');
+  return count > 1000 ? null : (2 ** Number(count) - 1) * 100;
+}
+export function compoundFactor(count) {
+  return count <= 50 ? `${2 ** Number(count)}x` : `2^${count}x`;
+}
 export function createAsmodeusPulse(sequence, source = 'crypto') {
   if (!Number.isSafeInteger(sequence) || sequence < 1 || !['crypto','homepage'].includes(source)) throw new Error('Impulso non valido');
   return { type:'gaia-asmodeus-simulation-v1', id:`${source}-${Date.now()}-${sequence}`, source, sequence, at:Date.now(), solChange:STEPS[(sequence-1)%STEPS.length] };

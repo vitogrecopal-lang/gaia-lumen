@@ -1,5 +1,5 @@
 import { SYMBOLS, newWallet, trade, valuation, freshPrice, importWalletCsv } from './crypto-model.js';
-import { createAsmodeusPulse, validAsmodeusPulse, pulseChannel } from './asmodeus-pulse.js';
+import { createAsmodeusPulse, validAsmodeusPulse, pulseChannel, cumulativeSolChange, compoundFactor } from './asmodeus-pulse.js';
 const $ = id => document.getElementById(id);
 const euro = value => value === null ? '--' : new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 4 }).format(value);
 const qty = value => new Intl.NumberFormat('it-IT', { maximumFractionDigits: 10 }).format(value);
@@ -16,6 +16,7 @@ let pendingImport = null;
 const changes = Object.fromEntries(SYMBOLS.map(s => [s, 0]));
 const asmodeusChannel = pulseChannel();
 let impulseTimer = null, impulseActive = false, impulseSequence = 0, receivedCount = 0;
+let compoundCount = 0n, scenarioReference = null;
 let pulseLog = [], seenPulses = new Set();
 function pulseStatus(message) {
   $('asmodeusStatus').textContent = message;
@@ -28,15 +29,18 @@ function stopImpulses(reason = 'Impulsi arrestati. Lo scenario corrente resta vi
 }
 function applyCryptoPulse(pulse) {
   if (!impulseActive || !validAsmodeusPulse(pulse) || seenPulses.has(pulse.id)) return;
+  try { freshPrice(market, 'SOL'); } catch { stopImpulses('Prezzi non aggiornati: aggiorna i dati e riavvia gli impulsi.'); return; }
+  if (!scenarioReference) scenarioReference = { ...market.prices.SOL };
   seenPulses.add(pulse.id); if (seenPulses.size > 100) seenPulses.delete(seenPulses.values().next().value);
   receivedCount += 1;
-  changes.SOL = pulse.solChange;
-  const input = $('change-SOL'); input.value = changes.SOL;
-  input.previousElementSibling.querySelector('output').textContent = `${changes.SOL}%`;
-  const entry = `${date(pulse.at)} / ${pulse.source === 'homepage' ? 'Home Gaia-Lumen' : 'Ciclo locale'} / SOL ${changes.SOL > 0 ? '+' : ''}${changes.SOL}% ipotetico`;
+  compoundCount += 1n;
+  changes.SOL = cumulativeSolChange(compoundCount);
+  const input = $('change-SOL'); input.max = Math.max(100, changes.SOL ?? 100); input.value = changes.SOL ?? 100;
+  input.previousElementSibling.querySelector('output').textContent = changes.SOL === null ? `2^${compoundCount} volte il riferimento` : `${changes.SOL}%`;
+  const entry = `${date(pulse.at)} / ${pulse.source === 'homepage' ? 'Home Gaia-Lumen' : 'Ciclo locale'} / raddoppio ${compoundCount}: SOL ${compoundFactor(compoundCount)} il riferimento (ipotetico)`;
   pulseLog.unshift(entry); pulseLog = pulseLog.slice(0, 8);
   $('asmodeusLog').replaceChildren(...pulseLog.map(text => { const li=document.createElement('li'); li.textContent=text; return li; }));
-  pulseStatus(`${receivedCount} impulsi applicati. Ultimo scenario SOL: ${changes.SOL}%. Solo ipotesi, nessun ordine.`);
+  pulseStatus(`${compoundCount} raddoppi virtuali: SOL ${compoundFactor(compoundCount)} il prezzo di riferimento ${euro(scenarioReference.eur)}. Non e un rendimento atteso o reale.`);
   render();
 }
 function localPulse() {
@@ -67,9 +71,11 @@ function render() {
   const sale=$('side').value==='sell';
   $('tradeButton').textContent=sale?'Simula vendita':'Simula acquisto';
   $('amountLabel').textContent=sale?`Quantita di ${$('symbol').value} da vendere`:'Spesa totale in EUR, costi inclusi';
-  const scenario=valuation(wallet,market,changes);
-  $('scenarioTotal').textContent=euro(scenario);
-  $('scenarioDifference').textContent=scenario===null||total===null?'Prezzi non disponibili':`${euro(scenario-total)} rispetto agli ultimi prezzi`;
+  const scenarioMarket=scenarioReference?{...market,prices:{...market.prices,SOL:scenarioReference}}:market;
+  const scenarioBase=valuation(wallet,scenarioMarket);
+  const scenario=valuation(wallet,scenarioMarket,{...changes,SOL:changes.SOL ?? 0});
+  $('scenarioTotal').textContent=scenarioReference && changes.SOL === null && wallet.holdings.SOL > 0 ? `${euro(wallet.holdings.SOL * scenarioReference.eur)} × 2^${compoundCount} + altre posizioni` : euro(scenario);
+  $('scenarioDifference').textContent=changes.SOL === null ? 'Valore simbolico: raddoppi senza limite prefissato, solo didattici' : scenario===null||scenarioBase===null?'Prezzi non disponibili':`${euro(scenario-scenarioBase)} rispetto ${scenarioReference?'al riferimento SOL fissato all\'avvio':'agli ultimi prezzi'}`;
   $('history').replaceChildren();
   for (const t of wallet.trades) {
     const row=document.createElement('tr');
@@ -110,7 +116,7 @@ for (const symbol of SYMBOLS) {
   const output=document.createElement('output'); output.textContent='0%'; output.htmlFor=`change-${symbol}`;
   label.append(title,output);
   const input=document.createElement('input'); input.type='range'; input.id=`change-${symbol}`; input.min='-100'; input.max='100'; input.value='0';
-  input.addEventListener('input',()=>{stopImpulses('Modifica manuale: impulsi arrestati.');changes[symbol]=Number(input.value);output.textContent=`${input.value}%`;render();});
+  input.addEventListener('input',()=>{stopImpulses('Modifica manuale: impulsi arrestati.');scenarioReference=null;changes[symbol]=Number(input.value);output.textContent=`${input.value}%`;render();});
   wrap.append(label,input); $('sliders').append(wrap);
 }
 $('tradeForm').addEventListener('submit',event=>{
@@ -125,13 +131,15 @@ $('resetForm').addEventListener('submit',event=>{
   event.preventDefault();
   try {
     if (wallet.trades.length && !confirm('Azzerare soltanto il portafoglio e il registro virtuali di questo browser?')) return;
-    stopImpulses(); wallet=newWallet($('capital').value); $('tradeStatus').textContent='Nuovo esperimento virtuale avviato.';save();render();
+    stopImpulses(); scenarioReference=null; wallet=newWallet($('capital').value); $('tradeStatus').textContent='Nuovo esperimento virtuale avviato.';save();render();
   } catch(error) { $('tradeStatus').textContent=error.message; }
 });
 for (const id of ['symbol','side']) $(id).addEventListener('change',render);
 $('asmodeusStart').addEventListener('click',()=>{
   if (impulseActive) return;
   if ($('asmodeusSource').value==='homepage' && !asmodeusChannel) { pulseStatus('Collegamento tra schede non disponibile. Scegli il ciclo locale.');return; }
+  compoundCount=0n; scenarioReference=null; changes.SOL=0;
+  const input=$('change-SOL'); input.max='100';input.value='0';input.previousElementSibling.querySelector('output').textContent='0%';render();
   impulseActive=true;
   if ($('asmodeusSource').value==='local') { impulseTimer=setInterval(localPulse,10000); localPulse(); }
   else pulseStatus('In ascolto della home Gaia-Lumen nello stesso browser. Avvia li gli impulsi; il ricevitore aggiorna solo questo scenario virtuale.');
