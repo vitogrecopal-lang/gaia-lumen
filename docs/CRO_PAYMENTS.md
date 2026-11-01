@@ -1,3 +1,11 @@
+2026-11-01 reopening: MetaMask issue #307572 was closed as completed with a
+maintainer reply that the issue was resolved. The owner demonstrated the site
+opening in MetaMask without the warning and explicitly authorized reopening.
+Production GAIA_CRO_ENABLED=true and GAIA_CRO_SECURITY_REVIEW=false. The order
+key and receiving address are preserved. Reopening is not a security audit or
+a completed real payment; stop if a wallet warning reappears. Historical pause
+notes below describe the earlier state.
+
 # Native CRO checkout
 
 2026-11-01: /report-gaia-lumen.html explains the product and compares its free
@@ -77,3 +85,4 @@ Production smoke checks config, encrypted order creation/resume, tamper rejectio
 denial of unpaid report access and rejection of invalid hashes. A real wallet-funded
 end-to-end payment remains untested until the owner/customer explicitly performs
 one; do not claim receiving money or a paid report without that evidence.
+
