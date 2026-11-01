@@ -38,3 +38,9 @@ assert.equal((await paused.config()).available,false);assert((await paused.confi
 await assert.rejects(()=>paused.order({payer,topic:"spazio"}),e=>e.statusCode===503);
 assert((await paused.report({...auth,txHash})).report.includes("Space bulletin"),"pause must preserve fulfillment of paid invoices");
 console.log("Security review: new orders blocked, paid invoice recovery preserved");
+const free=createCroService({getData:async()=>({...data,items:Array.from({length:8},(_,n)=>({...data.items[0],title:`Public bulletin ${n}`}))}),env:{},rpc:async()=>{throw new Error("free samples must not call wallet chain");}});
+const sample=await free.sample({topic:"spazio"});assert.equal(sample.count,3);assert(sample.text.includes("ESEMPIO GRATUITO"));assert(sample.text.includes("Public bulletin 2"));assert(!sample.text.includes("Public bulletin 3"));assert.equal(sample.accessToken,undefined);
+await assert.rejects(()=>free.sample({topic:"constructor"}),e=>e.statusCode===400);
+const staleFree=createCroService({getData:async()=>({...data,sources:[{id:"NASA",stale:true}]}),env:{}});await assert.rejects(()=>staleFree.sample(),e=>e.statusCode===503);
+assert.equal((await paused.sample({topic:"spazio"})).count,1,"free preview remains available during security pause");
+console.log("Free sample: three items maximum, no key, no chain call, no paid invoice exposure and security pause preserved");

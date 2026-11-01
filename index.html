@@ -102,13 +102,15 @@
 
         <section class="readout cro-checkout" id="croCheckout" aria-labelledby="croTitle">
           <p class="eyebrow">Servizi Gaia-Lumen in CRO</p>
-          <h2 id="croTitle">Acquista un report tematico</h2>
+          <h2 id="croTitle">Il tuo argomento, raccolto in un report</h2>
+          <p>Scegli un tema, ritrova date e fonti in un solo documento, conserva una fotografia dei bollettini disponibili. <a href="report-gaia-lumen.html">Scopri cosa contiene il report e leggi le domande frequenti</a>.</p>
           <p><strong>5 CRO</strong> per un report TXT compilato automaticamente con fino a 30 bollettini pubblici, organizzati nell'argomento che scegli. Le informazioni di base restano consultabili gratuitamente nella dashboard: acquisti il servizio di selezione e compilazione, non una consulenza o un'analisi umana.</p>
           <p>Rete: <strong>Cronos EVM (25)</strong>. CRO nativo. Commissioni di rete aggiuntive mostrate dal portafoglio. L'invio avviene solo dopo la tua autorizzazione; le transazioni blockchain non sono annullabili dal sito.</p>
           <p>Destinatario: <code id="croReceiver">Caricamento configurazione...</code></p>
           <p id="croStatus" role="status">Apri questa sezione per verificare la disponibilita' dei pagamenti.</p>
           <label for="croTopic">Argomento del report</label>
           <select id="croTopic"><option value="tutti">Tutti gli ambiti</option><option value="spazio">Spazio</option><option value="salute">Salute</option><option value="geopolitica">Relazioni internazionali</option><option value="terra">Terremoti</option></select>
+          <div data-report-sample data-topic-control="croTopic"><h3>Prova il contenuto gratuitamente</h3><p>Fino a 3 bollettini con date e fonti: un esempio del formato TXT, senza registrazione o portafoglio.</p><button type="button" data-sample-generate>Genera esempio gratuito</button><button type="button" data-sample-download disabled>Scarica esempio TXT</button><p data-sample-status role="status">Scegli il tema e guarda il contenuto prima di valutare un acquisto.</p><pre data-sample-text hidden></pre></div>
           <p id="croAccount">Portafoglio non collegato</p>
           <button id="croConnect" type="button" disabled>1. Collega portafoglio</button>
           <button id="croCreate" type="button" disabled>2. Prepara ordine - 5 CRO</button>
@@ -665,6 +667,7 @@
     </main>
 
     <script src="cro-checkout.js?v=cro-v3" defer></script>
+    <script type="module" src="report-preview.js?v=sample-v1"></script>
     <script type="module" src="gestation-explorer.js?v=gestation-v1"></script>
     <script type="module" src="world-dashboard.js?v=world-map-v2"></script>
     <script src="cosmic-monitor.js?v=cosmic-fast-v1" defer></script>

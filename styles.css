@@ -863,3 +863,6 @@ select {
 .cro-checkout button { margin: 6px 4px 6px 0; min-height: 44px; }
 .cro-checkout button:disabled { opacity: .5; cursor: default; }
 .cro-checkout button:focus-visible { outline: 3px solid #ffdf8b; outline-offset: 3px; }
+.cro-checkout [data-sample-text]{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;border:1px solid #547985;border-radius:8px;background:#102a34;padding:16px;max-height:420px;overflow:auto}
+.cro-checkout [data-report-sample]{border-top:1px solid #547985;border-bottom:1px solid #547985;margin:18px 0;padding:12px 0}
+.cro-checkout a{color:#9cdeff}

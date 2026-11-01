@@ -1,5 +1,16 @@
 # Native CRO checkout
 
+2026-11-01: /report-gaia-lumen.html explains the product and compares its free
+sample (up to 3 bulletins) with the complete report (up to 30). The main CRO
+panel embeds the same sample UI. GET /api/cro/sample?topic=... returns public
+text, source links and publication times; it requires no wallet, account,
+encryption key or blockchain request, and works during the payment pause.
+The sample is generated on explicit click and downloadable as TXT. Unavailable
+or stale sources do not produce fabricated examples. The page clearly states
+the security review and suspended purchases; update that status copy only
+after review and owner authorization. No promotional messages were sent,
+ad campaigns started or sales/revenue claimed by this addition.
+
 2026-10-31: MetaMask Mobile displayed a phishing warning for the exact production
 URL. New payments are paused with GAIA_CRO_ENABLED=false and
 GAIA_CRO_SECURITY_REVIEW=true, production only. The client receives a specific

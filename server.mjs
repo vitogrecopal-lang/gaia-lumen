@@ -5841,6 +5841,7 @@ export async function handleRequest(request, response) {
     if (url.pathname.startsWith("/api/cro/")) {
       try {
         const action=url.pathname.slice("/api/cro/".length);
+        if(action==="sample"&&request.method==="GET")return sendJson(response,await croService.sample({topic:url.searchParams.get("topic")||"tutti"}));
         if(action==="config"&&request.method==="GET")return sendJson(response,await croService.config());
         if(["order","verify","report","resume"].includes(action)&&request.method==="POST")return sendJson(response,await croService[action](await readBody(request)));
         return sendJson(response,{error:"Operazione CRO non disponibile."},404);
