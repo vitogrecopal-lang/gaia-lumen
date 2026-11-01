@@ -18,8 +18,9 @@ GAIA_STRIPE_ENABLED=true. The existing GAIA_CRO_ORDER_KEY is never rotated or
 exposed; a separate derived key and AAD namespace protect Stripe invoice tokens.
 Production secrets are never pulled into local files. Preview is off by default.
 
-/pagamenti.html embeds Stripe Checkout only after an explicit click. Card data
-is handled by Stripe.js. Preparation compiles a real report before payment and
+/pagamenti.html opens hosted Stripe Checkout only after an explicit click. Card data
+is handled by Stripe on checkout.stripe.com. The buyer returns to pagamenti.html
+and verifies the order for download. No invoice token is put in the return URL. Preparation compiles a real report before payment and
 stores it in an authenticated encrypted invoice. The buyer must save a private
 JSON reference before opening the payment form. The file plus Stripe session
 ID supports cold-start recovery. Losing it can lose access; this is disclosed.
@@ -33,7 +34,7 @@ fulfillment side effects; repeated verified downloads are safe. No webhook or
 local database is required for on-demand verification, and no email delivery
 is promised. In uncertain states, retry verification instead of payment.
 
-Stripe API version pinned to 2025-03-31.basil (embedded ui_mode). HTTPS requests
+Stripe API version pinned to 2025-03-31.basil (hosted ui_mode). HTTPS requests
 go only to api.stripe.com/v1/checkout/sessions; IDs validated before interpolation.
 No API for refunds, payouts, conversions or changing bank details is implemented.
 5 EUR and 5 CRO are distinct prices. Existing CRO payments/recovery are preserved.
@@ -50,6 +51,8 @@ Official references:
 - https://docs.stripe.com/keys
 
 
-Only pagamenti.html allows Stripe script/frame/connect origins in its CSP. The
-rest of the site retains its existing self-only policy. No inline scripts allowed.
+The embedded form did not render in the browser check. Hosted Checkout was
+selected instead; the original self-only CSP is preserved on the whole site.
+No external Stripe.js script or iframe is loaded on Gaia-Lumen.
+
 

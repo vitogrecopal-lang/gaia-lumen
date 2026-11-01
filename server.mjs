@@ -6055,7 +6055,6 @@ export async function handleRequest(request, response) {
     response.writeHead(200, headers({
       "content-type": types[extname(filePath)] ?? "application/octet-stream",
       "cache-control": "no-store",
-      ...(filePath === resolve(root, "pagamenti.html") ? {"content-security-policy": "default-src 'self'; script-src 'self' https://js.stripe.com https://*.js.stripe.com; style-src 'self'; img-src 'self' data: https://*.stripe.com; connect-src 'self' https://api.stripe.com https://js.stripe.com https://*.js.stripe.com https://checkout.stripe.com; frame-src https://js.stripe.com https://*.js.stripe.com https://hooks.stripe.com https://checkout.stripe.com; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"} : {}),
     }));
     response.end(request.method === "HEAD" ? undefined : body);
   } catch {
@@ -6115,4 +6114,5 @@ if (!isVercel) {
 }
 
 export default handleRequest;
+
 
