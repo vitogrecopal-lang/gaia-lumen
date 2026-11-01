@@ -1,3 +1,4 @@
+import { createStripeService } from "./stripe-payments.mjs";
 import { createCroService } from "./cro-payments.mjs";
 import { getCryptoPrices } from "./crypto-prices.mjs";
 import { getWorldDashboard } from "./world-feed.mjs";
@@ -23,6 +24,7 @@ let lastDailyBackupDate = "";
 let databaseClient;
 let databaseInitialized = false;
 const croService = createCroService({getData:getWorldDashboard});
+const stripeService = createStripeService({getData:getWorldDashboard});
 
 const types = {
   ".html": "text/html; charset=utf-8",
@@ -5838,6 +5840,16 @@ export async function handleRequest(request, response) {
   }
 
   try {
+    if (url.pathname.startsWith("/api/stripe/")) {
+      try {
+        const action=url.pathname.slice("/api/stripe/".length);
+        if(action==="config"&&request.method==="GET")return sendJson(response,await stripeService.config());
+        if(["order","verify","report","resume"].includes(action)&&request.method==="POST")return sendJson(response,await stripeService[action](await readBody(request)));
+        return sendJson(response,{error:"Operazione carta non disponibile."},404);
+      } catch(error) {
+        return sendJson(response,{error:error.statusCode?error.message:"Stripe temporaneamente non disponibile. Conserva il riferimento e riprova senza pagare di nuovo."},error.statusCode||503);
+      }
+    }
     if (url.pathname.startsWith("/api/cro/")) {
       try {
         const action=url.pathname.slice("/api/cro/".length);
@@ -6102,3 +6114,4 @@ if (!isVercel) {
 }
 
 export default handleRequest;
+

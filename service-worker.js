@@ -1,8 +1,10 @@
-const CACHE_NAME = "gaia-lumen-static-v59-report-preview";
+const CACHE_NAME = "gaia-lumen-static-v60-stripe-checkout";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
+  "/pagamenti.html",
+  "/stripe-checkout.js?v=stripe-v1",
   "/styles.css",
   "/report-gaia-lumen.html",
   "/report-preview.css",
@@ -80,3 +82,4 @@ self.addEventListener("fetch", (event) => {
       })
   );
 });
+
