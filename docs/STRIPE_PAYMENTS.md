@@ -50,3 +50,6 @@ Official references:
 - https://docs.stripe.com/keys
 
 
+Only pagamenti.html allows Stripe script/frame/connect origins in its CSP. The
+rest of the site retains its existing self-only policy. No inline scripts allowed.
+
