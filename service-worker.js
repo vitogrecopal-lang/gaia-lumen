@@ -1,4 +1,4 @@
-const CACHE_NAME = "gaia-lumen-static-v60-stripe-checkout";
+const CACHE_NAME = "gaia-lumen-static-v61-world-updates";
 
 const STATIC_ASSETS = [
   "/",
@@ -18,7 +18,9 @@ const STATIC_ASSETS = [
   "/gestation-explorer.js?v=gestation-v1",
   "/gestation-model.js",
   "/assets/gestation-stages.svg",
-  "/world-dashboard.js?v=world-map-v2",
+  "/world-dashboard.js?v=world-updates-v3",
+  "/world-updates.js",
+  "/world-updates-model.js",
   "/world-event-map.js",
   "/world-map-model.js",
   "/assets/world-natural-earth.svg",

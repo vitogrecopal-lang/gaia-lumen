@@ -130,14 +130,20 @@
         <section class="readout world-dashboard" id="worldDashboard" aria-labelledby="worldTitle">
           <p class="eyebrow">Osservatorio pubblico globale</p>
           <h2 id="worldTitle">Dashboard Terra e spazio</h2>
-          <p>NASA, ESA, WHO, UN e USGS: bollettini pubblici con aggiornamento periodico. Non e' un sistema di allerta e non copre tutti gli eventi. I conteggi rappresentano il campione ricevuto, non la gravita' degli eventi.</p>
+          <p>NASA, ESA, NOAA, WHO, UN e USGS: bollettini pubblici con aggiornamento periodico. Non e' un sistema di allerta e non copre tutti gli eventi. I conteggi rappresentano il campione ricevuto, non la gravita' degli eventi.</p>
           <button id="worldExpand" type="button" aria-expanded="false">Espandi dashboard</button>
           <button id="worldRefresh" type="button">Aggiorna fonti</button>
           <label><input id="worldAuto" type="checkbox" checked> Aggiornamento automatico ogni 5 minuti</label>
           <p id="worldStatus" role="status">Le fonti si caricano quando apri questa sezione.</p>
+          <section class="world-updates" aria-labelledby="worldUpdatesTitle">
+            <h3 id="worldUpdatesTitle">In breve: spazio, clima e relazioni internazionali</h3>
+            <p>Schede sull'intero campione ricevuto; i filtri sotto riguardano mappa e timeline. Titoli originali, senza riassunti generati. Fonte ufficiale significa provenienza tracciabile: non verifica indipendente. Le date sono di pubblicazione, salvo gli eventi USGS. NOAA/NCEI pubblica rapporti climatici mensili: aggiornare la ricezione non rende i dati in tempo reale.</p>
+            <p id="worldNewUpdates" role="status">In attesa della prima ricezione.</p>
+            <div id="worldUpdateCards" class="world-update-cards"></div>
+          </section>
           <div class="world-filters">
-            <label>Fonte<select id="worldSource"><option value="">Tutte</option><option>NASA</option><option>ESA</option><option>WHO</option><option>UN</option><option>USGS</option></select></label>
-            <label>Ambito<select id="worldCategory"><option value="">Tutti</option><option value="spazio">Spazio</option><option value="salute">Salute</option><option value="geopolitica">Relazioni internazionali</option><option value="terra">Terremoti</option></select></label>
+            <label>Fonte<select id="worldSource"><option value="">Tutte</option><option>NASA</option><option>ESA</option><option>WHO</option><option>UN</option><option>USGS</option><option>NOAA</option></select></label>
+            <label>Ambito<select id="worldCategory"><option value="">Tutti</option><option value="spazio">Spazio</option><option value="salute">Salute</option><option value="geopolitica">Relazioni internazionali</option><option value="terra">Terremoti</option><option value="clima">Clima</option></select></label>
             <label>Periodo<select id="worldDays"><option value="1">24 ore</option><option value="7" selected>7 giorni</option><option value="30">30 giorni</option><option value="365">1 anno</option></select></label>
             <label>Cerca nei titoli<input id="worldSearch" type="search" maxlength="100" placeholder="Es. Moon, climate..."></label>
           </div>
@@ -169,7 +175,26 @@
             </div>
             <div><h3>Elementi per fonte</h3><div id="worldChart" class="world-chart" aria-label="Conteggi del campione filtrato"></div></div>
           </div>
-          <details><summary>Stato e collegamenti delle cinque fonti</summary><div id="worldSources"></div></details>
+          <details><summary>Stato e collegamenti delle fonti</summary><div id="worldSources"></div></details>
+          <section id="worldCritical" class="world-critical" aria-labelledby="worldCriticalTitle">
+            <h3 id="worldCriticalTitle">Leggere con criterio</h3>
+            <p>Ispirato ai principi di verifica e confronto richiesti per Katerina, riferimento narrativo del progetto. Non e' una certificazione della notizia.</p>
+            <label>Notizia da esaminare<select id="worldCriticalEvent"><option value="">Scegli una notizia</option></select></label>
+            <div id="worldCriticalSource"></div>
+            <label>Secondo bollettino da confrontare<select id="worldCompareEvent"><option value="">Scegli un confronto facoltativo</option></select></label>
+            <div id="worldCriticalCompare"></div>
+            <p>Due articoli sullo stesso tema non sono necessariamente conferme indipendenti: controlla se citano la stessa fonte e distinguono fatti, interpretazioni e ipotesi.</p>
+            <fieldset id="worldCriticalChecks"><legend>Il tuo percorso di verifica</legend>
+              <label><input type="checkbox" value="Ho letto la fonte originale e verificato autore e contesto"> Ho aperto la fonte originale e verificato autore e contesto</label>
+              <label><input type="checkbox" value="Ho distinto data di pubblicazione e data dell'evento"> Ho distinto data di pubblicazione e data dell'evento</label>
+              <label><input type="checkbox" value="Ho cercato evidenze e una fonte indipendente"> Ho cercato evidenze e una fonte indipendente</label>
+              <label><input type="checkbox" value="Ho annotato incertezze, limiti e possibili interpretazioni"> Ho annotato incertezze, limiti e possibili interpretazioni</label>
+            </fieldset>
+            <label>Quali evidenze hai trovato? Cosa resta incerto?<textarea id="worldCriticalNotes" rows="4" maxlength="3000" placeholder="Annota anche il collegamento a un'eventuale fonte indipendente."></textarea></label>
+            <p id="worldCriticalProgress" role="status">Seleziona una notizia per iniziare.</p>
+            <button id="worldCriticalDownload" type="button" disabled>Scarica la tua scheda di verifica TXT</button>
+            <p>Appunti solo in questa pagina: non vengono inviati al server e si perdono ricaricando. Scarica la scheda per conservarli.</p>
+          </section>
           <h3>Laboratorio geostrategico didattico</h3>
           <span class="truth-badge simulated">Simulazione locale</span>
           <p>Esplora un'ipotesi di cooperazione internazionale e distribuzione delle risorse. I parametri sono scelti da te; non comandano sistemi reali.</p>
@@ -670,7 +695,7 @@
     <script src="cro-checkout.js?v=cro-v3" defer></script>
     <script type="module" src="report-preview.js?v=sample-v1"></script>
     <script type="module" src="gestation-explorer.js?v=gestation-v1"></script>
-    <script type="module" src="world-dashboard.js?v=world-map-v2"></script>
+    <script type="module" src="world-dashboard.js?v=world-updates-v3"></script>
     <script src="cosmic-monitor.js?v=cosmic-fast-v1" defer></script>
     <script src="starlink.js?v=starlink-v1" defer></script>
     <script type="module" src="starlink-simulator.js?v=sim-v4"></script>

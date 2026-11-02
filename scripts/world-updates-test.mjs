@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';
+import {bulletinState,topicBulletins,newlyReceived} from '../world-updates-model.js';
+const now=Date.parse('2026-11-02T12:00:00Z'),sources=[{id:'NOAA',fetchedAt:new Date(now).toISOString(),stale:false}];
+const item={source:'NOAA',category:'clima',url:'https://www.noaa.gov/a',publishedAt:new Date(now-86400000*20).toISOString()};
+assert.equal(bulletinState(item,sources,now),'Bollettino precedente','Fresh retrieval does not make old climate data current');
+assert.equal(bulletinState(item,sources,now,true),'Ricezione non aggiornata');
+assert.equal(bulletinState(item,[{...sources[0],stale:true}],now),'Ricezione non aggiornata');
+assert.equal(bulletinState(item,sources,now+600001),'Ricezione non aggiornata');
+assert.equal(bulletinState({...item,publishedAt:new Date(now+86400000).toISOString()},sources,now),'Data da verificare');
+assert.equal(bulletinState({...item,publishedAt:new Date(now-1000).toISOString()},sources,now),'Pubblicato nelle ultime 24 ore');
+assert.equal(topicBulletins([item,item,{...item,category:'spazio'}],'clima').length,1);
+assert.deepEqual(newlyReceived([item,item],new Set()),[item.url]);
+assert.deepEqual(newlyReceived([item],new Set([item.url])),[]);
+console.log('world updates: old publication, outage, expired receipt, future dates and duplicate notifications ok');

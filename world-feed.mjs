@@ -1,4 +1,5 @@
 const SOURCES = [
+  {id:"NOAA", category:"clima", url:"https://www.ncei.noaa.gov/access/monitoring/monthly-report/rss.xml", format:"rss"},
   {id:"NASA", category:"spazio", url:"https://www.nasa.gov/feed/", format:"rss"},
   {id:"ESA", category:"spazio", url:"https://www.esa.int/rssfeed/Our_Activities/Space_Science", format:"rss"},
   {id:"WHO", category:"salute", url:"https://www.who.int/api/news/diseaseoutbreaknews?%24orderby=PublicationDateAndTime%20desc&%24top=24&%24select=Id,Title,PublicationDateAndTime,UrlName", format:"who"},

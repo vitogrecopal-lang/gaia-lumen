@@ -15,9 +15,9 @@ Date.now=()=>time;
 globalThis.fetch=async url=>{calls++;if(fail)throw new Error("offline");return new Response(url.includes("diseaseoutbreaknews")?who:url.includes("geojson")?geo:rss);};
 try{
   const [a,b]=await Promise.all([getWorldDashboard(),getWorldDashboard()]);
-  assert.equal(calls,5,"concurrent requests share source fetches");assert.equal(a.items.length,5);assert.equal(b.sources.length,5);
-  await getWorldDashboard();assert.equal(calls,5,"fresh cache reused");
-  time+=301000;fail=true;const stale=await getWorldDashboard();assert(stale.sources.every(s=>s.stale&&s.fetchedAt&&s.error));assert.equal(stale.items.length,5,"retain last good data on outage");
-  await getWorldDashboard();assert.equal(calls,10,"failed sources retry with backoff");
+  assert.equal(calls,6,"concurrent requests share source fetches");assert.equal(a.items.length,6);assert.equal(b.sources.length,6);
+  await getWorldDashboard();assert.equal(calls,6,"fresh cache reused");
+  time+=301000;fail=true;const stale=await getWorldDashboard();assert(stale.sources.every(s=>s.stale&&s.fetchedAt&&s.error));assert.equal(stale.items.length,6,"retain last good data on outage");
+  await getWorldDashboard();assert.equal(calls,12,"failed sources retry with backoff");
 }finally{globalThis.fetch=realFetch;Date.now=realNow;}
 console.log("world feeds: parsing, URL safety, deduplication, cache and outage fallback ok");

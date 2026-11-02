@@ -866,3 +866,14 @@ select {
 .cro-checkout [data-sample-text]{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;border:1px solid #547985;border-radius:8px;background:#102a34;padding:16px;max-height:420px;overflow:auto}
 .cro-checkout [data-report-sample]{border-top:1px solid #547985;border-bottom:1px solid #547985;margin:18px 0;padding:12px 0}
 .cro-checkout a{color:#9cdeff}
+
+/* Dynamic public bulletins and reader-led verification. */
+.world-update-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:12px; }
+.world-update-card,.world-critical { border:1px solid #7198a5; border-radius:12px; padding:16px; margin:12px 0; min-width:0; background:#102e39; }
+.world-update-card h4 { margin:8px 0; font-size:1rem; }
+.world-update-card small { display:block; margin:8px 0; }
+.world-update-card[data-stale=true] { border-style:dashed; }
+.world-update-card .truth-badge { display:inline-block; }
+.world-critical textarea { display:block; box-sizing:border-box; width:100%; max-width:100%; padding:10px; background:#123441; color:#fff; border:1px solid #7198a5; border-radius:6px; font:inherit; }
+.world-critical fieldset { min-width:0; border:1px solid #7198a5; }
+.world-critical a { overflow-wrap:anywhere; }
