@@ -1,8 +1,15 @@
-const CACHE_NAME = "gaia-lumen-static-v61-world-updates";
+const CACHE_NAME = "gaia-lumen-static-v62-chess";
 
 const STATIC_ASSETS = [
   "/",
   "/index.html",
+  "/scacchi.html",
+  "/scacchi.css",
+  "/scacchi.js?v=chess-v1",
+  "/chess-engine.js",
+  "/chess-worker.js",
+  "/vendor/chess.js",
+  "/vendor/chess-LICENSE.txt",
   "/pagamenti.html",
   "/stripe-checkout.js?v=stripe-v1",
   "/styles.css",

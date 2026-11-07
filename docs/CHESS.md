@@ -1,0 +1,9 @@
+# Chess challenge
+
+Entry: /scacchi.html and homepage #scacchi. Human plays White; Gaia-Lumen plays Black with an offline educational negamax engine in a module Worker (three capped depths, 18,000 nodes / about one second search budget). No AI Gateway calls, credentials, accounts or payments. chess.js 1.4.0 (BSD-2-Clause) is vendored from its official npm package; its license is included. Rules include castling, en passant, all promotions, mate, stalemate, threefold repetition, insufficient material and the fifty-move draw. Draws are ended automatically by this casual game.
+
+The reward is shown only when validated state is checkmate and Black is to move. Losing and drawing do not unlock it. LocalStorage contains PGN and selected difficulty, replayed using chess.js on return; there is no trusted unlocked flag. Local game state is user-modifiable and is not an anti-cheat or secrecy boundary. New Game replaces the saved game after a confirmation; PGN export is available. No multiplayer leaderboard or prize of monetary value.
+
+Reward: Kepler-442 b, a known exoplanet, not a new discovery or confirmed habitable world. Coordinates are the host star's catalogue direction, not a navigational solution or precise planet surface location. NASA Exoplanet Archive TAP pscomppars queried 2026-11-07: hostname Kepler-442, RA 285.3666029 deg (19h01m27.98s), DEC 39.2800704 deg (+39d16m48.25s), sy_dist 365.965 pc. Source https://exoplanetarchive.ipac.caltech.edu/overview/Kepler-442 and NASA catalogue https://science.nasa.gov/exoplanet-catalog/kepler-442-b/ . Coordinates are rounded catalogue measurements, no absolute accuracy claimed.
+
+Run node scripts/chess-test.mjs, npm run check, npm run smoke. Test mouse/touch-sized board, keyboard navigation, illegal moves, Worker response, promotion selection, new game cancellation, saved PGN recovery and reward gating. Existing payments and chat are unchanged.
